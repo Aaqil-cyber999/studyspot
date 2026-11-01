@@ -2,33 +2,42 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Bookmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/student/home", label: "Home", icon: Home },
-  { href: "/student/saved", label: "Saved", icon: Bookmark },
-  { href: "/student/profile", label: "Profile", icon: User },
+  { href: "/student/home", label: "Explore", icon: "explore" },
+  { href: "/student/results", label: "Locations", icon: "location_on" },
+  { href: "/student/saved", label: "Saved", icon: "bookmark" },
+  { href: "/student/profile", label: "Profile", icon: "person" },
 ];
 
 export function StudentBottomNav() {
   const pathname = usePathname();
+
+  const isActive = (href: string) => pathname?.startsWith(href) ?? false;
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto flex max-w-md items-center justify-around rounded-t-2xl bg-orange-500 px-2 py-2 text-white shadow-lg">
+    <nav className="fixed bottom-[8px] left-1/2 z-40 flex w-[350px] -translate-x-1/2 items-center overflow-clip rounded-[25px] border border-[rgba(255,255,255,0.6)] bg-[#f97316] py-[8px] shadow-[0px_0px_15px_50px_rgba(0,0,0,0.14)]">
       {items.map((item) => {
-        const active = pathname?.startsWith(item.href);
-        const Icon = item.icon;
+        const active = isActive(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "flex min-w-16 flex-col items-center gap-1 rounded-xl px-3 py-1 text-xs",
-              active && "bg-white/20"
+              "flex shrink-0 flex-col items-center gap-px overflow-clip rounded-[20px] px-[10px] py-[6px] text-[11px]",
+              active
+                ? "border border-[rgba(255,255,255,0.35)] bg-white font-semibold text-[#f97316]"
+                : "bg-[rgba(255,255,255,0)] font-medium text-white"
             )}
           >
-            <Icon className="size-5" />
-            <span>{item.label}</span>
+            <span className="font-material shrink-0 text-[22px]">{item.icon}</span>
+            <span
+              className={cn("shrink-0", active ? 'font-["Geologica:SemiBold"]' : 'font-["Geologica:Medium"]')}
+              style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
+            >
+              {item.label}
+            </span>
           </Link>
         );
       })}
