@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { House, MapPin, Bookmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/student/home", label: "Explore", icon: "explore" },
-  { href: "/student/results", label: "Locations", icon: "location_on" },
-  { href: "/student/saved", label: "Saved", icon: "bookmark" },
-  { href: "/student/profile", label: "Profile", icon: "person" },
+  { href: "/student/home", label: "Explore", icon: House },
+  { href: "/student/results", label: "Locations", icon: MapPin },
+  { href: "/student/saved", label: "Saved", icon: Bookmark },
+  { href: "/student/profile", label: "Profile", icon: User },
 ];
 
 export function StudentBottomNav() {
@@ -20,6 +21,7 @@ export function StudentBottomNav() {
     <nav className="fixed bottom-[8px] left-1/2 z-40 flex w-[350px] -translate-x-1/2 items-center overflow-clip rounded-[25px] border border-[rgba(255,255,255,0.6)] bg-[#f97316] py-[8px] shadow-[0px_0px_15px_50px_rgba(0,0,0,0.14)]">
       {items.map((item) => {
         const active = isActive(item.href);
+        const Icon = item.icon;
         return (
           <Link
             key={item.href}
@@ -31,7 +33,7 @@ export function StudentBottomNav() {
                 : "bg-[rgba(255,255,255,0)] font-medium text-white"
             )}
           >
-            <span className="font-material shrink-0 text-[22px]">{item.icon}</span>
+            <Icon className="size-[22px] shrink-0" />
             <span
               className={cn("shrink-0", active ? 'font-["Geologica:SemiBold"]' : 'font-["Geologica:Medium"]')}
               style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
