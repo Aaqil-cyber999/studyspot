@@ -18,7 +18,7 @@ export function StudentBottomNav() {
   const isActive = (href: string) => pathname?.startsWith(href) ?? false;
 
   return (
-    <nav className="fixed bottom-[8px] left-1/2 z-40 flex w-[350px] -translate-x-1/2 items-center overflow-clip rounded-[25px] border border-[rgba(255,255,255,0.6)] bg-[#f97316] py-[8px] shadow-[0px_0px_15px_50px_rgba(0,0,0,0.14)]">
+    <nav className="fixed bottom-[19px] left-1/2 z-40 flex w-[350px] -translate-x-1/2 items-center overflow-clip rounded-[25px] border border-[rgba(255,255,255,0.6)] bg-[#f97316] py-[8px] shadow-[0px_0px_15px_50px_rgba(0,0,0,0.14)]">
       {items.map((item) => {
         const active = isActive(item.href);
         const Icon = item.icon;
