@@ -42,9 +42,8 @@ export default function RateCommentPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full max-w-md mx-auto overflow-y-auto bg-[#fbfbfc]">
-      <div className="absolute left-0 top-[52px] flex h-[865px] w-[412px] flex-col gap-[20px] overflow-clip px-[24px] pb-[24px] pt-[12px]">
-        <div className="flex h-[46px] items-center gap-[12px] overflow-clip">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[52px] pb-[24px] flex flex-col gap-[20px]">
+        <div className="flex h-[46px] items-center gap-[12px]">
           <button
             onClick={() => router.back()}
             className="flex size-[36px] items-center justify-center rounded-[18px] border border-[#e2e8f0] bg-[#ddd]"
@@ -114,7 +113,6 @@ export default function RateCommentPage() {
           <img alt="" className="size-[16px] max-w-none" src="/assets/rate/df482.svg" />
           Submit
         </button>
-      </div>
     </div>
   );
 }

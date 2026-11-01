@@ -41,7 +41,7 @@ export default function UaCommentsPage() {
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
-          <div className="w-full max-w-md rounded-t-3xl bg-white p-6">
+          <div className="w-[412px] rounded-t-3xl bg-white p-6">
             <h2 className="text-lg font-semibold text-slate-900">Moderation</h2>
             <p className="mt-2 text-sm text-slate-500">
               Choose an action for comment {selected}.

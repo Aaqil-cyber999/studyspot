@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Bookmark } from "lucide-react";
 
 export default function ReviewSubmissionPage() {
   const router = useRouter();
   return (
-    <div className="relative min-h-screen w-full max-w-md mx-auto overflow-y-auto bg-[#fbfbfc]">
-      <div className="absolute left-[-1px] top-[52px] flex h-[865px] w-[412px] flex-col gap-[20px] overflow-clip px-[24px] pb-[24px] pt-[12px]">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[52px] pb-[24px] flex flex-col gap-[20px]">
         <div className="flex items-center gap-[12px]">
           <button
             onClick={() => router.back()}
@@ -24,7 +24,7 @@ export default function ReviewSubmissionPage() {
           <div className="relative h-[176px] w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt="" className="absolute inset-0 max-w-none object-cover size-full" src="/assets/review/96063.png" />
-            <span className="font-material absolute left-[327px] top-[135px] text-[16px] text-[#334052]">bookmark_border</span>
+            <Bookmark className="absolute left-[327px] top-[135px] size-[16px] text-[#334052]" />
           </div>
         </div>
 
@@ -56,7 +56,6 @@ export default function ReviewSubmissionPage() {
           <img alt="" className="size-[16px] max-w-none" src="/assets/review/ae913.svg" />
           Confirm submission
         </button>
-      </div>
     </div>
   );
 }

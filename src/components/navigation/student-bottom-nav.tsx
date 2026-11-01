@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, MapPin, Bookmark, User } from "lucide-react";
+import { Compass, Bookmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/student/home", label: "Explore", icon: House },
-  { href: "/student/results", label: "Locations", icon: MapPin },
+  { href: "/student/home", label: "Discover", icon: Compass },
   { href: "/student/saved", label: "Saved", icon: Bookmark },
   { href: "/student/profile", label: "Profile", icon: User },
 ];
@@ -18,7 +17,7 @@ export function StudentBottomNav() {
   const isActive = (href: string) => pathname?.startsWith(href) ?? false;
 
   return (
-    <nav className="fixed bottom-[19px] left-1/2 z-40 flex w-[350px] -translate-x-1/2 items-center overflow-clip rounded-[25px] border border-[rgba(255,255,255,0.6)] bg-[#f97316] py-[8px] shadow-[0px_0px_15px_50px_rgba(0,0,0,0.14)]">
+    <nav className="fixed bottom-[19px] left-1/2 z-40 flex h-[63px] w-[280px] -translate-x-1/2 items-center justify-center gap-[26px] overflow-clip rounded-[50px] bg-[#f97316] px-[4px] py-[10px] shadow-[0px_0px_25px_5px_rgba(0,0,0,0.5)]">
       {items.map((item) => {
         const active = isActive(item.href);
         const Icon = item.icon;
@@ -27,17 +26,12 @@ export function StudentBottomNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex shrink-0 flex-col items-center gap-px overflow-clip rounded-[20px] px-[10px] py-[6px] text-[11px]",
-              active
-                ? "border border-[rgba(255,255,255,0.35)] bg-white font-semibold text-[#f97316]"
-                : "bg-[rgba(255,255,255,0)] font-medium text-white"
+              "flex min-h-[44px] min-w-[64px] flex-col items-center justify-center gap-[4px] rounded-[20px] px-[7.55px] py-px text-[11px] tracking-[0.33px] text-white",
+              active && "rounded-[25px] bg-[rgba(255,255,255,0.22)] shadow-[0px_5px_10px_10px_rgba(0,0,0,0.25)]"
             )}
           >
-            <Icon className="size-[22px] shrink-0" />
-            <span
-              className={cn("shrink-0", active ? 'font-["Geologica:SemiBold"]' : 'font-["Geologica:Medium"]')}
-              style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
-            >
+            <Icon className="size-[20px] shrink-0" />
+            <span className='font-[family-name:var(--font-inter)] font-medium leading-[14px]' style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
               {item.label}
             </span>
           </Link>

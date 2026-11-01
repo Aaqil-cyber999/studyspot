@@ -14,7 +14,7 @@ const items = [
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-white pb-20">
+    <div className="mx-auto min-h-screen w-[412px] bg-white pb-20">
       {children}
       <AdminBottomNav items={items} />
     </div>
