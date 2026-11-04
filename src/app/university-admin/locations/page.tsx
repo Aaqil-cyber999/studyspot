@@ -9,33 +9,57 @@ export default function UaLocationsPage() {
   const { data: locations = [] } = useQuery({ queryKey: ["ua", "locations"], queryFn: getUaLocations });
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="flex items-center justify-between bg-white px-4 py-3">
-        <h1 className="text-lg font-semibold text-slate-900">Locations</h1>
-        <Link href="/university-admin/locations/new" className="flex size-9 items-center justify-center rounded-full bg-orange-500 text-white">
-          <Plus className="size-5" />
-        </Link>
+    <div className="min-h-screen bg-[#fbfbfc]">
+      <div className="px-[24px] pb-[16px] pt-[64px]">
+        <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">My locations</h1>
       </div>
-      <div className="space-y-3 p-4">
+      <div className="px-[24px]">
+        <div className="flex items-center gap-3 rounded-[16px] border border-[#e2e8f0] bg-white px-[16px] py-[12px] shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8.25" cy="8.25" r="5.25" stroke="#64748b" strokeWidth="1.5" />
+            <path d="M12.375 12.375L15 15" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input placeholder="Search locations" className="flex-1 bg-transparent text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8]" />
+        </div>
+        <div className="mt-[12px] flex gap-[8px]">
+          <button className="rounded-full bg-[#f97316] px-[14px] py-[6px] text-[12px] font-medium text-white">All</button>
+          <button className="rounded-full border border-[#e2e8f0] bg-white px-[14px] py-[6px] text-[12px] text-[#334155]">Library</button>
+          <button className="rounded-full border border-[#e2e8f0] bg-white px-[14px] py-[6px] text-[12px] text-[#334155]">Labs</button>
+        </div>
+      </div>
+      <div className="mt-[16px] space-y-[12px] px-[24px] pb-[100px]">
         {locations.map((loc) => (
           <Link
             key={loc.id}
             href={`/university-admin/locations/${loc.id}`}
-            className="block rounded-2xl border border-slate-200 bg-white p-4"
+            className="block overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-slate-900">{loc.name}</p>
-                <p className="text-xs text-slate-500">{loc.building}</p>
+            <div className="h-[150px] w-full bg-gradient-to-br from-orange-100 to-orange-50" />
+            <div className="space-y-[8px] p-[16px]">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[16px] font-semibold text-[#0f172a]">{loc.name}</p>
+                  <p className="mt-1 text-[13px] text-[#64748b]">{loc.building}</p>
+                </div>
+                <span className="rounded-full bg-emerald-50 px-[10px] py-[4px] text-[11px] font-medium text-emerald-600">{loc.status}</span>
               </div>
-              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">{loc.status}</span>
+              <div className="flex items-center gap-2 text-[12px] text-[#64748b]">
+                <span className="text-[#f59e0b]">★</span>
+                <span>{loc.rating}</span>
+                <span>·</span>
+                <span>{loc.reviews} reviews</span>
+              </div>
             </div>
-            <p className="mt-2 text-xs text-slate-400">
-              ⭐ {loc.rating} · {loc.reviews} reviews
-            </p>
           </Link>
         ))}
       </div>
+      <Link
+        href="/university-admin/locations/new"
+        className="fixed bottom-[90px] left-1/2 z-40 flex w-[364px] -translate-x-1/2 items-center justify-center gap-2 rounded-[16px] bg-[#f97316] py-[14px] text-[14px] font-medium text-white shadow-[0px_6px_16px_rgba(249,115,22,0.25)]"
+      >
+        <Plus className="size-5" />
+        Add location
+      </Link>
     </div>
   );
 }
