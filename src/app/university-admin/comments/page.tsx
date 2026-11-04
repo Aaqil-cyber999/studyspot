@@ -3,21 +3,21 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { getUaComments } from "@/services/university-admin";
+import { getUaComments, moderateUaComment } from "@/services/university-admin";
+import { AdminPageHeader } from "@/components/navigation/admin-page-header";
 
 export default function UaCommentsPage() {
-  const { data: comments = [] } = useQuery({ queryKey: ["ua", "comments"], queryFn: getUaComments });
+  const query = useQuery({ queryKey: ["ua", "comments"], queryFn: getUaComments });
+  const comments = query.data ?? [];
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-white px-4 py-3">
-        <h1 className="text-lg font-semibold text-slate-900">Comments & Ratings</h1>
-      </div>
-      <div className="space-y-3 p-4">
+    <div className="min-h-screen bg-white pb-[90px]">
+      <AdminPageHeader title="Reviews & Ratings" subtitle="Keep feedback helpful for students" />
+      <main className="space-y-[12px] px-[24px] pt-[4px]">
         {comments.map((c) => (
-          <div key={c.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+          <article key={c.id} className="rounded-[16px] border border-[#e2e8f0] bg-white p-[16px] shadow-[0px_4px_16px_rgba(0,0,0,0.08)]">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-orange-500">
                 {"★".repeat(Math.round(c.rating))} {c.rating.toFixed(1)}
@@ -27,42 +27,49 @@ export default function UaCommentsPage() {
                   setSelected(c.id);
                   setOpen(true);
                 }}
-                className="text-xs font-medium text-red-500"
+                aria-label={`Moderate review from ${c.author}`}
+                className="rounded-full bg-[#ffdbca] px-[10px] py-[5px] text-[11px] font-medium text-[#c2410c] focus-visible:outline-2 focus-visible:outline-[#f97316]"
               >
                 Moderate
               </button>
             </div>
-            <p className="mt-1 text-sm text-slate-700">&ldquo;{c.text}&rdquo;</p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-[6px] text-[14px] text-[#334155]">&ldquo;{c.text}&rdquo;</p>
+            <p className="mt-[6px] text-[12px] text-[#64748b]">
               {c.locationName} · {c.createdAt}
             </p>
-          </div>
+          </article>
         ))}
-      </div>
+      </main>
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
-          <div className="w-[412px] rounded-t-3xl bg-white p-6">
-            <h2 className="text-lg font-semibold text-slate-900">Moderation</h2>
-            <p className="mt-2 text-sm text-slate-500">
-              Choose an action for comment {selected}.
+          <div className="w-[412px] rounded-t-[24px] bg-white p-[24px]">
+            <h2 className="text-[20px] font-semibold text-[#0f172a]">Moderate review</h2>
+            <p className="mt-[6px] text-[13px] text-[#64748b]">
+              Choose whether to keep or remove review {selected}.
             </p>
             <div className="mt-4 space-y-2">
               <button
                 onClick={() => {
                   setOpen(false);
-                  toast.success("Comment kept");
+                  void moderateUaComment(selected ?? "", "keep").then(() => {
+                    toast.success("Review kept");
+                    void query.refetch();
+                  });
                 }}
-                className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white"
+                className="w-full rounded-[16px] bg-[#f97316] py-[14px] text-[15px] font-medium text-white"
               >
                 Keep
               </button>
               <button
                 onClick={() => {
                   setOpen(false);
-                  toast.success("Comment removed");
+                  void moderateUaComment(selected ?? "", "remove").then(() => {
+                    toast.success("Review removed");
+                    void query.refetch();
+                  });
                 }}
-                className="w-full rounded-2xl border border-red-200 py-3 font-medium text-red-500"
+                className="w-full rounded-[16px] border border-[#fecaca] py-[14px] text-[15px] font-medium text-[#dc2626]"
               >
                 Remove
               </button>

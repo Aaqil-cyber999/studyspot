@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 const items = [
   { href: "/university-admin/dashboard", label: "Dashboard" },
   { href: "/university-admin/locations", label: "Locations" },
-  { href: "/university-admin/comments", label: "Comments" },
+  { href: "/university-admin/comments", label: "Reviews" },
   { href: "/university-admin/profile", label: "Profile" },
 ];
 

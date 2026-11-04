@@ -1,7 +1,7 @@
 import type { Comment } from "@/types";
 
 export const uaDashboard = {
-  university: "University of Example",
+  university: "University of Moratuwa",
   locations: 12,
   avgRating: 4.6,
   comments: 128,
