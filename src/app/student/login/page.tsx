@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
@@ -39,17 +40,20 @@ export default function StudentLoginPage() {
     if (!isValid) {
       setSubmitted(false);
       setMessage("Enter a valid email address");
+      toast.error("Enter a valid email address");
       return;
     }
 
     setSubmitted(true);
     setMessage(`OTP sent to ${email}`);
+    toast.success(`OTP sent to ${email}`);
     router.push("/student/verify");
   };
 
   const useGoogle = () => {
     setSubmitted(true);
     setMessage("Google sign-in selected");
+    toast.success("Google sign-in selected");
   };
 
   return (

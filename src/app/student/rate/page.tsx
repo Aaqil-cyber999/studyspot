@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { rateCommentSchema } from "@/features/student/schemas";
 
 const noiseOptions = ["Quiet", "Moderate", "Loud"];
@@ -21,10 +22,13 @@ export default function RateCommentPage() {
   function submit() {
     const result = rateCommentSchema.safeParse({ rating: 5, comment });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid");
+      const message = result.error.issues[0]?.message ?? "Invalid";
+      setError(message);
+      toast.error(message);
       return;
     }
     setError(null);
+    toast.success("Status report submitted");
     router.push("/student/review");
   }
 

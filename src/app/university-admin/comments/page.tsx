@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { getUaComments } from "@/services/university-admin";
 
 export default function UaCommentsPage() {
@@ -48,13 +49,19 @@ export default function UaCommentsPage() {
             </p>
             <div className="mt-4 space-y-2">
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  toast.success("Comment kept");
+                }}
                 className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white"
               >
                 Keep
               </button>
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  toast.success("Comment removed");
+                }}
                 className="w-full rounded-2xl border border-red-200 py-3 font-medium text-red-500"
               >
                 Remove

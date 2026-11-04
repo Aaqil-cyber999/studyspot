@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Bookmark } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ReviewSubmissionPage() {
   const router = useRouter();
@@ -50,7 +51,10 @@ export default function ReviewSubmissionPage() {
         </div>
 
         <button
-          onClick={() => router.push("/student/result")}
+          onClick={() => {
+            toast.success("Report submitted");
+            router.push("/student/result");
+          }}
           className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[10px] bg-[#f97316] px-[10px] py-[6px] text-[14px] font-medium text-white"
         >
           <img alt="" className="size-[16px] max-w-none" src="/assets/review/ae913.svg" />

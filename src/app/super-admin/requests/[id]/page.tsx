@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getRegistrationRequests } from "@/services/super-admin";
 import { ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SaRequestDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -33,13 +34,19 @@ export default function SaRequestDetailsPage() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => router.push("/super-admin/confirmation?state=approved")}
+            onClick={() => {
+              toast.success("Request approved");
+              router.push("/super-admin/confirmation?state=approved");
+            }}
             className="flex-1 rounded-2xl bg-green-500 py-3 font-medium text-white"
           >
             Approve
           </button>
           <button
-            onClick={() => router.push("/super-admin/confirmation?state=rejected")}
+            onClick={() => {
+              toast.success("Request rejected");
+              router.push("/super-admin/confirmation?state=rejected");
+            }}
             className="flex-1 rounded-2xl bg-red-500 py-3 font-medium text-white"
           >
             Reject

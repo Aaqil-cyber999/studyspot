@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Info } from "lucide-react";
+import toast from "react-hot-toast";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 const otpAsset = (name: string) => `/assets/otp/${name}`;
@@ -31,6 +32,7 @@ export default function OtpVerificationPage() {
   const handleResend = () => {
     if (countdown > 0) return;
     setCountdown(119);
+    toast.success("New verification code sent");
   };
 
   const handleChange = (index: number, value: string) => {
@@ -50,6 +52,7 @@ export default function OtpVerificationPage() {
   };
 
   const submit = () => {
+    toast.success("Email verified");
     router.push("/student/info");
   };
 

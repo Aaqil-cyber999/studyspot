@@ -1,13 +1,15 @@
 import type { StudyLocation, Comment } from "@/types";
 
+export const amenityOptions = ["Wi-Fi", "Power outlet", "Cafeteria", "Printer", "Parking", "Elevator", "Accessible seating"] as const;
+
 export const studentProfile = {
-  name: "XYZ Student",
-  email: "xyz.25@uom.lk",
+  name: "Mohamed",
+  email: "mohamed.25@uom.lk",
   address: "Molpe Road, Katubedda",
   studyStyle: "Quiet",
   noiseLevel: "Low",
   studyType: "Individual",
-  amenities: ["Wi-Fi", "Power outlets"],
+  amenities: ["Wi-Fi", "Power outlet"],
 };
 
 export const studyLocations: StudyLocation[] = [
@@ -79,8 +81,6 @@ export const studyLocations: StudyLocation[] = [
     amenities: ["Wi-Fi", "Power", "AC"],
   },
 ];
-
-export const savedLocations = studyLocations.filter((l) => l.saved);
 
 export const comments: Comment[] = [
   {

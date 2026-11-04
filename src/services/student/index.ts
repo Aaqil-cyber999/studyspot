@@ -1,15 +1,11 @@
-import { studyLocations, savedLocations, comments, studentProfile } from "@/mocks/data/student";
+import { studyLocations, comments, studentProfile } from "@/mocks/data/student";
+import { spotDetail } from "@/mocks/data/spot-detail";
 
 const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getStudyLocations() {
   await delay();
   return studyLocations;
-}
-
-export async function getSavedLocations() {
-  await delay();
-  return savedLocations;
 }
 
 export async function getComments() {
@@ -20,4 +16,9 @@ export async function getComments() {
 export async function getStudentProfile() {
   await delay();
   return studentProfile;
+}
+
+export async function getSpotDetail(id: string) {
+  await delay();
+  return { ...spotDetail, slug: id };
 }

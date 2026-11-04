@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search, ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const asset = (name: string) => `/assets/select-university/${name}`;
 
@@ -16,6 +18,7 @@ export default function SelectUniversityPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState("uom");
+  const setUniversity = useOnboardingStore((state) => state.setUniversity);
 
   const filtered = universities.filter((u) =>
     u.name.toLowerCase().includes(query.toLowerCase())
@@ -50,7 +53,10 @@ export default function SelectUniversityPage() {
         {filtered.map((u, i) => (
           <button
             key={u.id}
-            onClick={() => setSelected(u.id)}
+            onClick={() => {
+              setSelected(u.id);
+              toast.success(`${u.name} selected`);
+            }}
             className={`flex h-[96px] w-full items-center gap-[12px] overflow-clip rounded-[16px] border bg-white p-[12px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)] ${selected === u.id ? "border-2 border-[#f97316]" : "border border-[#e2e8f0]"}`}
           >
             <div className="relative size-[72px] shrink-0 overflow-clip rounded-[12px]">
@@ -85,7 +91,14 @@ export default function SelectUniversityPage() {
       </div>
 
       {/* Continue button */}
-      <button onClick={() => router.push("/student/info")} className="mt-[20px] flex w-full items-center justify-center gap-[10px] overflow-clip rounded-[16px] bg-[#f97316] p-[16px] cursor-pointer">
+      <button
+        onClick={() => {
+          const chosen = universities.find((u) => u.id === selected);
+          if (chosen) setUniversity(chosen.name);
+          router.push("/student/info");
+        }}
+        className="mt-[20px] flex w-full items-center justify-center gap-[10px] overflow-clip rounded-[16px] bg-[#f97316] p-[16px] cursor-pointer"
+      >
         <p className="text-[15px] font-medium leading-normal text-white whitespace-nowrap" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
           Select university
         </p>

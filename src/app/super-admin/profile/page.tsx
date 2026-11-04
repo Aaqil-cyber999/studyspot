@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSaProfile } from "@/services/super-admin";
 import { Settings } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SaProfilePage() {
   const { data: profile } = useQuery({ queryKey: ["sa", "profile"], queryFn: getSaProfile });
@@ -26,7 +27,10 @@ export default function SaProfilePage() {
             <Settings className="size-5" />
           </button>
         </div>
-        <button className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white">
+        <button
+          onClick={() => toast.success("Profile changes saved")}
+          className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white"
+        >
           Save changes
         </button>
       </div>

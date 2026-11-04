@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 import { z } from "zod";
 
 const schema = z.object({
-  name: z.string().min(2),
-  building: z.string().min(2),
+  name: z.string().min(2, "Enter a location name"),
+  building: z.string().min(2, "Enter a building"),
 });
 
 export default function AddLocationPage() {
@@ -19,10 +20,13 @@ export default function AddLocationPage() {
   function submit() {
     const result = schema.safeParse({ name, building });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid");
+      const message = result.error.issues[0]?.message ?? "Invalid";
+      setError(message);
+      toast.error(message);
       return;
     }
     setError(null);
+    toast.success("Location added");
     router.push("/university-admin/locations");
   }
 

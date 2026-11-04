@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUaProfile } from "@/services/university-admin";
 import { Settings } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function UaProfilePage() {
   const { data: profile } = useQuery({ queryKey: ["ua", "profile"], queryFn: getUaProfile });
@@ -27,7 +28,10 @@ export default function UaProfilePage() {
             <Settings className="size-5" />
           </button>
         </div>
-        <button className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white">
+        <button
+          onClick={() => toast.success("Profile changes saved")}
+          className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white"
+        >
           Save changes
         </button>
       </div>

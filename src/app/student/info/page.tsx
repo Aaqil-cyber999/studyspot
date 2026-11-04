@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, GraduationCap, MapPin, ChevronRight, ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
 import { chooseUniversitySchema } from "@/features/student/schemas";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
@@ -18,7 +20,7 @@ function CampusIllustration() {
 export default function InfoPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [university, setUniversity] = useState("");
+  const university = useOnboardingStore((state) => state.university);
   const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
@@ -26,13 +28,16 @@ export default function InfoPage() {
   function submit() {
     const result = chooseUniversitySchema.safeParse({ name, university, address });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid input");
+      const message = result.error.issues[0]?.message ?? "Invalid input";
+      setError(message);
+      toast.error(message);
       setShake(true);
       setTimeout(() => setShake(false), 400);
       return;
     }
     setError(null);
-    router.push("/student/select-university");
+    toast.success("Details saved");
+    router.push("/student/home");
   }
 
   return (
