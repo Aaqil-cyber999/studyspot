@@ -5,9 +5,10 @@ export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 import { z } from "zod";
 
-const schema = z.object({ name: z.string().min(2) });
+const schema = z.object({ name: z.string().min(2, "Enter a location name") });
 
 export default function EditLocationPage() {
   const router = useRouter();
@@ -18,10 +19,13 @@ export default function EditLocationPage() {
   function submit() {
     const result = schema.safeParse({ name });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid");
+      const message = result.error.issues[0]?.message ?? "Invalid";
+      setError(message);
+      toast.error(message);
       return;
     }
     setError(null);
+    toast.success("Location updated");
     router.push(`/university-admin/locations/${params.id}`);
   }
 

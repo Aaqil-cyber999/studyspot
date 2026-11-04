@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
 import { getUaDashboard, getUaComments } from "@/services/university-admin";
 
 export default function UaDashboardPage() {
   const { data: dashboard } = useQuery({ queryKey: ["ua", "dashboard"], queryFn: getUaDashboard });
   const { data: comments = [] } = useQuery({ queryKey: ["ua", "comments"], queryFn: getUaComments });
 
-  if (!dashboard) return <div className="p-6">Loading...</div>;
+  if (!dashboard) {
+    return <PageLoader className="min-h-screen bg-slate-50 py-0" />;
+  }
 
   const stats = [
     { label: "Locations", value: dashboard.locations },

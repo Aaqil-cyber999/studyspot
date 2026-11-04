@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geologica, Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 
@@ -31,6 +33,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col font-sans">
         <QueryProvider>{children}</QueryProvider>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 2500,
+            style: {
+              background: "#0f172a",
+              color: "#ffffff",
+              fontSize: "14px",
+              fontWeight: 500,
+              borderRadius: "12px",
+              padding: "10px 14px",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.16)",
+            },
+            success: { iconTheme: { primary: "#f97316", secondary: "#ffffff" } },
+            error: { iconTheme: { primary: "#dc2626", secondary: "#ffffff" } },
+          }}
+        />
+        <SingleToastManager />
       </body>
     </html>
   );

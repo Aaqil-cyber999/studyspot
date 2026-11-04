@@ -1,12 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
 import { getUaProfile } from "@/services/university-admin";
 import { Settings } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function UaProfilePage() {
   const { data: profile } = useQuery({ queryKey: ["ua", "profile"], queryFn: getUaProfile });
-  if (!profile) return <div className="p-6">Loading...</div>;
+  if (!profile) {
+    return <PageLoader className="min-h-screen bg-slate-50 py-0" />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -27,7 +31,10 @@ export default function UaProfilePage() {
             <Settings className="size-5" />
           </button>
         </div>
-        <button className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white">
+        <button
+          onClick={() => toast.success("Profile changes saved")}
+          className="w-full rounded-2xl bg-orange-500 py-3 font-medium text-white"
+        >
           Save changes
         </button>
       </div>

@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
 import { getSaDashboard } from "@/services/super-admin";
 
 export default function SaDashboardPage() {
   const { data: dashboard } = useQuery({ queryKey: ["sa", "dashboard"], queryFn: getSaDashboard });
-  if (!dashboard) return <div className="p-6">Loading...</div>;
+  if (!dashboard) {
+    return <PageLoader className="min-h-screen bg-slate-50 py-0" />;
+  }
 
   const stats = [
     { label: "Universities", value: dashboard.universities },

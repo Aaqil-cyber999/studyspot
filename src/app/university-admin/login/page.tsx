@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { Mail, Lock, ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(4),
+  email: z.string().email("Enter a valid email address"),
+  password: z.string().min(4, "Password must be at least 4 characters"),
 });
 
 export default function UaLoginPage() {
@@ -19,10 +20,13 @@ export default function UaLoginPage() {
   function submit() {
     const result = schema.safeParse({ email, password });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid");
+      const message = result.error.issues[0]?.message ?? "Invalid";
+      setError(message);
+      toast.error(message);
       return;
     }
     setError(null);
+    toast.success("Signed in");
     router.push("/university-admin/dashboard");
   }
 
