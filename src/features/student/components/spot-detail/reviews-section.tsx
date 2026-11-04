@@ -1,14 +1,17 @@
 import { Star } from "lucide-react";
-import type { SpotDetail } from "@/features/student/types/spot-detail";
-import { AddReviewDialog } from "./add-review-dialog";
+import type { SpotDetail, SpotReview } from "@/features/student/types/spot-detail";
+import { AddReviewDialog, type SubmittedReview } from "./add-review-dialog";
 import { ReviewCard } from "./review-card";
 
 interface ReviewsSectionProps {
   reviews: SpotDetail["reviews"];
+  /** Reviews currently shown, including ones added in this session. */
+  items: SpotReview[];
   spotName: string;
+  onAddReview: (review: SubmittedReview) => void;
 }
 
-export function ReviewsSection({ reviews, spotName }: ReviewsSectionProps) {
+export function ReviewsSection({ reviews, items, spotName, onAddReview }: ReviewsSectionProps) {
   return (
     <section aria-labelledby="reviews-heading" className="flex w-full flex-col gap-4">
       <div className="flex w-full items-center justify-between gap-2">
@@ -21,7 +24,7 @@ export function ReviewsSection({ reviews, spotName }: ReviewsSectionProps) {
           </p>
         </div>
 
-        <AddReviewDialog spotName={spotName} />
+        <AddReviewDialog spotName={spotName} onSubmit={onAddReview} />
       </div>
 
       <div className="flex w-full flex-col gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-[15px] drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]">
@@ -53,7 +56,7 @@ export function ReviewsSection({ reviews, spotName }: ReviewsSectionProps) {
       </div>
 
       <div className="flex w-full flex-col gap-3">
-        {reviews.items.map((review) => (
+        {items.map((review) => (
           <ReviewCard key={review.id} review={review} />
         ))}
       </div>

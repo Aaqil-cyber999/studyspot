@@ -1,3 +1,4 @@
+import { studySpotCatalog } from "@/mocks/data/study-spots";
 import type { StudyLocation, Comment } from "@/types";
 
 export const amenityOptions = ["Wi-Fi", "Power outlet", "Cafeteria", "Printer", "Parking", "Elevator", "Accessible seating"] as const;
@@ -12,75 +13,22 @@ export const studentProfile = {
   amenities: ["Wi-Fi", "Power outlet"],
 };
 
-export const studyLocations: StudyLocation[] = [
-  {
-    id: "loc-1",
-    name: "UoM Library — Basement Study Hall",
+export const studyLocations: StudyLocation[] = studySpotCatalog.map((spot, index) => {
+  const [building, floor] = spot.area.split(" · ");
+
+  return {
+    id: `loc-${index + 1}`,
+    name: spot.name,
     university: "University of Moratuwa",
-    building: "University Library",
-    floor: "Basement floor",
-    hours: "7:30 – 22:00 daily",
-    rating: 4.8,
-    reviews: 312,
-    amenities: ["Wi-Fi", "Power outlets", "Silent zones"],
-    saved: true,
-  },
-  {
-    id: "loc-2",
-    name: "Faculty of Architecture Studios",
-    university: "University of Moratuwa",
-    building: "Faculty of Architecture",
-    floor: "Katubedda",
-    hours: "Open late",
-    rating: 4.7,
-    reviews: 154,
-    amenities: ["Design studios", "Power outlets", "Open late"],
-  },
-  {
-    id: "loc-3",
-    name: "Faculty of Engineering Halls",
-    university: "University of Moratuwa",
-    building: "Faculty of Engineering",
-    floor: "Katubedda",
-    hours: "Between lectures",
-    rating: 4.5,
-    reviews: 203,
-    amenities: ["Wi-Fi", "Spacious seating", "Power outlets"],
-    saved: true,
-  },
-  {
-    id: "loc-4",
-    name: "Faculty of IT Computer Labs",
-    university: "University of Moratuwa",
-    building: "Faculty of Information Technology",
-    floor: "Katubedda",
-    rating: 4.6,
-    reviews: 176,
-    amenities: ["Computers", "Wi-Fi", "Power outlets"],
-  },
-  {
-    id: "loc-5",
-    name: "UoM Library — Discussion Room",
-    university: "University of Moratuwa",
-    building: "University Library",
-    floor: "1st floor",
-    hours: "Seats 60",
-    rating: 4.6,
-    reviews: 98,
-    amenities: ["Group study", "Wi-Fi", "Near photocopier"],
-  },
-  {
-    id: "loc-6",
-    name: "UoM Library · Basement Hall",
-    university: "University of Moratuwa",
-    building: "University Library",
-    floor: "Basement floor",
-    hours: "Till 22:00",
-    rating: 4.9,
-    reviews: 128,
-    amenities: ["Wi-Fi", "Power", "AC"],
-  },
-];
+    building,
+    floor,
+    hours: spot.hours,
+    rating: spot.rating,
+    reviews: spot.reviews,
+    amenities: spot.amenities,
+    saved: spot.slug === "uom-library" || spot.slug === "faculty-engineering",
+  };
+});
 
 export const comments: Comment[] = [
   {

@@ -38,7 +38,7 @@ export function OperatingHoursCard({ hours }: { hours: OperatingHours }) {
       >
         {hours.segments.map((segment, index) => (
           <span
-            key={segment.label}
+            key={`${segment.label}-${index}`}
             className={`h-2 min-w-0 ${toneColor[segment.tone]} ${
               index === 0 || index === hours.segments.length - 1 ? "rounded-[4px]" : "rounded-[2px]"
             }`}

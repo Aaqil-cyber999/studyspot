@@ -1,4 +1,5 @@
-import type { SpotDetail } from "@/features/student/types/spot-detail";
+import type { SpotDetail, SpotReview } from "@/features/student/types/spot-detail";
+import { studySpotCatalog } from "@/mocks/data/study-spots";
 
 export const spotDetail: SpotDetail = {
   slug: "uom-library",
@@ -37,7 +38,7 @@ export const spotDetail: SpotDetail = {
   metrics: [
     {
       id: "seats",
-      label: "Seats",
+      label: "Seats available",
       value: "Available",
       icon: "armchair",
       iconBackground: "rgba(16, 185, 129, 0.14)",
@@ -126,6 +127,7 @@ export const spotDetail: SpotDetail = {
     items: [
       {
         id: "review-marcus",
+        rating: 5,
         initials: "MC",
         author: "Marcus Chen",
         year: "IT '26",
@@ -136,6 +138,7 @@ export const spotDetail: SpotDetail = {
       },
       {
         id: "review-elena",
+        rating: 4,
         initials: "ER",
         author: "Elena Rostova",
         year: "Architecture '27",
@@ -147,3 +150,132 @@ export const spotDetail: SpotDetail = {
     ],
   },
 };
+
+const reviewAuthors = [
+  { name: "Nethmi Perera", initials: "NP", year: "IT '26", background: "#ffdbca", color: "#9d4300" },
+  { name: "Kasun Wijesinghe", initials: "KW", year: "Engineering '27", background: "#d5e3fd", color: "#57657b" },
+  { name: "Ayesha Fernando", initials: "AF", year: "Architecture '26", background: "#d9f4e5", color: "#166534" },
+  { name: "Ravindu Silva", initials: "RS", year: "Science '27", background: "#fce7f3", color: "#9d174d" },
+  { name: "Tharushi Jayasinghe", initials: "TJ", year: "Civil '28", background: "#fef3c7", color: "#92400e" },
+];
+
+function getCatalogReviews(spot: (typeof studySpotCatalog)[number]): SpotReview[] {
+  const primaryAmenity = spot.amenities[0] ?? "study space";
+  const secondaryAmenity = spot.amenities[1] ?? "comfortable seating";
+  const reviewTexts = [
+    `A useful ${spot.category.toLowerCase()} for focused work. The ${primaryAmenity.toLowerCase()} made it easy to settle in for a long session.`,
+    `Good option between classes. I liked the ${secondaryAmenity.toLowerCase()} and the location near ${spot.area.split("·")[0].trim()}.`,
+    `The space matched the description and worked well for a small group. Come earlier if you want the best seats.`,
+  ];
+
+  return reviewAuthors.slice(0, 3).map((author, index) => ({
+    id: `${spot.slug}-seed-review-${index + 1}`,
+    rating: Math.max(3, Math.min(5, Math.round(spot.rating + (index === 1 ? -1 : 0)))),
+    initials: author.initials,
+    author: author.name,
+    year: author.year,
+    meta: `${index === 0 ? "2 days ago" : index === 1 ? "Last week" : "2 weeks ago"} • ${spot.category}`,
+    text: reviewTexts[index],
+    avatarBackground: author.background,
+    avatarColor: author.color,
+  }));
+}
+
+export function getCatalogSpotDetail(slug: string): SpotDetail | undefined {
+  const spot = studySpotCatalog.find((item) => item.slug === slug);
+
+  if (!spot) return undefined;
+
+  const iconPool = [
+    { icon: "/assets/detail/e70fe.svg", iconWidth: 16.667, iconHeight: 15 },
+    { icon: "/assets/detail/1f4f4.svg", iconWidth: 20, iconHeight: 39 },
+    { icon: "/assets/detail/165b6.svg", iconWidth: 11.667, iconHeight: 15 },
+    { icon: "/assets/detail/c6e1e.svg", iconWidth: 18.333, iconHeight: 18.333 },
+    { icon: "/assets/detail/4dc4b.svg", iconWidth: 13.333, iconHeight: 16.667 },
+    { icon: "/assets/detail/f5477.svg", iconWidth: 15, iconHeight: 15 },
+  ];
+  const activeColor = "#10b981";
+  const inactiveColor = "#e2e8f0";
+  const wifiActiveColor = "#4285f4";
+
+  return {
+    slug: spot.slug,
+    name: spot.name,
+    rating: spot.rating,
+    reviewCount: spot.reviews,
+    staffMonitored: false,
+    hero: {
+      image: spot.imageUrls[0],
+      alt: `${spot.name} at the University of Moratuwa`,
+      photoCount: spot.imageUrls.length,
+    },
+    hours: {
+      isOpen: true,
+      openLabel: spot.hours,
+      closesLabel: "Check with the department",
+      peakLabel: "Availability varies",
+      segments: [
+        { label: "Closed", weight: 20, tone: "closed" },
+        { label: "Open", weight: 220, tone: "open" },
+        { label: "Availability varies", weight: 60, tone: "peak" },
+        { label: "Closed", weight: 40, tone: "closed" },
+      ],
+      labels: [
+        { label: "Morning", left: 0 },
+        { label: "Midday", left: 30 },
+        { label: "Afternoon", left: 60 },
+        { label: "Evening", left: 84 },
+      ],
+    },
+    lastUpdated: spot.lastUpdated,
+    metrics: [
+      {
+        id: "seats",
+        label: "Seats available",
+        value: spot.seats,
+        icon: "armchair",
+        iconBackground: "rgba(16, 185, 129, 0.14)",
+        iconColor: "#10b981",
+        segments: ["Yes", "No", "Unsure"].map((label) => ({
+          label,
+          color: label === spot.seats ? activeColor : inactiveColor,
+        })),
+      },
+      {
+        id: "crowd",
+        label: "Crowd level",
+        value: spot.crowd,
+        icon: "users",
+        iconBackground: "rgba(249, 115, 22, 0.14)",
+        iconColor: "#f97316",
+        segments: ["Low", "Medium", "High"].map((label) => ({
+          label,
+          color: label === spot.crowd ? "#f97316" : inactiveColor,
+        })),
+      },
+      {
+        id: "wifi",
+        label: "Wi-Fi Strength",
+        value: spot.wifi,
+        icon: "wifi",
+        iconBackground: "rgba(66, 133, 244, 0.14)",
+        iconColor: "#4285f4",
+        segments: ["Strong", "Medium", "Weak"].map((label) => ({
+          label,
+          color: label === spot.wifi ? wifiActiveColor : inactiveColor,
+        })),
+      },
+    ],
+    amenities: spot.amenities.slice(0, 6).map((label, index) => ({
+      label,
+      detail: spot.description,
+      ...iconPool[index % iconPool.length],
+    })),
+    reviews: {
+      verdict: `${spot.rating.toFixed(1)} rated`,
+      verdictDetail: spot.description,
+      mentions: spot.amenities.slice(0, 3),
+      items: getCatalogReviews(spot),
+    },
+  };
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ThumbsUp } from "lucide-react";
+import { Star, ThumbsUp } from "lucide-react";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import type { SpotReview } from "@/features/student/types/spot-detail";
@@ -30,6 +30,22 @@ export function ReviewCard({ review }: { review: SpotReview }) {
           <p className="font-body text-[11px] font-medium leading-[14px] text-[#515f74]">{review.meta}</p>
         </div>
       </header>
+
+      <div className="flex items-center gap-1" aria-label={`${review.rating} out of 5 stars`}>
+        {Array.from({ length: 5 }, (_, index) => {
+          const filled = index < review.rating;
+
+          return (
+            <Star
+              key={index}
+              aria-hidden="true"
+              className={cn("size-4", filled ? "text-[#f59e0b]" : "text-[#DDDDDD]")}
+              fill={filled ? "#f59e0b" : "#DDDDDD"}
+              strokeWidth={0}
+            />
+          );
+        })}
+      </div>
 
       <p className="w-full font-body text-[14px] leading-[22px] text-[#0b1c30]">{review.text}</p>
 

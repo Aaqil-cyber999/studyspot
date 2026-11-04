@@ -1,26 +1,143 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import {
+  Accessibility,
+  AirVent,
+  Armchair,
+  Beaker,
+  BookOpen,
+  Boxes,
+  Clock3,
+  CircleHelp,
+  Coffee,
+  FlaskConical,
+  Library,
+  Monitor,
+  Microscope,
+  PencilRuler,
+  Presentation,
+  Plug,
+  Printer,
+  Search,
+  ScanLine,
+  Table2,
+  Users,
+  VolumeX,
+  Waves,
+  Wifi,
+  Wrench,
+  X,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { amenityOptions } from "@/mocks/data/student";
+import { studySpotCatalog } from "@/mocks/data/study-spots";
 import { SpotBookmark } from "@/features/student/components/discover/spot-bookmark";
 import { ProfileAvatar } from "@/features/student/components/profile/profile-avatar";
 import { useProfileStore } from "@/stores/profile-store";
 
 const a = (name: string) => `/assets/home/${name}`;
+const FILTER_CHIPS = ["Quiet", "Seats available", ...amenityOptions];
 
-const FILTER_CHIPS: { label: string; active: boolean }[] = [{ label: "Quiet", active: true }, { label: "Seats available", active: false }, ...amenityOptions.map((label) => ({ label, active: false }))];
+const amenityIcons: Record<string, typeof Wifi> = {
+  "Wi-Fi": Wifi,
+  "Power outlets": Plug,
+  "Power outlet": Plug,
+  Computers: Monitor,
+  "60 computers": Monitor,
+  "Air conditioning": AirVent,
+  "Silent zones": VolumeX,
+  "Quiet zones": VolumeX,
+  "Quiet seating": Armchair,
+  "Individual carrels": Table2,
+  "Open tables": Table2,
+  "Group work": Users,
+  "Group study": Users,
+  "Casual seating": Armchair,
+  "Spacious seating": Armchair,
+  "Design studios": PencilRuler,
+  "Open late": Clock3,
+  "Library space": Library,
+  "Reading desks": BookOpen,
+  "Reference books": BookOpen,
+  "Lecture rooms": BookOpen,
+  "Seminar space": Presentation,
+  Whiteboard: Presentation,
+  "Near photocopier": Printer,
+  Printing: Printer,
+  Printers: Printer,
+  Photocopier: Printer,
+  Scanners: ScanLine,
+  "Research equipment": FlaskConical,
+  Equipment: Wrench,
+  "Computer access": Monitor,
+  "GIS software": Boxes,
+  Matlab: Monitor,
+  Petrel: Monitor,
+  "Simulation software": Monitor,
+  "Medical technology": Beaker,
+  "Hands-on learning": Wrench,
+  Prototyping: Wrench,
+  "Project space": Boxes,
+  "Project work": Boxes,
+  "Research work": Boxes,
+  "Practical work": FlaskConical,
+  Oceanography: Waves,
+  Characterisation: Microscope,
+  Synthesis: FlaskConical,
+  Processing: Wrench,
+  "Motion analysis": Accessibility,
+  Cafeteria: Coffee,
+};
+
+const normalize = (value: string) => value.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+
+const searchableText = (spot: (typeof studySpotCatalog)[number]) =>
+  [spot.name, spot.category, spot.area, spot.description, spot.hours, ...spot.amenities].join(" ").toLocaleLowerCase();
+
+function matchesFilter(spot: (typeof studySpotCatalog)[number], filter: string) {
+  if (filter === "Quiet") {
+    const text = [spot.name, spot.category, spot.description, ...spot.amenities].join(" ").toLocaleLowerCase();
+    return text.includes("quiet") || text.includes("silent");
+  }
+
+  if (filter === "Seats available") return spot.seats === "Yes";
+
+  const normalizedFilter = normalize(filter);
+  return spot.amenities.some((amenity) => {
+    const normalizedAmenity = normalize(amenity);
+
+    if (normalizedFilter === "wifi") return normalizedAmenity.includes("wifi");
+    if (normalizedFilter === "poweroutlet") return normalizedAmenity.includes("poweroutlet");
+    if (normalizedFilter === "printer") return normalizedAmenity.includes("print");
+    if (normalizedFilter === "accessibleseating") return normalizedAmenity.includes("accessible");
+
+    return normalizedAmenity === normalizedFilter;
+  });
+}
 
 export default function StudentHomePage() {
   const profileName = useProfileStore((state) => state.name);
   const profileImage = useProfileStore((state) => state.image);
+  const [query, setQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("");
   const firstName = profileName.trim().split(/\s+/)[0] || profileName;
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const visibleSpots = useMemo(
+    () =>
+      studySpotCatalog.filter((spot) => {
+        const matchesSearch = !normalizedQuery || searchableText(spot).includes(normalizedQuery);
+        const matchesSelectedFilter = !selectedFilter || matchesFilter(spot, selectedFilter);
+
+        return matchesSearch && matchesSelectedFilter;
+      }),
+    [normalizedQuery, selectedFilter],
+  );
 
   return (
     <>
-      <div className="relative top-0 left-0 right-0 h-[200px] mx-auto overflow-x-hidden overflow-y-auto bg-[#f97316]">
-        {/* Header */}
+      <div className="relative left-0 right-0 top-0 mx-auto h-[200px] overflow-x-hidden overflow-y-auto bg-[#f97316]">
         <div className="px-[24px] pt-[20px]">
           <div className="flex items-center justify-between gap-[12px]">
             <div className="min-w-0 flex-1">
@@ -33,188 +150,99 @@ export default function StudentHomePage() {
           </div>
         </div>
       </div>
-      {/* White content area */}
-      <div className="relative top-[-110px] w-full mt-0 rounded-tl-[40px] rounded-tr-[40px] bg-white px-[24px] pt-[16px] pb-[100px]">
-        {/* Search field */}
+
+      <div className="relative -mt-[110px] w-full rounded-tl-[40px] rounded-tr-[40px] bg-white px-[24px] pb-0 pt-[16px]">
         <div className="mt-[5px] flex items-center gap-[12px] overflow-clip rounded-[26px] bg-[#ddd] px-[18px] py-[14px] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.04)]">
-          <Search className="size-[20px] shrink-0 text-[#64748b]" />
-          <input placeholder="Search place, or area" className="min-w-0 flex-1 bg-transparent text-[14px] text-[#64748b] outline-none placeholder:text-[#64748b]" />
+          <Search className="size-[20px] shrink-0 text-[#64748b]" aria-hidden="true" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search place, area, amenity"
+            aria-label="Search study places"
+            className="min-w-0 flex-1 bg-transparent text-[14px] text-[#64748b] outline-none placeholder:text-[#64748b]"
+          />
+          {query ? (
+            <button type="button" onClick={() => setQuery("")} aria-label="Clear search" className="flex size-[20px] shrink-0 items-center justify-center rounded-full text-[#64748b] focus-visible:outline-2 focus-visible:outline-[#f97316]">
+              <X className="size-[16px]" aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
 
-        {/* Filter chips — horizontally scrollable across the full page width */}
         <div role="group" aria-label="Filters" tabIndex={0} className="-mx-[24px] mt-[15px] flex gap-[8px] overflow-x-auto overscroll-x-contain px-[24px] [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f97316] [&::-webkit-scrollbar]:hidden">
-          {FILTER_CHIPS.map((chip) => (
-            <div key={chip.label} className={cn("shrink-0 rounded-[18px] px-[14px] py-[8px]", chip.active ? "bg-[#f97316]" : "bg-[#ddd]")}>
-              <p className={cn("text-[13px] font-medium whitespace-nowrap", chip.active ? "text-white" : "text-[#334052]")}>{chip.label}</p>
-            </div>
-          ))}
+          {FILTER_CHIPS.map((filter) => {
+            const active = selectedFilter === filter;
+
+            return (
+              <button
+                key={filter}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setSelectedFilter(active ? "" : filter)}
+                className={cn("inline-flex h-[34px] shrink-0 items-center rounded-[18px] px-[14px] py-0 focus-visible:outline-2 focus-visible:outline-[#f97316]", active ? "bg-[#f97316]" : "bg-[#ddd]")}
+              >
+                <span className={cn("whitespace-nowrap text-[13px] font-medium", active ? "text-white" : "text-[#334052]")}>{filter}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Recommended study spaces */}
-        <p className="mt-[16px] mb-3 text-[16px] font-semibold leading-[22px] tracking-[-0.2px] text-[#0f172a]">Recommended study spaces</p>
-        <div>
-          {/* Spot Card 1: UoM Library */}
-          <div className="relative mb-[12px]">
-            <Link href="/student/results/uom-library" className="block overflow-clip rounded-[16px] bg-[#ddd] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-              <div className="relative h-[160px] w-full overflow-clip rounded-tl-[16px] rounded-tr-[16px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="absolute inset-0 max-w-none object-cover size-full scale-[1.05]" src={a("838a8.png")} />
-              </div>
-              <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
-                <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">UoM Library — Basement Study Hall</p>
-                <p className="text-[13px] font-medium leading-[18px] text-[#334155]">University Library · Basement floor</p>
-                <div className="flex items-center gap-[6px]">
-                  <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
-                  <p className="text-[13px] font-medium text-[#0f172a]">4.8 · 312 reviews</p>
-                  <p className="text-[13px] text-[#64748b]">·</p>
-                  <img alt="" className="size-[14px] max-w-none" src={a("9abac.svg")} />
-                  <p className="text-[13px] text-[#334155]">7:30 – 22:00 daily</p>
-                </div>
-                <div className="flex flex-wrap gap-[8px]">
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("1e4ff.svg")} /> Wi-Fi
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("5a32e.svg")} /> Power outlets
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("065c7.svg")} /> Silent zones
-                  </span>
-                </div>
-              </div>
-            </Link>
-            <SpotBookmark slug="uom-library" name="UoM Library — Basement Study Hall" />
-          </div>
-
-          {/* Spot Card 2: Faculty of Architecture Studios */}
-          <div className="relative mb-[12px]">
-            <Link href="/student/results/faculty-architecture" className="block overflow-clip rounded-[16px] bg-[#ddd] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-              <div className="relative h-[160px] w-full overflow-clip">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="absolute inset-0 max-w-none object-cover size-full" src={a("3c32d.png")} />
-              </div>
-              <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
-                <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">Faculty of Architecture Studios</p>
-                <p className="text-[13px] font-medium leading-[18px] text-[#334155]">Faculty of Architecture · Katubedda</p>
-                <div className="flex items-center gap-[6px]">
-                  <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
-                  <p className="text-[13px] font-medium text-[#0f172a]">4.7 · 154 reviews</p>
-                  <p className="text-[13px] text-[#64748b]">·</p>
-                  <img alt="" className="size-[14px] max-w-none" src={a("9abac.svg")} />
-                  <p className="text-[13px] text-[#334155]">Open late</p>
-                </div>
-                <div className="flex flex-wrap gap-[8px]">
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("22296.svg")} /> Design studios
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("5a32e.svg")} /> Power outlets
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("8e024.svg")} /> Open late
-                  </span>
-                </div>
-              </div>
-            </Link>
-            <SpotBookmark slug="faculty-architecture" name="Faculty of Architecture Studios" />
-          </div>
-
-          {/* Spot Card 3: Faculty of Engineering Halls */}
-          <div className="relative mb-[12px]">
-            <Link href="/student/results/faculty-engineering" className="block overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-              <div className="relative h-[160px] w-full overflow-clip">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="absolute inset-0 max-w-none object-cover size-full" src={a("64a28.png")} />
-              </div>
-              <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
-                <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">Faculty of Engineering Halls</p>
-                <p className="text-[13px] font-medium leading-[18px] text-[#334155]">Faculty of Engineering · Katubedda</p>
-                <div className="flex items-center gap-[6px]">
-                  <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
-                  <p className="text-[13px] font-medium text-[#0f172a]">4.5 · 203 reviews</p>
-                  <p className="text-[13px] text-[#64748b]">·</p>
-                  <img alt="" className="size-[14px] max-w-none" src={a("9abac.svg")} />
-                  <p className="text-[13px] text-[#334155]">Between lectures</p>
-                </div>
-                <div className="flex flex-wrap gap-[8px]">
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("1e4ff.svg")} /> Wi-Fi
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("3d652.svg")} /> Spacious seating
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("5a32e.svg")} /> Power outlets
-                  </span>
-                </div>
-              </div>
-            </Link>
-            <SpotBookmark slug="faculty-engineering" name="Faculty of Engineering Halls" />
-          </div>
-
-          {/* Spot Card 4: Faculty of IT Computer Labs */}
-          <div className="relative mb-[12px]">
-            <Link href="/student/results/faculty-it" className="block overflow-clip rounded-[16px] bg-[#ddd] shadow-[0px_4px_8px_0px_rgba(0,0,0,0.08)]">
-              <div className="relative h-[160px] w-full overflow-clip rounded-tl-[16px] rounded-tr-[16px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="absolute inset-0 max-w-none object-cover size-full" src={a("26beb.png")} />
-              </div>
-              <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
-                <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">Faculty of IT Computer Labs</p>
-                <p className="text-[13px] font-medium leading-[18px] text-[#334155]">Faculty of Information Technology · Katubedda</p>
-                <div className="flex items-center gap-[6px]">
-                  <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
-                  <p className="text-[13px] font-medium text-[#0f172a]">4.6 · 176 reviews</p>
-                </div>
-                <div className="flex flex-wrap gap-[8px]">
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("3e147.svg")} /> Computers
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("1e4ff.svg")} /> Wi-Fi
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("5a32e.svg")} /> Power outlets
-                  </span>
-                </div>
-              </div>
-            </Link>
-            <SpotBookmark slug="faculty-it" name="Faculty of IT Computer Labs" />
-          </div>
-
-          {/* Spot Card 5: UoM Library — Discussion Room */}
-          <div className="relative mb-[12px]">
-            <Link href="/student/results/uom-library-discussion" className="block overflow-clip rounded-[16px] bg-[#ddd] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-              <div className="relative h-[160px] w-full overflow-clip">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="absolute inset-0 h-full w-full object-cover" src={a("0992e.png")} />
-              </div>
-              <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
-                <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">UoM Library — Discussion Room</p>
-                <p className="text-[13px] font-medium leading-[18px] text-[#334155]">University Library · 1st floor</p>
-                <div className="flex items-center gap-[6px]">
-                  <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
-                  <p className="text-[13px] font-medium text-[#0f172a]">4.6 · 98 reviews</p>
-                  <p className="text-[13px] text-[#64748b]">·</p>
-                  <img alt="" className="size-[14px] max-w-none" src={a("9abac.svg")} />
-                  <p className="text-[13px] text-[#334155]">Seats 60</p>
-                </div>
-                <div className="flex flex-wrap gap-[8px]">
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("28e91.svg")} /> Group study
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("1e4ff.svg")} /> Wi-Fi
-                  </span>
-                  <span className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                    <img alt="" className="size-[14px] max-w-none" src={a("3e147.svg")} /> Near photocopier
-                  </span>
-                </div>
-              </div>
-            </Link>
-            <SpotBookmark slug="uom-library-discussion" name="UoM Library — Discussion Room" />
-          </div>
+        <div className="mb-3 mt-[16px] flex items-baseline justify-between gap-3">
+          <p className="text-[16px] font-semibold leading-[22px] tracking-[-0.2px] text-[#0f172a]">Recommended study spaces</p>
+          <p className="shrink-0 text-[12px] text-[#64748b]" aria-live="polite">
+            {visibleSpots.length} {visibleSpots.length === 1 ? "place" : "places"}
+          </p>
         </div>
+
+        {visibleSpots.length ? (
+          <div>
+            {visibleSpots.map((spot) => (
+              <div key={spot.slug} className="relative mb-[12px]">
+                <Link href={`/student/results/${spot.slug}`} className="block overflow-clip rounded-[16px] bg-[#ddd] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
+                  <div className="relative h-[160px] w-full overflow-clip rounded-tl-[16px] rounded-tr-[16px] bg-[#cbd5e1]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" className="absolute inset-0 size-full max-w-none scale-[1.05] object-cover" src={spot.imageUrls[0]} />
+                    <p className="absolute left-[10px] top-[10px] rounded-full bg-white px-[9px] py-[4px] text-[11px] leading-[14px] text-black">
+                      {spot.lastUpdated}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
+                    <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">{spot.name}</p>
+                    <p className="text-[13px] font-medium leading-[18px] text-[#334155]">{spot.category} · {spot.area}</p>
+                    <p className="line-clamp-2 text-[12px] leading-[17px] text-[#64748b]">{spot.description}</p>
+                    <div className="flex items-center gap-[6px]">
+                      <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
+                      <p className="text-[13px] font-medium text-[#0f172a]">{spot.rating.toFixed(1)} · {spot.reviews} reviews</p>
+                      <p className="text-[13px] text-[#64748b]">·</p>
+                      <img alt="" className="size-[14px] max-w-none" src={a("9abac.svg")} />
+                      <p className="truncate text-[13px] text-[#334155]">{spot.hours}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-[8px]">
+                      {spot.amenities.slice(0, 3).map((amenity) => (
+                        <span key={amenity} className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
+                          {(() => {
+                            const Icon = amenityIcons[amenity] ?? CircleHelp;
+                            return <Icon aria-hidden="true" className="size-[14px] shrink-0" strokeWidth={2} />;
+                          })()}
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+                <SpotBookmark slug={spot.slug} name={spot.name} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex min-h-[calc(100dvh-420px)] flex-col items-center justify-center rounded-[16px] bg-[#f8fafc] px-6 text-center">
+            <Search className="mb-3 size-8 text-[#f97316]" aria-hidden="true" />
+            <p className="text-[15px] font-semibold text-[#0f172a]">No study places found</p>
+            <p className="mt-1 text-[13px] text-[#64748b]">Try a faculty, amenity, or shorter search phrase.</p>
+            <button type="button" onClick={() => setQuery("")} className="mt-4 rounded-full bg-[#fed7aa] px-4 py-2 text-[13px] font-medium text-[#9a3412] focus-visible:outline-2 focus-visible:outline-[#f97316]">
+              Clear search
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

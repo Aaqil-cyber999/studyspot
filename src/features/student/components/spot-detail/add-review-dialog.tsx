@@ -15,12 +15,19 @@ import {
 
 const STAR_VALUES = [1, 2, 3, 4, 5];
 
+export interface SubmittedReview {
+  rating: number;
+  comment: string;
+}
+
 interface AddReviewDialogProps {
   spotName: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** Hide the built-in "+ Add Review" pill when the dialog is opened elsewhere. */
   showTrigger?: boolean;
+  /** Receives the submitted rating and comment so the parent can render the new review. */
+  onSubmit?: (review: SubmittedReview) => void;
 }
 
 export function AddReviewDialog({
@@ -28,37 +35,57 @@ export function AddReviewDialog({
   open,
   onOpenChange,
   showTrigger = true,
+  onSubmit,
 }: AddReviewDialogProps) {
-  const [rating, setRating] = useState(4);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [rating, setRating] = useState(0);
   const [previewedRating, setPreviewedRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
+  const [commentError, setCommentError] = useState(false);
+  const [ratingError, setRatingError] = useState(false);
 
   const ratingLabelId = useId();
   const commentId = useId();
+  const commentErrorId = useId();
   const descriptionId = useId();
 
   const activeRating = previewedRating ?? rating;
+  const isOpen = open ?? internalOpen;
 
   function resetDraft() {
-    setRating(4);
+    setRating(0);
     setPreviewedRating(null);
     setComment("");
+    setCommentError(false);
+    setRatingError(false);
   }
 
   function handleOpenChange(nextOpen: boolean) {
+    if (open === undefined) setInternalOpen(nextOpen);
     onOpenChange?.(nextOpen);
     if (!nextOpen) resetDraft();
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const trimmedComment = comment.trim();
+    if (!rating) {
+      setRatingError(true);
+      return;
+    }
+
+    if (!trimmedComment) {
+      setCommentError(true);
+      return;
+    }
+
+    onSubmit?.({ rating, comment: trimmedComment });
     toast.success(`Review submitted for ${spotName}`);
-    onOpenChange?.(false);
-    resetDraft();
+    handleOpenChange(false);
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {showTrigger ? (
         <DialogTrigger
           render={
@@ -107,7 +134,7 @@ export function AddReviewDialog({
           </div>
 
           <DialogDescription id={descriptionId} className="sr-only">
-            Rate {spotName} and share an optional comment with other students.
+            Rate {spotName} and share a comment with other students.
           </DialogDescription>
 
           <div className="flex w-full flex-col items-start gap-[10px]">
@@ -131,7 +158,10 @@ export function AddReviewDialog({
                     name="rating"
                     value={value}
                     checked={rating === value}
-                    onChange={() => setRating(value)}
+                    onChange={() => {
+                      setRating(value);
+                      setRatingError(false);
+                    }}
                     className="sr-only"
                   />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -146,6 +176,11 @@ export function AddReviewDialog({
                 </label>
               ))}
             </div>
+            {ratingError ? (
+              <p role="alert" className="text-[12px] leading-4 text-red-600">
+                Please select a star rating before submitting.
+              </p>
+            ) : null}
           </div>
 
           <div className="flex w-full flex-col items-start gap-[6px]">
@@ -153,16 +188,28 @@ export function AddReviewDialog({
               htmlFor={commentId}
               className="font-heading text-[13px] leading-4 font-medium text-[#334052]"
             >
-              Comment (optional)
+              Comment
             </label>
             <textarea
               id={commentId}
               name="comment"
               value={comment}
-              onChange={(event) => setComment(event.target.value)}
+              onChange={(event) => {
+                setComment(event.target.value);
+                if (commentError && event.target.value.trim()) setCommentError(false);
+              }}
               placeholder="Share what others should know…"
-              className="h-[92px] w-full resize-none rounded-[10px] border border-[#e5e5e5] bg-white px-[10px] py-[6px] font-body text-sm leading-5 text-[#0f172a] placeholder:text-[#64748b] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/30 focus-visible:outline-none"
+              aria-invalid={commentError}
+              aria-describedby={commentError ? commentErrorId : undefined}
+              className={`h-[92px] w-full resize-none rounded-[10px] border bg-white px-[10px] py-[6px] font-body text-sm leading-5 text-[#0f172a] placeholder:text-[#64748b] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/30 focus-visible:outline-none ${
+                commentError ? "border-red-500" : "border-[#e5e5e5]"
+              }`}
             />
+            {commentError ? (
+              <p id={commentErrorId} role="alert" className="text-[12px] leading-4 text-red-600">
+                Please enter a comment before submitting.
+              </p>
+            ) : null}
           </div>
 
           <div className="flex w-full items-start gap-3">

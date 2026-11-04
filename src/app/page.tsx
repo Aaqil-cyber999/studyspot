@@ -39,7 +39,7 @@ export default function WelcomePage() {
         </p>
         <p className="mt-[8px] h-[22px] w-full text-center text-[15px] font-medium text-black">Where focus finds you</p>
 
-        <div className="mt-[240px] w-full">
+        <div className="mt-[220px] w-full">
           <p className="mb-[20px] text-[15px] font-medium text-white tracking-[1.6px] text-center">Continue as</p>
 
           <Link href="/student/login" onClick={() => setRole("student")} className="flex w-full items-center gap-[16px] overflow-clip rounded-[50px] border border-[rgba(226,232,240,0.6)] bg-white p-[18px] shadow-[0px_2px_10px_0px_rgba(0,0,0,0.05)]">

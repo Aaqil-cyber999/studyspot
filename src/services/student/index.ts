@@ -1,5 +1,5 @@
 import { studyLocations, comments, studentProfile } from "@/mocks/data/student";
-import { spotDetail } from "@/mocks/data/spot-detail";
+import { getCatalogSpotDetail, spotDetail } from "@/mocks/data/spot-detail";
 
 const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -20,5 +20,12 @@ export async function getStudentProfile() {
 
 export async function getSpotDetail(id: string) {
   await delay();
-  return { ...spotDetail, slug: id };
+  if (id === spotDetail.slug) return spotDetail;
+
+  const catalogSpotDetail = getCatalogSpotDetail(id);
+  if (!catalogSpotDetail) {
+    throw new Error(`Study spot not found: ${id}`);
+  }
+
+  return catalogSpotDetail;
 }

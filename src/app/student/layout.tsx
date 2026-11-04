@@ -12,6 +12,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     pathname === "/student/info" ||
     pathname === "/student/verify" ||
     pathname === "/student/select-university" ||
+    pathname === "/student/rate" ||
+    pathname === "/student/review" ||
+    pathname === "/student/result" ||
     pathname.startsWith("/student/results");
 
   // The profile and saved pages handle the fixed nav clearance themselves so

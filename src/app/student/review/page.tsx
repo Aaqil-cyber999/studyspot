@@ -3,11 +3,14 @@
 import { useRouter } from "next/navigation";
 import { Bookmark } from "lucide-react";
 import toast from "react-hot-toast";
+import { useReportStore } from "@/stores/report-store";
 
 export default function ReviewSubmissionPage() {
   const router = useRouter();
+  const report = useReportStore();
+  const resetReport = useReportStore((state) => state.resetReport);
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[52px] pb-[24px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[32px] pb-[24px] flex flex-col gap-[20px]">
         <div className="flex items-center gap-[12px]">
           <button
             onClick={() => router.back()}
@@ -34,10 +37,10 @@ export default function ReviewSubmissionPage() {
             <p className="text-[15px] font-semibold text-[#0f172a]">Your report</p>
           </div>
           {[
-            { label: "Noise", value: "Quiet" },
-            { label: "Crowd", value: "Low" },
-            { label: "Seats", value: "Available" },
-            { label: "Wi-Fi strength", value: "Medium" },
+            { label: "Noise", value: report.noise },
+            { label: "Crowd", value: report.crowd },
+            { label: "Seats available", value: report.seats },
+            { label: "Wi-Fi strength", value: report.wifi },
           ].map((row) => (
             <div key={row.label} className="flex w-full items-center justify-between border-b border-[#e2e8f0] px-[16px] py-[14px] text-[14px]">
               <p className="text-[#334155]">{row.label}</p>
@@ -46,7 +49,9 @@ export default function ReviewSubmissionPage() {
           ))}
           <div className="flex w-full items-center justify-between px-[16px] py-[14px] text-[14px]">
             <p className="text-[#334155]">Comment</p>
-            <p className="w-[210px] text-right text-[#0f172a]">&ldquo;Good natural light and quiet during afternoon.&rdquo;</p>
+            <p className="w-[210px] text-right text-[#0f172a]">
+              {report.comment ? `“${report.comment}”` : "No comment added"}
+            </p>
           </div>
         </div>
 
@@ -54,6 +59,7 @@ export default function ReviewSubmissionPage() {
           onClick={() => {
             toast.success("Report submitted");
             router.push("/student/result");
+            resetReport();
           }}
           className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[10px] bg-[#f97316] px-[10px] py-[6px] text-[14px] font-medium text-white"
         >

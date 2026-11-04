@@ -69,7 +69,7 @@ export default function InfoPage() {
                 <div className="flex size-[36px] shrink-0 items-center justify-center overflow-clip rounded-[10px] bg-[#feedd2]">
                   <GraduationCap className="size-[18px] text-[#f97316]" />
                 </div>
-                <span className="min-w-0 flex-1 text-left text-[15px] font-light text-[#989FA9]">{university || "Select university"}</span>
+                <span className={`min-w-0 flex-1 truncate text-left text-[15px] font-light ${university ? "text-black" : "text-[#989FA9]"}`}>{university || "Select university"}</span>
                 <ChevronRight className="size-[18px] text-[#64748b]" />
               </button>
             </div>

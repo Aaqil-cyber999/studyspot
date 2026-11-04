@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Armchair, ChevronRight, ClipboardPen, Clock, Users, Wifi } from "lucide-react";
+import { Armchair, ClipboardPen, Clock, Users, Wifi } from "lucide-react";
 import type { LiveMetric, LiveMetricIcon } from "@/features/student/types/spot-detail";
 
 const metricIcon: Record<LiveMetricIcon, typeof Armchair> = {
@@ -7,6 +7,18 @@ const metricIcon: Record<LiveMetricIcon, typeof Armchair> = {
   users: Users,
   wifi: Wifi,
 };
+
+function getFilledSegmentCount(metric: LiveMetric) {
+  if (metric.id === "seats") {
+    return metric.value === "Yes" ? 3 : metric.value === "Unsure" ? 2 : 1;
+  }
+
+  if (metric.id === "wifi") {
+    return metric.value === "Strong" ? 3 : metric.value === "Medium" ? 2 : 1;
+  }
+
+  return metric.value === "High" ? 3 : metric.value === "Medium" ? 2 : 1;
+}
 
 interface CurrentStatusSectionProps {
   metrics: LiveMetric[];
@@ -32,6 +44,7 @@ export function CurrentStatusSection({ metrics, lastUpdated }: CurrentStatusSect
       <div className="flex w-full items-start justify-center gap-3">
         {metrics.map((metric) => {
           const Icon = metricIcon[metric.icon];
+          const filledSegmentCount = getFilledSegmentCount(metric);
 
           return (
             <article key={metric.id} aria-label={`${metric.label}: ${metric.value}`} className="flex h-[124px] min-w-px flex-1 flex-col items-start gap-2.5 rounded-xl bg-white px-3 py-3.5 ring-1 ring-[#e2e8f0] ring-inset drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]">
@@ -44,8 +57,12 @@ export function CurrentStatusSection({ metrics, lastUpdated }: CurrentStatusSect
               </div>
 
               <div aria-hidden="true" className="flex h-1.5 w-full items-center gap-0.5 rounded-full">
-                {metric.segments.map((segment) => (
-                  <span key={segment.label} className="h-1.5 min-w-0 flex-1 rounded-full" style={{ backgroundColor: segment.color }} />
+                {metric.segments.map((segment, index) => (
+                  <span
+                    key={segment.label}
+                    className="h-1.5 min-w-0 flex-1 rounded-full"
+                    style={{ backgroundColor: index < filledSegmentCount ? metric.iconColor : "#e2e8f0" }}
+                  />
                 ))}
               </div>
             </article>

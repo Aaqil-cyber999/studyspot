@@ -1,3 +1,5 @@
+import { studySpotCatalog } from "@/mocks/data/study-spots";
+
 export interface SavedSpotAmenity {
   label: string;
   /** Figma icon asset shown inside the saved-card chip. */
@@ -21,7 +23,27 @@ export interface SavedSpotCard {
  * Every place that can appear on the Saved tab. The Discover tiles and the
  * spot info page toggle these same slugs through `useSavedStore`.
  */
+const generatedSavedSpotCatalog: Record<string, SavedSpotCard> = Object.fromEntries(
+  studySpotCatalog.map((spot) => [
+    spot.slug,
+    {
+      slug: spot.slug,
+      name: spot.name,
+      subtitle: `${spot.category} · ${spot.area}`,
+      rating: spot.rating,
+      reviews: spot.reviews,
+      image: spot.imageUrls[0],
+      amenities: spot.amenities.slice(0, 3).map((label, index) => ({
+        label,
+        icon: ["/assets/saved/1e4ff.svg", "/assets/saved/5a32e.svg", "/assets/saved/3e147.svg"][index] ?? "/assets/saved/1e4ff.svg",
+      })),
+      variant: "flat" as const,
+    },
+  ]),
+);
+
 export const savedSpotCatalog: Record<string, SavedSpotCard> = {
+  ...generatedSavedSpotCatalog,
   "uom-library": {
     slug: "uom-library",
     name: "UoM Library — Basement Study Hall",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geologica, Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             error: { iconTheme: { primary: "#dc2626", secondary: "#ffffff" } },
           }}
         />
+        <SingleToastManager />
       </body>
     </html>
   );

@@ -51,6 +51,7 @@ export interface SpotAmenity {
 
 export interface SpotReview {
   id: string;
+  rating: number;
   initials: string;
   author: string;
   year: string;
