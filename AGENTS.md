@@ -153,6 +153,12 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 ### Pointer Cursors
 - **`src/app/globals.css`**: a base-layer rule gives `button:not(:disabled)`, `[role="button"]`, and menu/option roles (`menuitem`, `menuitemradio`, `menuitemcheckbox`, `option`) `cursor: pointer` while leaving disabled controls on the default cursor. Links already inherit the pointer from the browser.
 
+### Page Loading Indicator
+- **`src/components/shared/page-loader.tsx`**: centered, iconed loader — a 64px ring (`#fed7aa` track, `#f97316` arc, `motion-safe:animate-spin`) with a 28px orange Lucide `GraduationCap` in the middle and a 14px `#64748b` "Loading…" label 14px below. The block is always horizontally centered, uses `role="status"` + `aria-live="polite"`, and the spinner/icon are `aria-hidden` so only the label is announced.
+- **`src/app/loading.tsx`**: root route fallback, full viewport (`min-h-dvh`, `#fbfbfc` background).
+- **`src/app/student/loading.tsx`**: student route fallback rendered inside the 412px frame (`min-h-[calc(100dvh-90px)]`, white background) so the bottom nav stays visible while a page loads.
+- The inline `Loading...` blocks on the student profile and the super-admin / university-admin dashboard and profile pages now render `PageLoader` instead, filling the page height so the indicator stays vertically centered.
+
 ### All Gates Pass
 - `npm run build` — compiles successfully ✅
 - `npm run lint` — 0 errors ✅ (67 pre-existing warnings only)

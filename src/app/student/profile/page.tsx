@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
 import { EditInfoDialog } from "@/features/student/components/profile/edit-info-dialog";
 import { AmenitiesCard } from "@/features/student/components/profile/amenities-card";
 import { PreferenceMenu } from "@/features/student/components/profile/preference-menu";
@@ -33,7 +34,9 @@ export default function StudentProfilePage() {
   const addAmenity = useProfileStore((state) => state.addAmenity);
   const removeAmenity = useProfileStore((state) => state.removeAmenity);
 
-  if (!profile) return <div className="p-6">Loading...</div>;
+  if (!profile) {
+    return <PageLoader className="min-h-[calc(100dvh-90px)] bg-[#fbfbfc] py-0" />;
+  }
 
   return (
     <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[20px] pb-[90px] flex flex-col gap-[20px]">
