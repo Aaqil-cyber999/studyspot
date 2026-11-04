@@ -55,7 +55,18 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 ### Share Button (copy link + toast)
 - **`src/features/student/components/spot-detail/spot-detail-top-bar.tsx`**: clicking the share icon copies `window.location.href` with `navigator.clipboard.writeText` — no native share sheet — then fires `toast.success("Link copied to clipboard")`; a rejected write fires `toast.error("Unable to copy the link")`. The component no longer takes a `name` prop.
 - **`src/app/layout.tsx`**: a single `<Toaster />` from `react-hot-toast` is mounted at `top-center` for every route: dark `#0f172a` background, white 14px text, 12px radius, orange success icon, 2.5s duration, `z-index 9999`.
-- `react-hot-toast` is a dependency (`^2.6.1`). Its toasts carry `role="status"` + `aria-live="polite"`, so the copy result is announced; the save toggle keeps its own sr-only status text.
+- `react-hot-toast` is a dependency (`^2.6.1`). Its toasts carry `role="status"` + `aria-live="polite"`, so every result is announced once; the local `aria-live` status regions in the save toggle, saved-card removal and add-review submit were removed to avoid double announcements.
+
+### Toast Notifications
+- `<Toaster />` lives once in **`src/app/layout.tsx`**, so toasts survive client-side route changes and appear on every role's screens.
+- Policy: `toast.success` for completed, state-changing actions; `toast.error` for validation or read failures, using the same wording as the inline `role="alert"`/error text.
+- Student coverage: Discover tile bookmark (`"<name> added/removed from saved places"`), info-page bookmark (`"Added/Removed from saved places"`), share copy (`"Link copied to clipboard"` / `"Unable to copy the link"`), Saved card removal (`"<name> removed from saved places"`), Add Review submit (`"Review submitted for <spot>"`), review Helpful toggle, Profile save (`"Profile updated"`), photo validation/read errors, preference menus (`"<label> set to <value>"`), amenity add/remove (`"<amenity> added/removed"`), sign out (`"Signed out"`), login (`"OTP sent to <email>"`, `"Google sign-in selected"`, `"Enter a valid email address"`), OTP verify/resend, university picker (`"<university> selected"`), details (`"Details saved"`), current-status report (`"Status report submitted"`), report confirmation (`"Report submitted"`).
+- Admin coverage: UA comment keep/remove, UA add/edit location (`"Location added"` / `"Location updated"` plus field errors), UA login (`"Signed in"` plus field errors), SA request approve/reject, and UA/SA profile save (`"Profile changes saved"`).
+
+### Onboarding University Selection
+- **`src/stores/onboarding-store.ts`**: in-memory `useOnboardingStore` holds the chosen university so the picker and the details step share it.
+- **`src/app/student/select-university/page.tsx`**: choosing a university toasts `"<university> selected"`; "Select university" saves the choice and returns to `/student/info`.
+- **`src/app/student/info/page.tsx`**: reads `university` from the store (shown in the picker row) and "Start exploring" toasts `"Details saved"` then goes to `/student/home`.
 
 ### Review Button ("Add a review") in the Top Bar
 - **`src/features/student/components/spot-detail/spot-detail-top-bar.tsx`**: the icon button next to Share (book/pen icon, `aria-label="Add a review"`) is a `<button>` that calls the `onAddReview` prop — it no longer links to `/student/review`.
@@ -126,7 +137,7 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 
 ### Saved Card Bookmark Button
 - **`src/features/student/components/saved/saved-place-card.tsx`**: renders the 32px white circular bookmark button on each card's photo at `left:320/top:12`, showing the filled orange Figma asset (`5cc8f.svg`).
-- **A single click removes that card from the saved list** (`removeLocation(slug)` in `useSavedStore`) — the bookmark is a one-action "remove from saved" button here, not a toggle. The page announces "… removed from saved places." through an `aria-live="polite"` region and moves focus to the next card's bookmark — or to the "Saved places" title (`tabIndex={-1}`) when the list is empty.
+- **A single click removes that card from the saved list** (`removeLocation(slug)` in `useSavedStore`) — the bookmark is a one-action "remove from saved" button here, not a toggle. The page toasts "… removed from saved places" and moves focus to the next card's bookmark — or to the "Saved places" title (`tabIndex={-1}`) when the list is empty.
 - Removing a card also empties the matching Discover tile and info-page bookmark, since they read the same store.
 - With every card removed the empty state is centered in the content column (root becomes a flex column so the block fills the space between the title and the nav clearance): a 64px `#ffdbca` circle holding a 28px filled `#f97316` Lucide `Bookmark`, 16px above "No saved places yet." (14px/20px Medium `#334155`).
 - The button carries `aria-label="Remove … from saved places"`, an orange focus-visible ring, and the global cursor rule makes it a pointer.
