@@ -1,146 +1,273 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Armchair,
+  ArrowUpRight,
+  Building2,
+  ChevronRight,
+  Clock3,
+  MessageSquare,
+  Plus,
+  Star,
+  Users,
+} from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
-import { getUaDashboard, getUaComments } from "@/services/university-admin";
-import { Building2, Star, MessageSquare, Armchair, Plus, ChevronRight, TrendingUp, Moon, Sun } from "lucide-react";
+import { getUaComments, getUaDashboard, getUaLocations } from "@/services/university-admin";
 
 export default function UaDashboardPage() {
-  const { data: dashboard } = useQuery({ queryKey: ["ua", "dashboard"], queryFn: getUaDashboard });
-  const { data: comments = [] } = useQuery({ queryKey: ["ua", "comments"], queryFn: getUaComments });
-  const [darkMode, setDarkMode] = useState(false);
+  const { data: dashboard } = useQuery({
+    queryKey: ["ua", "dashboard"],
+    queryFn: getUaDashboard,
+  });
+  const { data: comments = [] } = useQuery({
+    queryKey: ["ua", "comments"],
+    queryFn: getUaComments,
+  });
+  const { data: locations = [] } = useQuery({
+    queryKey: ["ua", "locations"],
+    queryFn: getUaLocations,
+  });
 
-  if (!dashboard) {
-    return <PageLoader className="min-h-screen bg-gradient-to-br from-orange-50/30 to-white py-0" />;
+  if (!dashboard || locations.length === 0) {
+    return <PageLoader className="min-h-screen bg-[#f8fafc] py-0" />;
   }
 
+  const scoreLocation = (location: (typeof locations)[number]) => {
+    const seatsScore = { Yes: 30, Unsure: 15, No: 0 }[location.seats];
+    const wifiScore = { Strong: 20, Medium: 12, Weak: 4 }[location.wifi];
+    const crowdScore = { Low: 20, Medium: 12, High: 4 }[location.crowd];
+    const ratingScore = (location.rating / 5) * 20;
+    const reviewConfidenceScore = Math.min(location.reviews / 100, 1) * 10;
+
+    return seatsScore + wifiScore + crowdScore + ratingScore + reviewConfidenceScore;
+  };
+
+  const bestLocation = locations.reduce((best, location) =>
+    scoreLocation(location) > scoreLocation(best) ? location : best
+  );
+  const worstLocation = locations.reduce((worst, location) =>
+    scoreLocation(location) < scoreLocation(worst) ? location : worst
+  );
+  const bestLocationScore = Math.round(scoreLocation(bestLocation));
+  const worstLocationScore = Math.round(scoreLocation(worstLocation));
+  const quietLocations = locations.filter((location) => location.crowd === "Low").length;
+
   const stats = [
-    { label: "Total Locations", value: dashboard.locations, icon: Building2, gradient: "from-orange-500 to-orange-600", href: "/university-admin/locations" },
-    { label: "Avg. Rating", value: dashboard.avgRating.toFixed(1), icon: Star, gradient: "from-amber-500 to-amber-600", href: "/university-admin/locations" },
-    { label: "Comments", value: dashboard.comments, icon: MessageSquare, gradient: "from-blue-500 to-blue-600", href: "/university-admin/comments" },
-    { label: "Seats Available", value: dashboard.seatsAvailable, icon: Armchair, gradient: "from-emerald-500 to-emerald-600", href: "/university-admin/locations" },
+    {
+      label: "Total locations",
+      value: dashboard.locations,
+      detail: "+2 this month",
+      icon: Building2,
+      iconClass: "bg-orange-100 text-orange-600",
+      href: "/university-admin/locations",
+    },
+    {
+      label: "Average rating",
+      value: dashboard.avgRating.toFixed(1),
+      detail: "Out of 5.0",
+      icon: Star,
+      iconClass: "bg-amber-100 text-amber-600",
+      href: "/university-admin/locations",
+    },
+    {
+      label: "Student comments",
+      value: dashboard.comments,
+      detail: "12 new this week",
+      icon: MessageSquare,
+      iconClass: "bg-blue-100 text-blue-600",
+      href: "/university-admin/comments",
+    },
+    {
+      label: "Quiet spaces",
+      value: quietLocations,
+      detail: "Low crowd reported",
+      icon: Users,
+      iconClass: "bg-emerald-100 text-emerald-600",
+      href: "/university-admin/locations",
+    },
   ];
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-br from-orange-50/40 via-white to-orange-50/20"}`}>
-      <div className="mx-auto w-full max-w-[412px] px-4 pb-10 pt-10">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className={`text-2xl font-bold tracking-tight ${darkMode ? "text-white" : "text-slate-900"}`}>Dashboard</h1>
-            <p className={`mt-1 text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>University of Moratuwa</p>
+    <main className="min-h-screen bg-[#f8fafc] text-slate-900">
+      <div className="mx-auto flex w-full max-w-[412px] flex-col px-4 pb-8 pt-7">
+        <header className="mb-6 flex items-start justify-between">
+          <div className="min-w-0">
+            <p className="mb-1 flex items-center gap-1.5 text-xs font-medium text-orange-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+              Admin overview
+            </p>
+            <h1 className="truncate text-[25px] font-bold tracking-[-0.5px] text-slate-950">
+              Good morning
+            </h1>
+            <p className="mt-1 truncate text-sm text-slate-500">{dashboard.university}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-105 ${darkMode ? "bg-slate-800/80 text-amber-400 hover:bg-slate-700 backdrop-blur" : "bg-white/80 text-slate-600 shadow-md shadow-slate-200/50 hover:shadow-lg backdrop-blur"}`}
-              aria-label="Toggle theme"
+          <Link
+            href="/university-admin/profile"
+            aria-label="Open admin profile"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500 text-sm font-bold text-white shadow-[0_8px_18px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+          >
+            UA
+          </Link>
+        </header>
+
+        <section className="order-2 mb-5 rounded-2xl border border-orange-100 bg-white p-4 shadow-[0_5px_16px_rgba(15,23,42,0.04)]">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-orange-500">Daily comparison</p>
+              <h2 className="mt-1 text-base font-bold text-slate-900">Study space performance</h2>
+            </div>
+            <div className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-semibold text-orange-600">
+              All factors
+            </div>
+          </div>
+          <div className="divide-y divide-orange-100">
+            <Link
+              href={`/university-admin/locations/${bestLocation.id}`}
+              className="group block w-full min-w-0 pb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+              aria-label={`Open ${bestLocation.name}`}
             >
-              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <Link href="/university-admin/profile" className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#f97316] to-orange-600 shadow-lg shadow-orange-300/40 ring-2 ring-white/20 transition-all hover:scale-105 hover:shadow-xl hover:shadow-orange-400/50">
-              <span className="text-sm font-semibold text-white">UM</span>
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <div>
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-orange-500">Top match</p>
+                  <h3 className="text-sm font-bold leading-5 text-slate-900">Best place today</h3>
+                </div>
+                <div className="rounded-md bg-orange-100 p-1">
+                  <Users className="h-3 w-3 text-orange-600" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-sm font-bold tracking-tight text-slate-900 transition-colors group-hover:text-orange-600">{bestLocation.name}</p>
+                <span className="shrink-0 text-[11px] font-semibold text-orange-600">{bestLocationScore}/100</span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-orange-100">
+                <div className="h-full rounded-full bg-orange-500" style={{ width: `${bestLocationScore}%` }} />
+              </div>
+              <p className="mt-2 truncate text-[10px] text-slate-500">
+                Seats {bestLocation.seats} · Wi‑Fi {bestLocation.wifi}
+              </p>
+            </Link>
+
+            <Link
+              href={`/university-admin/locations/${worstLocation.id}`}
+              className="group block w-full min-w-0 pt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+              aria-label={`Open ${worstLocation.name}`}
+            >
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <div>
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-orange-400">Needs attention</p>
+                  <h3 className="text-sm font-bold leading-5 text-slate-900">Lowest score</h3>
+                </div>
+                <div className="rounded-md bg-orange-50 p-1">
+                  <Armchair className="h-3 w-3 text-orange-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-sm font-bold tracking-tight text-slate-900 transition-colors group-hover:text-orange-600">{worstLocation.name}</p>
+                <span className="shrink-0 text-[11px] font-semibold text-orange-500">{worstLocationScore}/100</span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-orange-100">
+                <div className="h-full rounded-full bg-orange-300" style={{ width: `${worstLocationScore}%` }} />
+              </div>
+              <p className="mt-2 truncate text-[10px] text-slate-500">
+                Seats {worstLocation.seats} · Wi‑Fi {worstLocation.wifi}
+              </p>
             </Link>
           </div>
-        </div>
+        </section>
 
-        <div className="mb-6 grid grid-cols-2 gap-3">
+        <div className="order-1 mb-6 grid grid-cols-2 gap-3">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <Link
                 key={stat.label}
                 href={stat.href}
-                className={`group relative overflow-hidden rounded-2xl border p-4 transition-all duration-300 hover:-translate-y-1 ${darkMode ? "border-slate-800/80 bg-gradient-to-br from-slate-900/80 to-slate-900/40 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-orange-950/30" : "border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 shadow-lg shadow-slate-200/40 hover:shadow-xl hover:shadow-orange-100/60"}`}
+                className="group rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_5px_16px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
               >
-                <div className={`absolute -right-2 -top-2 h-12 w-12 rounded-full bg-gradient-to-br ${stat.gradient} opacity-10 blur-2xl`} />
-                <div className={`relative mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} shadow-md transition-transform group-hover:scale-110`}>
-                  <Icon className="h-5 w-5 text-white" />
+                <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${stat.iconClass}`}>
+                  <Icon className="h-[18px] w-[18px]" />
                 </div>
-                <div className="relative">
-                  <p className={`text-2xl font-bold ${darkMode ? "text-white" : "text-slate-900"}`}>{stat.value}</p>
-                  <p className={`mt-0.5 text-xs font-medium ${darkMode ? "text-slate-400" : "text-slate-600"}`}>{stat.label}</p>
+                <div className="flex items-end justify-between gap-2">
+                  <p className="text-[23px] font-bold leading-none tracking-tight text-slate-950">{stat.value}</p>
+                  <ArrowUpRight className="h-4 w-4 text-slate-300 transition group-hover:text-orange-500" />
                 </div>
-                <TrendingUp className={`absolute bottom-3 right-3 h-4 w-4 transition-all group-hover:translate-x-0.5 ${darkMode ? "text-slate-600 group-hover:text-orange-400" : "text-slate-300 group-hover:text-[#f97316]"}`} />
+                <p className="mt-2 text-xs font-semibold text-slate-700">{stat.label}</p>
+                <p className="mt-1 text-[10px] text-slate-400">{stat.detail}</p>
               </Link>
             );
           })}
         </div>
 
-        <div className={`mb-6 overflow-hidden rounded-2xl border shadow-lg ${darkMode ? "border-slate-800 bg-slate-900/50 shadow-slate-900/50" : "border-white/60 bg-white shadow-orange-100/40"}`}>
-          <div className={`flex items-center justify-between px-4 py-3 ${darkMode ? "bg-gradient-to-r from-slate-800 to-slate-900/50" : "bg-gradient-to-r from-orange-50 to-white"}`}>
+        <section className="order-3 mb-5 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_5px_16px_rgba(15,23,42,0.04)]">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
             <div>
-              <h2 className={`text-sm font-semibold ${darkMode ? "text-white" : "text-slate-900"}`}>Recent Feedback</h2>
-              <p className={`text-xs ${darkMode ? "text-slate-400" : "text-slate-600"}`}>Latest from your locations</p>
+              <h2 className="text-sm font-bold text-slate-900">Recent feedback</h2>
+              <p className="mt-0.5 text-xs text-slate-400">What students are saying</p>
             </div>
-            <Link href="/university-admin/comments" className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${darkMode ? "bg-[#f97316]/20 text-orange-400 hover:bg-[#f97316]/30" : "bg-[#f97316]/10 text-[#f97316] hover:bg-[#f97316]/20"}`}>
+            <Link
+              href="/university-admin/comments"
+              className="flex items-center gap-0.5 text-xs font-semibold text-orange-600 hover:text-orange-700"
+            >
               View all
-              <ChevronRight className="h-3 w-3" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
-          <div className="p-4">
+          <div className="divide-y divide-slate-100 px-4">
             {comments.length === 0 ? (
-              <div className={`flex h-24 items-center justify-center rounded-xl border border-dashed text-sm ${darkMode ? "border-slate-700 text-slate-500" : "border-slate-200 text-slate-400"}`}>
-                No comments yet
-              </div>
+              <div className="flex h-24 items-center justify-center text-sm text-slate-400">No comments yet</div>
             ) : (
-              <div className="space-y-3">
-                {comments.slice(0, 2).map((comment) => (
-                  <div key={comment.id} className={`rounded-xl border p-3 shadow-sm ${darkMode ? "border-slate-700 bg-slate-800/50" : "border-slate-100 bg-gradient-to-br from-white to-slate-50/30"}`}>
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-3.5 w-3.5 ${i < Math.round(comment.rating) ? "fill-amber-400 text-amber-400" : darkMode ? "fill-slate-700 text-slate-700" : "fill-slate-200 text-slate-200"}`}
-                          />
-                        ))}
-                        <span className={`ml-1 text-xs font-medium ${darkMode ? "text-slate-300" : "text-slate-700"}`}>{comment.rating.toFixed(1)}</span>
-                      </div>
-                      <span className={`text-[11px] ${darkMode ? "text-slate-500" : "text-slate-400"}`}>{comment.createdAt}</span>
+              comments.slice(0, 2).map((comment) => (
+                <article key={comment.id} className="py-4">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, index) => (
+                        <Star
+                          key={index}
+                          className={`h-3.5 w-3.5 ${
+                            index < Math.round(comment.rating)
+                              ? "fill-amber-400 text-amber-400"
+                              : "fill-slate-100 text-slate-200"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-1 text-[11px] font-semibold text-slate-600">{comment.rating.toFixed(1)}</span>
                     </div>
-                    <p className={`text-sm leading-relaxed ${darkMode ? "text-slate-300" : "text-slate-700"}`}>&ldquo;{comment.text}&rdquo;</p>
-                    <div className="mt-2 flex items-center gap-1.5">
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
-                      <p className={`text-xs font-medium ${darkMode ? "text-slate-400" : "text-slate-600"}`}>{comment.locationName}</p>
-                    </div>
+                    <span className="flex items-center gap-1 text-[10px] text-slate-400">
+                      <Clock3 className="h-3 w-3" />
+                      {comment.createdAt}
+                    </span>
                   </div>
-                ))}
-              </div>
+                  <p className="text-sm leading-5 text-slate-700">&ldquo;{comment.text}&rdquo;</p>
+                  <p className="mt-2 text-[11px] font-medium text-orange-600">{comment.locationName}</p>
+                </article>
+              ))
             )}
           </div>
-        </div>
+        </section>
 
-        <div className="overflow-hidden rounded-2xl border border-white/60 bg-gradient-to-br from-[#f97316] to-orange-600 shadow-xl shadow-orange-200/60">
-          <div className="p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
-                <Plus className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-white">Quick Actions</h2>
-                <p className="text-xs text-orange-100">Add and manage locations</p>
-              </div>
+        <section className="order-4 rounded-2xl bg-orange-500 p-4 text-white shadow-[0_12px_24px_rgba(249,115,22,0.22)]">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="rounded-xl bg-white/20 p-2">
+              <Plus className="h-4 w-4" />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Link
-                href="/university-admin/locations/new"
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-[#f97316] shadow-lg transition-all hover:scale-105 hover:shadow-xl"
-              >
-                <Plus className="h-4 w-4" />
-                Add Location
-              </Link>
-              <Link
-                href="/university-admin/locations"
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-white/10 backdrop-blur px-3 py-2 text-sm font-semibold text-white transition-all hover:bg-white/20"
-              >
-                Manage
-              </Link>
+            <div>
+              <h2 className="text-sm font-bold">Quick actions</h2>
+              <p className="text-[11px] text-orange-100">Keep your spaces up to date</p>
             </div>
           </div>
-        </div>
+          <div>
+            <Link
+              href="/university-admin/locations/new"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-white px-3 py-2.5 text-xs font-bold text-orange-600 transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-orange-500"
+            >
+              <Plus className="h-4 w-4" />
+              Add location
+            </Link>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
