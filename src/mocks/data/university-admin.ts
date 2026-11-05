@@ -9,9 +9,39 @@ export const uaDashboard = {
 };
 
 export const uaLocations = [
-  { id: "ua-1", name: "Central Library Study Zone", building: "Library", rating: 4.6, reviews: 42, status: "Active" },
-  { id: "ua-2", name: "Engineering Block", building: "Engineering", rating: 4.5, reviews: 31, status: "Active" },
-  { id: "ua-3", name: "IT Computer Labs", building: "IT Faculty", rating: 4.6, reviews: 176, status: "Active" },
+  {
+    id: "ua-1",
+    name: "Central Library Study Zone",
+    building: "Library",
+    rating: 4.6,
+    reviews: 42,
+    status: "Active",
+    seats: "Yes" as const,
+    wifi: "Strong" as const,
+    crowd: "Low" as const,
+  },
+  {
+    id: "ua-2",
+    name: "Engineering Block",
+    building: "Engineering",
+    rating: 4.5,
+    reviews: 31,
+    status: "Active",
+    seats: "Unsure" as const,
+    wifi: "Medium" as const,
+    crowd: "Medium" as const,
+  },
+  {
+    id: "ua-3",
+    name: "IT Computer Labs",
+    building: "IT Faculty",
+    rating: 4.6,
+    reviews: 176,
+    status: "Active",
+    seats: "No" as const,
+    wifi: "Strong" as const,
+    crowd: "High" as const,
+  },
 ];
 
 export const uaComments: Comment[] = [

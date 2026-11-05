@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
+import { useUniversityAdminStore } from "@/stores/university-admin-store";
 
 const schema = z.object({
   name: z.string().min(2, "Enter a location name"),
@@ -16,8 +18,11 @@ export default function AddLocationPage() {
   const [name, setName] = useState("");
   const [building, setBuilding] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const addLocation = useUniversityAdminStore((state) => state.addLocation);
 
-  function submit() {
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const result = schema.safeParse({ name, building });
     if (!result.success) {
       const message = result.error.issues[0]?.message ?? "Invalid";
@@ -26,6 +31,24 @@ export default function AddLocationPage() {
       return;
     }
     setError(null);
+    setConfirmOpen(true);
+  }
+
+  function confirmAdd() {
+    addLocation({
+      name: name.trim(),
+      building: building.trim(),
+      area: building.trim(),
+      hours: "Open 8 AM–10 PM",
+      status: "Active",
+      seats: "Unsure",
+      wifi: "Medium",
+      crowd: "Medium",
+      noise: "Moderate",
+      description: `A student study space in the ${building.trim()} building.`,
+      category: "Study space",
+      amenities: ["Wi-Fi", "Power outlet"],
+    });
     toast.success("Location added");
     router.push("/university-admin/locations");
   }
@@ -38,7 +61,7 @@ export default function AddLocationPage() {
         </button>
         <h1 className="text-[20px] font-semibold tracking-[-0.2px] text-[#0f172a]">Add location</h1>
       </div>
-      <div className="space-y-[16px] px-[24px]">
+      <form onSubmit={submit} className="space-y-[16px] px-[24px]">
         <div className="space-y-[12px] rounded-[20px] border border-[#e2e8f0] bg-white p-[20px] shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
           <div>
             <label className="mb-2 block text-[13px] font-medium text-[#334155]">Location name</label>
@@ -60,10 +83,18 @@ export default function AddLocationPage() {
           </div>
           {error ? <p className="text-[13px] text-red-500">{error}</p> : null}
         </div>
-        <button onClick={submit} className="w-full rounded-[16px] bg-[#f97316] py-[14px] text-[14px] font-medium text-white shadow-[0px_6px_16px_rgba(249,115,22,0.25)]">
+        <button type="submit" className="w-full rounded-[16px] bg-[#f97316] py-[14px] text-[14px] font-medium text-white shadow-[0px_6px_16px_rgba(249,115,22,0.25)]">
           Save location
         </button>
-      </div>
+      </form>
+      <AdminConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Add this location?"
+        description={`Students will see ${name.trim()} under ${building.trim()}. You can edit its details and status after adding it.`}
+        confirmLabel="Add location"
+        onConfirm={confirmAdd}
+      />
     </div>
   );
 }
