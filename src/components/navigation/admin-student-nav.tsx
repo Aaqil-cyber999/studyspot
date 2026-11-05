@@ -19,7 +19,7 @@ export function AdminStudentNav() {
 
   return (
     <div
-      className="fixed bottom-[19px] left-1/2 z-40 w-[360px] max-w-[calc(100vw-1rem)] -translate-x-1/2 overflow-clip rounded-[50px] bg-[#f97316] shadow-[0px_0px_25px_5px_rgba(0,0,0,0.5)]"
+      className="fixed bottom-[19px] left-1/2 z-40 w-[calc(100%-32px)] max-w-[380px] -translate-x-1/2 overflow-clip rounded-[50px] bg-[#f97316] shadow-[0px_0px_25px_5px_rgba(0,0,0,0.5)]"
       style={{ height: "63px" }}
     >
       <div className={`absolute bg-[rgba(255,255,255,0.22)] h-[49px] w-[84px] rounded-[25px] shadow-[0px_5px_10px_10px_rgba(0,0,0,0.25)] top-[7px] ${currentPillLeft}`} />
