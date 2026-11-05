@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getUaLocations } from "@/services/university-admin";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 
 export default function UaLocationsPage() {
   const { data: locations = [] } = useQuery({ queryKey: ["ua", "locations"], queryFn: getUaLocations });
@@ -29,11 +29,11 @@ export default function UaLocationsPage() {
       </div>
       <div className="mt-[16px] space-y-[12px] px-[24px] pb-[100px]">
         {locations.map((loc) => (
-          <Link
+          <div
             key={loc.id}
-            href={`/university-admin/locations/${loc.id}`}
-            className="block overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]"
+            className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]"
           >
+            <Link href={`/university-admin/locations/${loc.id}`} className="block">
             <div className="h-[150px] w-full bg-gradient-to-br from-orange-100 to-orange-50" />
             <div className="space-y-[8px] p-[16px]">
               <div className="flex items-start justify-between">
@@ -50,7 +50,18 @@ export default function UaLocationsPage() {
                 <span>{loc.reviews} reviews</span>
               </div>
             </div>
-          </Link>
+            </Link>
+            <div className="border-t border-slate-100 px-4 py-3">
+              <Link
+                href={`/university-admin/locations/${loc.id}/edit`}
+                aria-label={`Edit ${loc.name}`}
+                className="flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-orange-50 text-sm font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+              >
+                <Pencil className="h-4 w-4" />
+                Edit location
+              </Link>
+            </div>
+          </div>
         ))}
       </div>
       <Link
