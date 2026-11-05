@@ -5,12 +5,14 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { ClipboardList, MessageSquare, Search, Trash2 } from "lucide-react";
 import { useUniversityAdminStore } from "@/stores/university-admin-store";
+import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 
 export default function UaReportsPage() {
   const reports = useUniversityAdminStore((state) => state.reports);
   const moderateReport = useUniversityAdminStore((state) => state.moderateReport);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"All" | "Pending" | "Dismissed">("All");
+  const [reportToRemove, setReportToRemove] = useState<string | null>(null);
   const filteredReports = useMemo(
     () => reports.filter((report) => {
       const matchesQuery = `${report.locationName} ${report.comment}`.toLowerCase().includes(query.toLowerCase());
@@ -55,7 +57,7 @@ export default function UaReportsPage() {
                 <MessageSquare className="h-3.5 w-3.5" /> Check complaints
               </Link>
               {report.status === "Pending" ? (
-                <button type="button" onClick={() => { if (window.confirm("Remove this student report?")) removeReport(report.id); }} className="flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 text-xs font-semibold text-red-600">
+                <button type="button" onClick={() => setReportToRemove(report.id)} className="flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 text-xs font-semibold text-red-600">
                   <Trash2 className="h-3.5 w-3.5" /> Remove
                 </button>
               ) : null}
@@ -63,6 +65,15 @@ export default function UaReportsPage() {
           </article>
         ))}
       </div>
+      <AdminConfirmDialog
+        open={reportToRemove !== null}
+        onOpenChange={(open) => { if (!open) setReportToRemove(null); }}
+        title="Remove this report?"
+        description="The report will be marked as dismissed and removed from the pending queue."
+        confirmLabel="Remove report"
+        destructive
+        onConfirm={() => { if (reportToRemove) removeReport(reportToRemove); setReportToRemove(null); }}
+      />
     </div>
   );
 }

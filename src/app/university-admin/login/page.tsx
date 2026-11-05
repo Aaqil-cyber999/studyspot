@@ -52,7 +52,7 @@ export default function UniversityAdminLoginPage() {
     }
     setMessage("Signing in...");
     setRole("university-admin");
-    toast.success("Signed in");
+    toast.success("Welcome back, University Admin!");
     router.push("/university-admin/dashboard");
   }
 

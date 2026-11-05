@@ -4,12 +4,14 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Check, EyeOff, Search } from "lucide-react";
 import { useUniversityAdminStore } from "@/stores/university-admin-store";
+import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 
 export default function UaCommentsPage() {
   const comments = useUniversityAdminStore((state) => state.comments);
   const moderateComment = useUniversityAdminStore((state) => state.moderateComment);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"All" | "Visible" | "Hidden">("All");
+  const [commentToHide, setCommentToHide] = useState<string | null>(null);
   const filteredComments = useMemo(
     () => comments.filter((comment) => {
       const matchesQuery = `${comment.text} ${comment.locationName}`.toLowerCase().includes(query.toLowerCase());
@@ -46,11 +48,20 @@ export default function UaCommentsPage() {
             <p className="mt-2 text-xs text-slate-500">{comment.locationName} · {comment.createdAt}</p>
             <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3">
               <button type="button" onClick={() => setStatus(comment.id, "Visible")} disabled={comment.status === "Visible"} className="flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-50 text-xs font-semibold text-emerald-700 disabled:opacity-40"><Check className="h-3.5 w-3.5" /> Keep visible</button>
-              <button type="button" onClick={() => { if (window.confirm("Hide this comment from students?")) setStatus(comment.id, "Hidden"); }} disabled={comment.status === "Hidden"} className="flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 text-xs font-semibold text-red-600 disabled:opacity-40"><EyeOff className="h-3.5 w-3.5" /> Hide</button>
+              <button type="button" onClick={() => setCommentToHide(comment.id)} disabled={comment.status === "Hidden"} className="flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 text-xs font-semibold text-red-600 disabled:opacity-40"><EyeOff className="h-3.5 w-3.5" /> Hide</button>
             </div>
           </article>
         ))}
       </div>
+      <AdminConfirmDialog
+        open={commentToHide !== null}
+        onOpenChange={(open) => { if (!open) setCommentToHide(null); }}
+        title="Hide this comment?"
+        description="Students will no longer see this comment, but it will remain available in the Hidden filter."
+        confirmLabel="Hide comment"
+        destructive
+        onConfirm={() => { if (commentToHide) setStatus(commentToHide, "Hidden"); setCommentToHide(null); }}
+      />
     </div>
   );
 }

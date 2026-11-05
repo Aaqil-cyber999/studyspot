@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { AdminStudentNav } from "@/components/navigation/admin-student-nav";
+import { useUniversityAdminThemeStore } from "@/stores/university-admin-theme-store";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   const router = useRouter();
   const pathname = usePathname();
   const role = useAuthStore((s) => s.role);
+  const isDark = useUniversityAdminThemeStore((state) => state.isDark);
 
   const isLogin = pathname === "/university-admin/login";
 
@@ -29,7 +31,7 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="mx-auto min-h-screen w-[412px] bg-[#fbfbfc] pb-[90px]">
+    <div data-admin-theme={isDark ? "dark" : "light"} className="admin-shell mx-auto min-h-screen w-[412px] bg-[#fbfbfc] pb-[90px]">
       {children}
       <AdminStudentNav />
     </div>
