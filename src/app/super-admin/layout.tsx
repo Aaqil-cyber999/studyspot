@@ -14,7 +14,7 @@ const items = [
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto min-h-screen w-[412px] bg-white pb-20">
+    <div data-admin-theme="light" className="admin-shell mx-auto min-h-screen w-[412px] bg-[#f8fafc] pb-20">
       {children}
       <AdminBottomNav items={items} />
     </div>

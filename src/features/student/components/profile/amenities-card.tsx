@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
 import { Menu, MenuContent, MenuItem, MenuTrigger } from "@/components/ui/menu";
-import { amenityOptions } from "@/mocks/data/student";
 
 const CHIP_ICONS: Record<string, string> = {
   "Wi-Fi": "/assets/profile/b2610.svg",
@@ -30,15 +29,17 @@ interface AmenitiesCardProps {
   amenities: readonly string[];
   onAddAmenity: (amenity: string) => void;
   onRemoveAmenity: (amenity: string) => void;
+  availableOptions: readonly string[];
 }
 
 export function AmenitiesCard({
   amenities,
   onAddAmenity,
   onRemoveAmenity,
+  availableOptions,
 }: AmenitiesCardProps) {
   const addButtonRef = useRef<HTMLButtonElement>(null);
-  const availableAmenities = amenityOptions.filter(
+  const availableAmenities = availableOptions.filter(
     (amenity) => !amenities.includes(amenity),
   );
 

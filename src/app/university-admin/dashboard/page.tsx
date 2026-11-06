@@ -10,6 +10,7 @@ import {
   Clock3,
   MessageSquare,
   Plus,
+  SlidersHorizontal,
   Star,
   Users,
 } from "lucide-react";
@@ -114,7 +115,7 @@ export default function UaDashboardPage() {
 
         <section className="order-2 mb-5 rounded-2xl border border-orange-100 bg-white p-4 shadow-[0_5px_16px_rgba(15,23,42,0.04)]">
           <div className="mb-3 flex items-center justify-between">
-            <div>
+            <div className="grid gap-2 sm:grid-cols-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-orange-500">Daily comparison</p>
               <h2 className="mt-1 text-base font-bold text-slate-900">Study space performance</h2>
             </div>
@@ -264,6 +265,13 @@ export default function UaDashboardPage() {
             >
               <Plus className="h-4 w-4" />
               Add location
+            </Link>
+            <Link
+              href="/university-admin/settings/options"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/40 bg-white/15 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-orange-500"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Option management
             </Link>
           </div>
         </section>

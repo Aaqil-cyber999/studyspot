@@ -31,15 +31,13 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { amenityOptions } from "@/mocks/data/student";
 import { studySpotCatalog } from "@/mocks/data/study-spots";
 import { SpotBookmark } from "@/features/student/components/discover/spot-bookmark";
 import { ProfileAvatar } from "@/features/student/components/profile/profile-avatar";
 import { useProfileStore } from "@/stores/profile-store";
+import { useAdminOptionsStore } from "@/stores/admin-options-store";
 
 const a = (name: string) => `/assets/home/${name}`;
-const FILTER_CHIPS = ["Quiet", "Seats available", ...amenityOptions];
-
 const amenityIcons: Record<string, typeof Wifi> = {
   "Wi-Fi": Wifi,
   "Power outlets": Plug,
@@ -120,6 +118,13 @@ function matchesFilter(spot: (typeof studySpotCatalog)[number], filter: string) 
 export default function StudentHomePage() {
   const profileName = useProfileStore((state) => state.name);
   const profileImage = useProfileStore((state) => state.image);
+  const configuredAmenities = useAdminOptionsStore((state) =>
+    state.options
+      .filter((option) => option.category === "amenities" && option.active)
+      .sort((a, b) => a.order - b.order)
+      .map((option) => option.label)
+  );
+  const filterChips = useMemo(() => ["Quiet", "Seats available", ...configuredAmenities], [configuredAmenities]);
   const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
   const firstName = profileName.trim().split(/\s+/)[0] || profileName;
@@ -169,7 +174,7 @@ export default function StudentHomePage() {
         </div>
 
         <div role="group" aria-label="Filters" tabIndex={0} className="-mx-[24px] mt-[15px] flex gap-[8px] overflow-x-auto overscroll-x-contain px-[24px] [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f97316] [&::-webkit-scrollbar]:hidden">
-          {FILTER_CHIPS.map((filter) => {
+          {filterChips.map((filter) => {
             const active = selectedFilter === filter;
 
             return (

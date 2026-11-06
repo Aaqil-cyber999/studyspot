@@ -3,12 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useReportStore } from "@/stores/report-store";
+import { useAdminOptionsStore } from "@/stores/admin-options-store";
 import { StatusChoiceRow } from "./status-choice-row";
-
-const NOISE_OPTIONS = ["Quiet", "Moderate", "Loud"] as const;
-const CROWD_OPTIONS = ["Low", "Medium", "High"] as const;
-const SEATS_OPTIONS = ["Yes", "No", "Unsure"] as const;
-const WIFI_OPTIONS = ["Strong", "Medium", "Weak"] as const;
 
 interface ReportStatusFormProps {
   spotName: string;
@@ -25,6 +21,12 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
   const storedSeats = useReportStore((state) => state.seats);
   const storedWifi = useReportStore((state) => state.wifi);
   const storedComment = useReportStore((state) => state.comment);
+  const options = useAdminOptionsStore((state) => state.options);
+  const getActiveOptions = (category: "noise" | "crowd" | "seats" | "wifi", currentValue: string) =>
+    options
+      .filter((option) => option.category === category && (option.active || option.label === currentValue))
+      .sort((a, b) => a.order - b.order)
+      .map((option) => option.label);
   const [noise, setNoise] = useState<string>(storedNoise);
   const [crowd, setCrowd] = useState<string>(storedCrowd);
   const [seats, setSeats] = useState<string>(storedSeats);
@@ -75,25 +77,25 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
 
           <StatusChoiceRow
             label="Noise level"
-            options={NOISE_OPTIONS}
+            options={getActiveOptions("noise", noise)}
             value={noise}
             onChange={setNoise}
           />
           <StatusChoiceRow
             label="Crowd level"
-            options={CROWD_OPTIONS}
+            options={getActiveOptions("crowd", crowd)}
             value={crowd}
             onChange={setCrowd}
           />
           <StatusChoiceRow
             label="Seats available"
-            options={SEATS_OPTIONS}
+            options={getActiveOptions("seats", seats)}
             value={seats}
             onChange={setSeats}
           />
           <StatusChoiceRow
             label="Wi-Fi"
-            options={WIFI_OPTIONS}
+            options={getActiveOptions("wifi", wifi)}
             value={wifi}
             onChange={setWifi}
           />

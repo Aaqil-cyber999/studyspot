@@ -9,10 +9,8 @@ import { ProfileAvatar } from "@/features/student/components/profile/profile-ava
 import { SignOutDialog } from "@/features/student/components/profile/sign-out-dialog";
 import { getStudentProfile } from "@/services/student";
 import { useProfileStore } from "@/stores/profile-store";
+import { useAdminOptionsStore } from "@/stores/admin-options-store";
 
-const STUDY_STYLE_OPTIONS = ["Quiet", "Focused", "Social"] as const;
-const NOISE_LEVEL_OPTIONS = ["Low", "Medium", "High"] as const;
-const STUDY_TYPE_OPTIONS = ["Individual", "Group", "Hybrid"] as const;
 
 export default function StudentProfilePage() {
   const { data: profile } = useQuery({
@@ -33,6 +31,12 @@ export default function StudentProfilePage() {
   const setStudyType = useProfileStore((state) => state.setStudyType);
   const addAmenity = useProfileStore((state) => state.addAmenity);
   const removeAmenity = useProfileStore((state) => state.removeAmenity);
+  const options = useAdminOptionsStore((state) => state.options);
+  const activeOptions = (category: "noise" | "studyEnvironment" | "amenities") =>
+    options
+      .filter((option) => option.category === category && option.active)
+      .sort((a, b) => a.order - b.order)
+      .map((option) => option.label);
 
   if (!profile) {
     return <PageLoader className="min-h-[calc(100dvh-90px)] bg-[#fbfbfc] py-0" />;
@@ -72,7 +76,7 @@ export default function StudentProfilePage() {
             label="Study style"
             iconSrc="/assets/profile/f9268.svg"
             value={studyStyle}
-            options={STUDY_STYLE_OPTIONS}
+            options={activeOptions("studyEnvironment")}
             onValueChange={setStudyStyle}
             withBorder
           />
@@ -80,7 +84,7 @@ export default function StudentProfilePage() {
             label="Noise level"
             iconSrc="/assets/profile/28e38.svg"
             value={noiseLevel}
-            options={NOISE_LEVEL_OPTIONS}
+            options={activeOptions("noise")}
             onValueChange={setNoiseLevel}
             withBorder
           />
@@ -88,7 +92,7 @@ export default function StudentProfilePage() {
             label="Study type"
             iconSrc="/assets/profile/59cad.svg"
             value={studyType}
-            options={STUDY_TYPE_OPTIONS}
+            options={activeOptions("studyEnvironment")}
             onValueChange={setStudyType}
           />
         </div>
@@ -101,6 +105,7 @@ export default function StudentProfilePage() {
         </div>
         <AmenitiesCard
           amenities={amenities}
+          availableOptions={activeOptions("amenities")}
           onAddAmenity={addAmenity}
           onRemoveAmenity={removeAmenity}
         />

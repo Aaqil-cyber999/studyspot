@@ -8,6 +8,7 @@ import { ArrowLeft, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { useUniversityAdminStore, type AdminLocation } from "@/stores/university-admin-store";
+import { useAdminOptionsStore } from "@/stores/admin-options-store";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Enter a location name"),
@@ -26,6 +27,7 @@ export default function EditLocationPage() {
   const params = useParams<{ id: string }>();
   const location = useUniversityAdminStore((state) => state.locations.find((item) => item.id === params.id));
   const updateLocation = useUniversityAdminStore((state) => state.updateLocation);
+  const options = useAdminOptionsStore((state) => state.options);
   const [error, setError] = useState<string | null>(null);
   const [values, setValues] = useState<FormValues | null>(() =>
     location
@@ -46,6 +48,11 @@ export default function EditLocationPage() {
 
   const currentLocation = location;
   const currentValues = values;
+  const availableOptions = (category: "wifi" | "noise" | "crowd" | "seats", currentValue: string) =>
+    options
+      .filter((option) => option.category === category && (option.active || option.label === currentValue))
+      .sort((a, b) => a.order - b.order)
+      .map((option) => option.label);
 
   function update<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setValues((current) => (current ? { ...current, [key]: value } : current));
@@ -124,10 +131,10 @@ export default function EditLocationPage() {
             <p className="mt-0.5 text-xs text-slate-400">Keep these values aligned with student reports.</p>
           </div>
           <SelectField label="Location status" value={values.status} options={["Active", "Inactive"]} onChange={(value) => update("status", value as AdminLocation["status"])} />
-          <SelectField label="Seats available" value={values.seats} options={["Yes", "No", "Unsure"]} onChange={(value) => update("seats", value as AdminLocation["seats"])} />
-          <SelectField label="Wi-Fi strength" value={values.wifi} options={["Strong", "Medium", "Weak"]} onChange={(value) => update("wifi", value as AdminLocation["wifi"])} />
-          <SelectField label="Crowd level" value={values.crowd} options={["Low", "Medium", "High"]} onChange={(value) => update("crowd", value as AdminLocation["crowd"])} />
-          <SelectField label="Noise level" value={values.noise} options={["Quiet", "Moderate", "Loud"]} onChange={(value) => update("noise", value as AdminLocation["noise"])} />
+          <SelectField label="Seats available" value={values.seats} options={availableOptions("seats", values.seats)} onChange={(value) => update("seats", value as AdminLocation["seats"])} />
+          <SelectField label="Wi-Fi strength" value={values.wifi} options={availableOptions("wifi", values.wifi)} onChange={(value) => update("wifi", value as AdminLocation["wifi"])} />
+          <SelectField label="Crowd level" value={values.crowd} options={availableOptions("crowd", values.crowd)} onChange={(value) => update("crowd", value as AdminLocation["crowd"])} />
+          <SelectField label="Noise level" value={values.noise} options={availableOptions("noise", values.noise)} onChange={(value) => update("noise", value as AdminLocation["noise"])} />
           <div className="grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3">
             <div><p className="text-[10px] text-slate-400">Student rating</p><p className="mt-1 text-sm font-bold text-slate-700">{location.rating ? location.rating.toFixed(1) : "New"}</p></div>
             <div><p className="text-[10px] text-slate-400">Student reviews</p><p className="mt-1 text-sm font-bold text-slate-700">{location.reviews}</p></div>

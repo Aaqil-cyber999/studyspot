@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -11,9 +12,14 @@ import {
   LockKeyhole,
   LogOut,
   Mail,
+  MapPin,
+  MessageSquare,
   Moon,
   Pencil,
+  Plus,
+  SlidersHorizontal,
   ShieldCheck,
+  Settings,
   Sun,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -90,9 +96,21 @@ export default function UaProfilePage() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="px-6 pb-4 pt-16">
-        <p className="text-xs font-medium text-orange-600">Account settings</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-[-0.3px] text-[#0f172a]">Profile</h1>
+      <header className="px-6 pb-4 pt-8">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium text-orange-600">Account settings</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-[-0.3px] text-[#0f172a]">Profile</h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => document.getElementById("admin-settings")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            aria-label="Open profile settings"
+            className="mt-1 flex size-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+          >
+            <Settings className="size-4" />
+          </button>
+        </div>
       </header>
 
       <div className="space-y-4 px-6 pb-[120px]">
@@ -138,13 +156,38 @@ export default function UaProfilePage() {
         </section>
 
         <section className="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
-          <h2 className="text-sm font-bold text-[#0f172a]">Preferences</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-[#0f172a]">Admin management</h2>
+              <p className="mt-1 text-xs text-[#64748b]">Quick access to the areas you manage.</p>
+            </div>
+            <ShieldCheck className="size-4 text-orange-500" />
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <ManagementLink href="/university-admin/locations" icon={<MapPin className="size-4" />} label="Locations" />
+            <ManagementLink href="/university-admin/locations/new" icon={<Plus className="size-4" />} label="Add location" />
+            <ManagementLink href="/university-admin/comments" icon={<MessageSquare className="size-4" />} label="Feedback" />
+            <ManagementLink href="/university-admin/settings/options" icon={<SlidersHorizontal className="size-4" />} label="Option management" />
+          </div>
+        </section>
+
+        <section id="admin-settings" className="scroll-mt-4 rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-[#0f172a]">Settings</h2>
+              <p className="mt-1 text-xs text-[#64748b]">Personalize your Admin workspace.</p>
+            </div>
+            <Settings className="size-4 text-orange-500" />
+          </div>
           <div className="mt-3 divide-y divide-slate-100">
             <PreferenceRow icon={isDark ? <Sun className="size-4" /> : <Moon className="size-4" />} title="Appearance" description={isDark ? "Dark mode is on" : "Light mode is on"}>
               <button type="button" onClick={toggleTheme} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500">{isDark ? "Light" : "Dark"}</button>
             </PreferenceRow>
             <PreferenceRow icon={<Bell className="size-4" />} title="Admin notifications" description="Updates about reports and comments">
               <button type="button" role="switch" aria-checked={notifications} onClick={() => setNotifications((value) => !value)} className={`relative h-6 w-11 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${notifications ? "bg-orange-500" : "bg-slate-300"}`}><span className={`absolute top-1 size-4 rounded-full bg-white transition ${notifications ? "left-6" : "left-1"}`} /></button>
+            </PreferenceRow>
+            <PreferenceRow icon={<LockKeyhole className="size-4" />} title="Security" description="Password and sign-in protection">
+              <button type="button" onClick={() => toast("Security settings are managed by your university")} className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500">Managed</button>
             </PreferenceRow>
           </div>
         </section>
@@ -190,9 +233,21 @@ function StatCard({ label, value }: { label: string; value: number }) {
 }
 
 function PreferenceRow({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
-  return <div className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"><span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">{icon}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">{title}</p><p className="mt-0.5 truncate text-xs text-slate-500">{description}</p></div>{children}<ChevronRight className="size-4 text-slate-300" /></div>;
+  return <div className="admin-preference-row flex items-center gap-3 rounded-xl px-3 py-3 first:pt-3 last:pb-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">{icon}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">{title}</p><p className="mt-0.5 truncate text-xs text-slate-500">{description}</p></div>{children}<ChevronRight className="size-4 text-slate-300" /></div>;
 }
 
 function AccessRow({ icon, label }: { icon: React.ReactNode; label: string }) {
   return <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 last:border-0"><span className="text-orange-600">{icon}</span><span className="text-sm text-slate-700">{label}</span><Check className="ml-auto size-4 text-emerald-500" /></div>;
+}
+
+function ManagementLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-[76px] flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2 text-center text-xs font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+    >
+      <span className="text-orange-600">{icon}</span>
+      <span>{label}</span>
+    </Link>
+  );
 }
