@@ -10,7 +10,7 @@ export default function UaLocationsPage() {
 
   return (
     <div className="min-h-screen bg-[#fbfbfc]">
-      <div className="px-[24px] pb-[16px] pt-[64px]">
+      <div className="px-[24px] pb-[16px] pt-[32px]">
         <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">My locations</h1>
       </div>
       <div className="px-[24px]">

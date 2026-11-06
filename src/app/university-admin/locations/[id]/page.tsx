@@ -169,8 +169,8 @@ export default function UaLocationDetailsPage() {
               <h2 className="text-base font-bold text-slate-900">Recent student activity</h2>
               <p className="mt-0.5 text-xs text-slate-400">{reports.length} status reports · {comments.length} visible comments</p>
             </div>
-            <Link href="/university-admin/reports" className="flex items-center gap-1 text-xs font-semibold text-orange-600">
-              Reports <ChevronRight className="h-3.5 w-3.5" />
+            <Link href="/university-admin/comments" className="flex items-center gap-1 text-xs font-semibold text-orange-600">
+              Feedback <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <div className="space-y-3">

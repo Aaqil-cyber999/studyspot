@@ -9,8 +9,7 @@ const d = (name: string) => `/assets/detail/nav-${name}`;
 const items = [
   { href: "/university-admin/dashboard", label: "Dashboard", icon: "32a11.svg", iconSize: "size-[20px]" },
   { href: "/university-admin/locations", label: "Locations", icon: "d0d92.svg", iconSize: "h-[18px] w-[14px]" },
-  { href: "/university-admin/comments", label: "Comments", icon: "3d61b.svg", iconSize: "size-[16px]" },
-  { href: "/university-admin/reports", label: "Reports", icon: "3d61b.svg", iconSize: "size-[16px]" },
+  { href: "/university-admin/comments", label: "Feedback", icon: "3d61b.svg", iconSize: "size-[16px]" },
   { href: "/university-admin/profile", label: "Profile", icon: "3d61b.svg", iconSize: "size-[16px]" },
 ];
 
@@ -109,7 +108,7 @@ export function AdminStudentNav() {
         className="pointer-events-none absolute left-[6px] top-[7px] h-[49px] w-[64px] cursor-grab touch-none rounded-[25px] bg-[rgba(255,255,255,0.22)] shadow-[0px_5px_10px_10px_rgba(0,0,0,0.25)] transition-transform duration-100 ease-out active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]"
         style={{ transform: `translateX(${glassPosition}px)` }}
       />
-      <div className="absolute left-[6px] right-[6px] top-0 grid grid-cols-5 items-center py-[10px]">
+      <div className="absolute left-[6px] right-[6px] top-0 grid grid-cols-4 items-center py-[10px]">
         {items.map((item) => (
           <Link
             key={item.href}

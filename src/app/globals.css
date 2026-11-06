@@ -122,12 +122,38 @@
 
 [data-admin-theme="dark"] {
   color-scheme: dark;
-  background: #0f172a;
+  background: #0b1120;
+  color: #e2e8f0;
 }
 
 [data-admin-theme="dark"] .bg-\[\#fbfbfc\],
+[data-admin-theme="dark"] .bg-\[\#f8fafc\],
 [data-admin-theme="dark"] .bg-white {
-  background-color: #111827;
+  background-color: #0f172a;
+}
+
+[data-admin-theme="dark"] .bg-slate-50 {
+  background-color: #172235;
+}
+
+[data-admin-theme="dark"] .bg-slate-100 {
+  background-color: #1e293b;
+}
+
+[data-admin-theme="dark"] .bg-orange-50 {
+  background-color: #3a2416;
+}
+
+[data-admin-theme="dark"] .bg-emerald-50 {
+  background-color: #123226;
+}
+
+[data-admin-theme="dark"] .bg-red-50 {
+  background-color: #3a1c24;
+}
+
+[data-admin-theme="dark"] .bg-amber-50 {
+  background-color: #3a2b13;
 }
 
 [data-admin-theme="dark"] .text-\[\#0f172a\],
@@ -144,17 +170,65 @@
   color: #cbd5e1;
 }
 
+[data-admin-theme="dark"] .text-slate-700 {
+  color: #e2e8f0;
+}
+
+[data-admin-theme="dark"] .text-slate-400 {
+  color: #94a3b8;
+}
+
+[data-admin-theme="dark"] .text-orange-700 {
+  color: #fdba74;
+}
+
+[data-admin-theme="dark"] .text-emerald-600,
+[data-admin-theme="dark"] .text-emerald-700 {
+  color: #6ee7b7;
+}
+
+[data-admin-theme="dark"] .text-red-600 {
+  color: #fda4af;
+}
+
+[data-admin-theme="dark"] .text-amber-500,
+[data-admin-theme="dark"] .text-amber-700 {
+  color: #fcd34d;
+}
+
 [data-admin-theme="dark"] .border-\[\#e2e8f0\],
 [data-admin-theme="dark"] .border-slate-200,
-[data-admin-theme="dark"] .border-slate-100 {
+[data-admin-theme="dark"] .border-slate-100,
+[data-admin-theme="dark"] .border-slate-300 {
   border-color: #334155;
+}
+
+[data-admin-theme="dark"] .border-orange-100,
+[data-admin-theme="dark"] .border-orange-200 {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"] .border-red-200 {
+  border-color: #7f1d35;
 }
 
 [data-admin-theme="dark"] input,
 [data-admin-theme="dark"] textarea,
 [data-admin-theme="dark"] select {
-  background-color: #1e293b;
+  background-color: #172235;
+  border-color: #475569;
   color: #f8fafc;
+}
+
+[data-admin-theme="dark"] input::placeholder,
+[data-admin-theme="dark"] textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-admin-theme="dark"] .shadow-\[0_4px_16px_rgba\(0\,0\,0\,0\.04\)\],
+[data-admin-theme="dark"] .shadow-\[0px_4px_16px_rgba\(0\,0\,0\,0\.04\)\],
+[data-admin-theme="dark"] .shadow-\[0px_4px_16px_rgba\(0\,0\,0\,0\.08\)\] {
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.28);
 }
 
 body {
