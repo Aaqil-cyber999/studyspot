@@ -38,10 +38,12 @@ The interface is built from the SpotWise Figma design and currently uses local m
 ### 🏫 University Admin experience
 
 - Mock sign-in flow
+- Welcome screen entry back-link from the admin login page
 - Dashboard summary cards
 - Location listing, detail, add, and edit screens
 - Comment moderation actions
 - Profile editing
+- Option management screen for controlling student-facing filter and choice lists
 
 ### 🛡️ Super Admin experience
 
