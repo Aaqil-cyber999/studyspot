@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -131,6 +132,14 @@ export default function UniversityAdminLoginPage() {
               <img src={asset("dcf95")} alt="" className="block size-[18px]" />
             </button>
           </form>
+
+          <Link
+            href="/"
+            className="mt-[14px] inline-flex w-full items-center justify-center rounded-full border border-white/60 bg-white/10 px-[16px] py-[10px] text-[13px] font-medium text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]"
+            aria-label="Go back to the welcome page"
+          >
+            Back to welcome page
+          </Link>
         </div>
       </section>
     </main>
