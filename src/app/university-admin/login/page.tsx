@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -10,7 +9,7 @@ import { useAuthStore } from "@/stores/auth-store";
 const asset = (name: string) => `/assets/${name}.svg`;
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  email: z.string().email(),
   password: z.string().min(4, "Enter a password"),
 });
 
@@ -122,9 +121,7 @@ export default function UniversityAdminLoginPage() {
                   style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
                 />
               </div>
-              <p className={`mt-[13px] min-h-[15px] text-center text-[12px] font-light leading-normal ${message.startsWith("Enter") || message.startsWith("Signing") ? "text-[#64748b]" : "text-[#c2410c]"}`} style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
-                {message}
-              </p>
+              
             </div>
 
             <button type="submit" className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
@@ -133,14 +130,7 @@ export default function UniversityAdminLoginPage() {
             </button>
           </form>
 
-          <Link
-            href="/"
-            className="mt-[14px] inline-flex w-full items-center justify-center rounded-full border border-white/60 bg-white/10 px-[16px] py-[10px] text-[13px] font-medium text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]"
-            aria-label="Go back to the welcome page"
-          >
-            Back to welcome page
-          </Link>
-        </div>
+          </div>
       </section>
     </main>
   );

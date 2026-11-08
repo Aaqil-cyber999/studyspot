@@ -92,7 +92,7 @@ const amenityIcons: Record<string, typeof Wifi> = {
 const normalize = (value: string) => value.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
 
 const searchableText = (spot: (typeof studySpotCatalog)[number]) =>
-  [spot.name, spot.category, spot.area, spot.description, spot.hours, ...spot.amenities].join(" ").toLocaleLowerCase();
+  normalize([spot.name, spot.category, spot.area, spot.description, spot.hours, ...spot.amenities].join(" "));
 
 function matchesFilter(spot: (typeof studySpotCatalog)[number], filter: string) {
   if (filter === "Quiet") {
@@ -118,17 +118,20 @@ function matchesFilter(spot: (typeof studySpotCatalog)[number], filter: string) 
 export default function StudentHomePage() {
   const profileName = useProfileStore((state) => state.name);
   const profileImage = useProfileStore((state) => state.image);
-  const configuredAmenities = useAdminOptionsStore((state) =>
-    state.options
-      .filter((option) => option.category === "amenities" && option.active)
-      .sort((a, b) => a.order - b.order)
-      .map((option) => option.label)
+  const options = useAdminOptionsStore((state) => state.options);
+  const configuredAmenities = useMemo(
+    () =>
+      options
+        .filter((option) => option.category === "amenities" && option.active)
+        .sort((a, b) => a.order - b.order)
+        .map((option) => option.label),
+    [options],
   );
   const filterChips = useMemo(() => ["Quiet", "Seats available", ...configuredAmenities], [configuredAmenities]);
   const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
+  const normalizedQuery = normalize(query);
   const firstName = profileName.trim().split(/\s+/)[0] || profileName;
-  const normalizedQuery = query.trim().toLocaleLowerCase();
   const visibleSpots = useMemo(
     () =>
       studySpotCatalog.filter((spot) => {
