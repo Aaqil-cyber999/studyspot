@@ -57,14 +57,14 @@ export default function UniversityAdminLoginPage() {
   }
 
   return (
-    <main className="admin-login min-h-screen w-full max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-white">
-      <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-white" aria-label="University">
+    <main className="admin-login flex h-dvh w-full max-w-[412px] mx-auto flex-col overflow-hidden bg-white">
+      <section className="relative z-10 min-h-0 flex-1 overflow-hidden bg-white" aria-label="University">
         <CampusIllustration />
       </section>
 
-      <section className="relative z-20 min-h-[calc(100dvh-390px)] px-[13px] pb-[13px] bg-[#F97316]">
-        <div className="absolute z-[-1] -top-[35px] left-[-10px] right-[-10px] h-[60px] rounded-t-[50%] bg-[#F97316]" />
-        <div className="relative w-full z-1 pt-[2px]">
+      <section className="relative z-20 mt-[24px] shrink-0 px-[13px] pb-[13px] bg-[#F97316]">
+        <div className="absolute z-[-1] -top-[22px] left-[-10px] right-[-10px] h-[60px] rounded-t-[50%] bg-[#F97316]" />
+        <div className="relative w-full z-1 pt-[8px]">
           <h1 className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Sign in as admin
           </h1>
@@ -121,7 +121,6 @@ export default function UniversityAdminLoginPage() {
                   style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
                 />
               </div>
-              
             </div>
 
             <button type="submit" className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
@@ -129,8 +128,7 @@ export default function UniversityAdminLoginPage() {
               <img src={asset("dcf95")} alt="" className="block size-[18px]" />
             </button>
           </form>
-
-          </div>
+        </div>
       </section>
     </main>
   );

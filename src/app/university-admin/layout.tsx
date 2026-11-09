@@ -31,7 +31,11 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   }
 
   return (
-    <div data-admin-theme={isDark ? "dark" : "light"} className="admin-shell mx-auto min-h-screen w-[412px] bg-[#fbfbfc] pb-[90px]">
+    <div
+      data-admin-theme={isDark ? "dark" : "light"}
+      className="admin-shell mx-auto min-h-screen w-[412px] bg-[#fbfbfc] pb-[90px]"
+      style={pathname === "/university-admin/dashboard" ? { backgroundColor: "#ffffff" } : undefined}
+    >
       {children}
       <AdminStudentNav />
     </div>
