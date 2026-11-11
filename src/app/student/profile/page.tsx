@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Mail, MapPin } from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
 import { EditInfoDialog } from "@/features/student/components/profile/edit-info-dialog";
 import { AmenitiesCard } from "@/features/student/components/profile/amenities-card";
 import { PreferenceMenu } from "@/features/student/components/profile/preference-menu";
-import { ProfileAvatar } from "@/features/student/components/profile/profile-avatar";
+import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { SignOutDialog } from "@/features/student/components/profile/sign-out-dialog";
 import { getStudentProfile } from "@/services/student";
 import { useProfileStore } from "@/stores/profile-store";
@@ -43,26 +44,40 @@ export default function StudentProfilePage() {
   }
 
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[20px] pb-[90px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden bg-[#fbfbfc] px-[24px] pt-[20px] pb-[90px] flex flex-col gap-[20px]">
       <p className="text-[20px] font-bold leading-[25px] text-[#0f172a]">Profile</p>
 
-      <div className="relative overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)] p-[16px]">
-        <div className="flex items-center gap-[14px]">
-          <ProfileAvatar name={name} imageUrl={image} />
-          <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-            <p className="text-[16px] font-semibold leading-[22px] text-[#0f172a]">{name}</p>
-            <p className="text-[12px] leading-[18px] text-[#64748b]">{profile.email}</p>
-            <div className="flex min-w-0 items-center pt-[2px]">
-              <img alt="" className="size-[14px] shrink-0 max-w-none" src="/assets/profile/c613d.svg" />
-              <p className="ml-1 min-w-0 truncate text-[15px] text-[#64748b]">{location}</p>
-            </div>
+      <div className="overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
+        <div className="h-20 bg-gradient-to-br from-orange-300 via-orange-100 to-orange-50" />
+        <div className="relative px-4 pb-4">
+          <div className="-mt-8 flex items-end justify-between gap-3">
+            <ProfileAvatar
+              name={name}
+              imageUrl={image}
+              className="size-16 border-4 border-white"
+              textClassName="text-xl"
+            />
+            <EditInfoDialog
+              name={name}
+              location={location}
+              image={image}
+              onSave={setDetails}
+              triggerLabel="Edit profile"
+              triggerClassName="flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+              triggerTextClassName="text-xs font-semibold"
+            />
           </div>
-          <EditInfoDialog
-            name={name}
-            location={location}
-            image={image}
-            onSave={setDetails}
-          />
+          <div className="mt-3 min-w-0">
+            <h2 className="truncate text-lg font-bold text-[#0f172a]">{name}</h2>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">
+              <Mail aria-hidden="true" className="size-3.5 shrink-0" />
+              <span className="min-w-0 truncate">{profile.email}</span>
+            </p>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">
+              <MapPin aria-hidden="true" className="size-3.5 shrink-0" />
+              <span className="min-w-0 truncate">{location}</span>
+            </p>
+          </div>
         </div>
       </div>
 

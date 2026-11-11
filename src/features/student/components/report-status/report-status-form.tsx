@@ -10,6 +10,9 @@ interface ReportStatusFormProps {
   spotName: string;
 }
 
+// Noise level uses these three canonical values, matching the admin noise model.
+const NOISE_LEVELS = ["Quiet", "Moderate", "Loud"] as const;
+
 /**
  * Figma "STU / 11 Rate & Comment" (node 25:1187) — current-status report form.
  */
@@ -27,7 +30,9 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
       .filter((option) => option.category === category && (option.active || option.label === currentValue))
       .sort((a, b) => a.order - b.order)
       .map((option) => option.label);
-  const [noise, setNoise] = useState<string>(storedNoise);
+  const [noise, setNoise] = useState<string>(
+    NOISE_LEVELS.includes(storedNoise as (typeof NOISE_LEVELS)[number]) ? storedNoise : "Quiet",
+  );
   const [crowd, setCrowd] = useState<string>(storedCrowd);
   const [seats, setSeats] = useState<string>(storedSeats);
   const [wifi, setWifi] = useState<string>(storedWifi);
@@ -77,7 +82,7 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
 
           <StatusChoiceRow
             label="Noise level"
-            options={getActiveOptions("noise", noise)}
+            options={[...NOISE_LEVELS]}
             value={noise}
             onChange={setNoise}
           />

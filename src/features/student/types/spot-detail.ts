@@ -22,7 +22,7 @@ export interface OperatingHours {
   labels: TimelineLabel[];
 }
 
-export type LiveMetricIcon = "armchair" | "users" | "wifi";
+export type LiveMetricIcon = "armchair" | "users" | "wifi" | "volume";
 
 export interface LiveMetricSegment {
   label: string;

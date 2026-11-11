@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ProfileAvatar } from "@/features/student/components/profile/profile-avatar";
+import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { editStudentInfoSchema, profileImageSchema } from "@/features/student/schemas";
 
 interface EditInfoDialogProps {
@@ -20,9 +20,20 @@ interface EditInfoDialogProps {
   location: string;
   image: string | null;
   onSave: (values: { name: string; location: string; image: string | null }) => void;
+  triggerLabel?: string;
+  triggerClassName?: string;
+  triggerTextClassName?: string;
 }
 
-export function EditInfoDialog({ name, location, image, onSave }: EditInfoDialogProps) {
+export function EditInfoDialog({
+  name,
+  location,
+  image,
+  onSave,
+  triggerLabel = "Edit",
+  triggerClassName = "flex shrink-0 items-center gap-[6px] rounded-[8px] bg-[#ddd] px-[10px] py-[4px] transition-colors hover:bg-[#d4d4d4] focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:outline-none",
+  triggerTextClassName = "text-[14px] font-medium text-black",
+}: EditInfoDialogProps) {
   const [open, setOpen] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [draftLocation, setDraftLocation] = useState(location);
@@ -114,13 +125,13 @@ export function EditInfoDialog({ name, location, image, onSave }: EditInfoDialog
         render={
           <button
             type="button"
-            className="flex shrink-0 items-center gap-[6px] rounded-[8px] bg-[#ddd] px-[10px] py-[4px] transition-colors hover:bg-[#d4d4d4] focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:outline-none"
+            className={triggerClassName}
           />
         }
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img alt="" className="size-[16px] max-w-none" src="/assets/profile/3d68c.svg" />
-        <span className="text-[14px] font-medium text-black">Edit</span>
+        <span className={triggerTextClassName}>{triggerLabel}</span>
       </DialogTrigger>
 
       <DialogContent

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Armchair, ArrowUpRight, Building2, ChevronRight, Clock3, MessageSquare, Plus, SlidersHorizontal, Star, Users } from "lucide-react";
+import { Armchair, ArrowUpRight, Building2, ChevronRight, Clock3, MessageSquare, Star, Users } from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
 import { getUaComments, getUaDashboard, getUaLocations } from "@/services/university-admin";
 
@@ -184,7 +184,7 @@ export default function UaDashboardPage() {
           </div>
         </section>
 
-        <section className={`${card} bg-white`}>
+        <section className={`${card} bg-[#ddd]`}>
           <div className="flex items-center justify-between px-5 pt-5">
             <div>
               <p className={eyebrow}>Feedback</p>
@@ -219,29 +219,6 @@ export default function UaDashboardPage() {
                 </article>
               ))
             )}
-          </div>
-        </section>
-
-        <section className={`${card} bg-white p-5`}>
-          <div className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-[12px] bg-[#fff7ed] text-[#f97316]">
-              <Plus className="size-4" aria-hidden="true" />
-            </span>
-            <div>
-              <p className={eyebrow}>Shortcuts</p>
-              <h2 className="mt-0.5 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Quick actions</h2>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-2.5">
-            <Link href="/university-admin/locations/new" className={`flex h-11 items-center justify-center gap-1.5 rounded-[14px] bg-[#f97316] text-[12px] font-semibold text-white transition hover:bg-[#ea580c] ${focusRing}`}>
-              <Plus className="size-3.5" aria-hidden="true" />
-              Add location
-            </Link>
-            <Link href="/university-admin/settings/options" className={`flex h-11 items-center justify-center gap-1.5 rounded-[14px] border border-[#fed7aa] bg-[#fff7ed] text-[12px] font-semibold text-[#c2410c] transition hover:bg-[#ffedd5] ${focusRing}`}>
-              <SlidersHorizontal className="size-3.5" aria-hidden="true" />
-              Options
-            </Link>
           </div>
         </section>
       </div>

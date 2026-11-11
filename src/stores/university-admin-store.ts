@@ -24,6 +24,7 @@ export interface AdminLocation {
   category: "Library" | "Labs" | "Study space";
   amenities: string[];
   imageUrls?: string[];
+  lastUpdated?: string;
 }
 
 export interface AdminComment extends Comment {

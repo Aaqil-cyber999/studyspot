@@ -11,20 +11,21 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   const router = useRouter();
   const pathname = usePathname();
   const role = useAuthStore((s) => s.role);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
 
   const isLogin = pathname === "/super-admin/login";
 
   useEffect(() => {
-    if (!isLogin && role !== "super-admin") {
+    if (hasHydrated && !isLogin && role !== "super-admin") {
       router.replace("/super-admin/login");
     }
-  }, [role, router, isLogin]);
+  }, [hasHydrated, role, router, isLogin]);
 
   if (isLogin) {
     return <div className="min-h-screen bg-[#fbfbfc]">{children}</div>;
   }
 
-  if (role !== "super-admin") {
+  if (!hasHydrated || role !== "super-admin") {
     return null;
   }
 

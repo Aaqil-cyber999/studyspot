@@ -73,7 +73,7 @@ export default function UaLocationDetailsPage() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="flex items-center gap-3 px-6 pb-4 pt-[16px]">
+      <header className="sticky top-0 z-20 flex items-center gap-3 bg-[#fbfbfc] px-6 pb-4 pt-[16px]">
         <Link
           href="/university-admin/locations"
           aria-label="Back to locations"
@@ -82,19 +82,19 @@ export default function UaLocationDetailsPage() {
           <ArrowLeft className="size-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-orange-600">Location management</p>
           <h1 className="truncate text-xl font-semibold tracking-[-0.2px] text-slate-900">Location details</h1>
         </div>
         <Link
           href={`/university-admin/locations/${location.id}/edit`}
           aria-label={`Edit ${location.name}`}
-          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+          className="flex shrink-0 items-center gap-[6px] rounded-full border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-[12px] font-semibold text-[#f97316] transition hover:bg-[#ffedd5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
         >
-          <Pencil className="size-4" />
+          <Pencil className="size-4" aria-hidden="true" />
+          Edit
         </Link>
       </header>
 
-      <div className="space-y-4 px-6 pb-[120px]">
+      <div className="space-y-4 px-6 pb-4">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
           <div className="relative flex h-28 items-end justify-between overflow-hidden bg-gradient-to-br from-orange-100 via-orange-50 to-white p-4">
             {location.imageUrls?.[0] ? (
@@ -113,9 +113,6 @@ export default function UaLocationDetailsPage() {
             }`}>
               {location.status}
             </span>
-            <span className="relative z-10 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-orange-700 backdrop-blur">
-              {location.category}
-            </span>
           </div>
           <div className="space-y-3 p-4">
             <div>
@@ -133,12 +130,12 @@ export default function UaLocationDetailsPage() {
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">Student-facing status</h2>
-              <p className="mt-0.5 text-xs text-slate-400">Current values shown in the admin model</p>
-            </div>
-            <Clock3 className="h-4 w-4 text-orange-500" />
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-bold text-slate-900">Student-facing status</h2>
+            <p className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-medium text-slate-500">
+              <Clock3 className="h-3.5 w-3.5 text-orange-500" aria-hidden="true" />
+              <span>{location.lastUpdated ?? "Updated recently"}</span>
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <StatusItem icon={<Armchair className="h-4 w-4" />} label="Seats" value={location.seats} />
@@ -162,16 +159,46 @@ export default function UaLocationDetailsPage() {
               <p className="mt-0.5 text-xs text-slate-400">Control how this location is managed</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Link href={`/university-admin/locations/${location.id}/edit`} className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-orange-500 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2">
-              <Pencil className="h-4 w-4" /> Edit details
+          <div className="flex flex-col gap-2">
+            <Link
+              href={`/university-admin/locations/${location.id}/edit`}
+              className="flex min-h-11 items-center gap-3 rounded-xl bg-[#f97316] px-4 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(249,115,22,0.25)] transition hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white/20">
+                <Pencil className="size-4" aria-hidden="true" />
+              </span>
+              <span className="flex-1 text-left">Edit details</span>
+              <ChevronRight className="size-4 opacity-80" aria-hidden="true" />
             </Link>
-            <button type="button" onClick={handleToggle} className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-orange-50 text-xs font-bold text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2">
-              {location.status === "Active" ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
-              {location.status === "Active" ? "Deactivate" : "Activate"}
+            <button
+              type="button"
+              onClick={handleToggle}
+              aria-pressed={location.status === "Inactive"}
+              className="flex min-h-11 items-center gap-3 rounded-xl border border-[#fed7aa] bg-[#fff7ed] px-4 text-sm font-semibold text-[#f97316] transition hover:bg-[#ffedd5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#ffedd5]">
+                {location.status === "Active" ? (
+                  <ToggleLeft className="size-4" aria-hidden="true" />
+                ) : (
+                  <ToggleRight className="size-4" aria-hidden="true" />
+                )}
+              </span>
+              <span className="flex-1 text-left">
+                {location.status === "Active" ? "Deactivate location" : "Activate location"}
+              </span>
+              <span className="rounded-full bg-[#ffedd5] px-2 py-0.5 text-[11px] font-semibold text-[#c2410c]">
+                {location.status}
+              </span>
             </button>
-            <button type="button" onClick={() => setDeleteOpen(true)} className="col-span-2 flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-red-50 text-xs font-bold text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2">
-              <Trash2 className="h-4 w-4" /> Delete location
+            <button
+              type="button"
+              onClick={() => setDeleteOpen(true)}
+              className="flex min-h-11 items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-red-100">
+                <Trash2 className="size-4" aria-hidden="true" />
+              </span>
+              <span className="flex-1 text-left">Delete location</span>
             </button>
           </div>
         </section>

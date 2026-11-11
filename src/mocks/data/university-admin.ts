@@ -41,6 +41,7 @@ export const uaLocations = studySpotCatalog.map((spot, index) => {
     category: toAdminCategory(spot.category),
     amenities: spot.amenities,
     imageUrls: spot.imageUrls,
+    lastUpdated: spot.lastUpdated,
   };
 });
 

@@ -15,22 +15,12 @@ const schema = z.object({
 
 function CampusIllustration() {
   return (
-    <div className="art-canvas absolute top-0 left-1/2 w-[min(100%,412px)] aspect-[412/397] -translate-x-1/2" aria-hidden="true">
-      <img className="art absolute block max-w-none top-[18%] left-[23.45%] w-[53.09%]" src={asset("12bb6")} alt="" />
-      <img className="art absolute block max-w-none top-[30.1%] left-[69.97%] w-[18.37%]" src={asset("5debe")} alt="" />
-      <img className="art absolute block max-w-none top-[30.1%] left-[11.65%] w-[18.37%]" src={asset("d46b1")} alt="" />
-      <img className="art absolute block max-w-none top-[51.25%] left-[12.03%] w-[75.93%]" src={asset("465a7")} alt="" />
-      <img className="art absolute block max-w-none top-[73.3%] left-[15.61%] w-[67.94%]" src={asset("3ec06")} alt="" />
-      <img className="art absolute block max-w-none top-[27.7%] left-[77.3%] w-[7.46%]" src={asset("bcf2f")} alt="" />
-      <img className="art absolute block max-w-none top-[27.7%] left-[15.33%] w-[7.46%]" src={asset("f661e")} alt="" />
-      <img className="art absolute block max-w-none top-[36.9%] left-[57.48%] w-[24.37%]" src={asset("96020")} alt="" />
-      <img className="art absolute block max-w-none top-[41.4%] left-[51.75%] w-[6.12%]" src={asset("b99a2")} alt="" />
-      <img className="art absolute block max-w-none top-[40.1%] left-[40.64%] w-[9.23%]" src={asset("d6f3b")} alt="" />
-      <img className="art absolute block max-w-none top-[49%] left-[41.58%] w-[15.79%]" src={asset("a5bf3")} alt="" />
-      <img className="art absolute block max-w-none top-[33.2%] left-[42.5%] w-[11.62%]" src={asset("c3cf2")} alt="" />
-      <img className="art absolute block max-w-none top-[54.9%] left-[18.66%] w-[14.97%]" src={asset("79c52")} alt="" />
-      <img className="art absolute block max-w-none top-[37.4%] left-[18.12%] w-[22.28%]" src={asset("6d40a")} alt="" />
-    </div>
+    <img
+      src="/assets/login/undraw_task-progress_tukr.svg"
+      alt=""
+      aria-hidden="true"
+      className="mx-auto block h-full w-full max-w-[380px] px-[24px] object-contain"
+    />
   );
 }
 

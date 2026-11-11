@@ -33,7 +33,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { studySpotCatalog } from "@/mocks/data/study-spots";
 import { SpotBookmark } from "@/features/student/components/discover/spot-bookmark";
-import { ProfileAvatar } from "@/features/student/components/profile/profile-avatar";
+import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { useProfileStore } from "@/stores/profile-store";
 import { useAdminOptionsStore } from "@/stores/admin-options-store";
 

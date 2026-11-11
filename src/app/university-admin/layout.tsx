@@ -12,21 +12,22 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   const router = useRouter();
   const pathname = usePathname();
   const role = useAuthStore((s) => s.role);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
   const isDark = useUniversityAdminThemeStore((state) => state.isDark);
 
   const isLogin = pathname === "/university-admin/login";
 
   useEffect(() => {
-    if (!isLogin && role !== "university-admin") {
+    if (hasHydrated && !isLogin && role !== "university-admin") {
       router.replace("/university-admin/login");
     }
-  }, [role, router, isLogin]);
+  }, [hasHydrated, role, router, isLogin]);
 
   if (isLogin) {
     return <div className="mx-auto min-h-screen w-[412px] bg-white">{children}</div>;
   }
 
-  if (role !== "university-admin") {
+  if (!hasHydrated || role !== "university-admin") {
     return null;
   }
 

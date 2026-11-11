@@ -50,6 +50,19 @@ export const spotDetail: SpotDetail = {
       ],
     },
     {
+      id: "wifi",
+      label: "Wi-Fi Strength",
+      value: "Medium",
+      icon: "wifi",
+      iconBackground: "rgba(66, 133, 244, 0.14)",
+      iconColor: "#4285f4",
+      segments: [
+        { label: "Strong", color: "#4285f4" },
+        { label: "Medium", color: "#498af4" },
+        { label: "Weak", color: "#e2e8f0" },
+      ],
+    },
+    {
       id: "crowd",
       label: "Crowd level",
       value: "Low",
@@ -63,16 +76,16 @@ export const spotDetail: SpotDetail = {
       ],
     },
     {
-      id: "wifi",
-      label: "Wi-Fi Strength",
-      value: "Medium",
-      icon: "wifi",
-      iconBackground: "rgba(66, 133, 244, 0.14)",
-      iconColor: "#4285f4",
+      id: "noise",
+      label: "Noise level",
+      value: "Quiet",
+      icon: "volume",
+      iconBackground: "rgba(139, 92, 246, 0.14)",
+      iconColor: "#8b5cf6",
       segments: [
-        { label: "Strong", color: "#4285f4" },
-        { label: "Medium", color: "#498af4" },
-        { label: "Weak", color: "#e2e8f0" },
+        { label: "Quiet", color: "#8b5cf6" },
+        { label: "Moderate", color: "#e2e8f0" },
+        { label: "Loud", color: "#e2e8f0" },
       ],
     },
   ],
@@ -197,6 +210,8 @@ export function getCatalogSpotDetail(slug: string): SpotDetail | undefined {
   const activeColor = "#10b981";
   const inactiveColor = "#e2e8f0";
   const wifiActiveColor = "#4285f4";
+  const noiseActiveColor = "#8b5cf6";
+  const noise = spot.crowd === "Low" ? "Quiet" : spot.crowd === "Medium" ? "Moderate" : "Loud";
 
   return {
     slug: spot.slug,
@@ -242,6 +257,18 @@ export function getCatalogSpotDetail(slug: string): SpotDetail | undefined {
         })),
       },
       {
+        id: "wifi",
+        label: "Wi-Fi Strength",
+        value: spot.wifi,
+        icon: "wifi",
+        iconBackground: "rgba(66, 133, 244, 0.14)",
+        iconColor: "#4285f4",
+        segments: ["Strong", "Medium", "Weak"].map((label) => ({
+          label,
+          color: label === spot.wifi ? wifiActiveColor : inactiveColor,
+        })),
+      },
+      {
         id: "crowd",
         label: "Crowd level",
         value: spot.crowd,
@@ -254,15 +281,15 @@ export function getCatalogSpotDetail(slug: string): SpotDetail | undefined {
         })),
       },
       {
-        id: "wifi",
-        label: "Wi-Fi Strength",
-        value: spot.wifi,
-        icon: "wifi",
-        iconBackground: "rgba(66, 133, 244, 0.14)",
-        iconColor: "#4285f4",
-        segments: ["Strong", "Medium", "Weak"].map((label) => ({
+        id: "noise",
+        label: "Noise level",
+        value: noise,
+        icon: "volume",
+        iconBackground: "rgba(139, 92, 246, 0.14)",
+        iconColor: noiseActiveColor,
+        segments: ["Quiet", "Moderate", "Loud"].map((label) => ({
           label,
-          color: label === spot.wifi ? wifiActiveColor : inactiveColor,
+          color: label === noise ? noiseActiveColor : inactiveColor,
         })),
       },
     ],

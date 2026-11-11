@@ -10,7 +10,6 @@ export default function SaCommentsPage() {
   return (
     <div className="min-h-screen bg-[#fbfbfc]">
       <header className="px-6 pb-4 pt-[16px]">
-        <p className="text-xs font-medium text-orange-600">Student feedback</p>
         <h1 className="mt-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Comments & ratings</h1>
       </header>
 
