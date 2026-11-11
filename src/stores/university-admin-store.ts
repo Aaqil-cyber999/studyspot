@@ -23,6 +23,7 @@ export interface AdminLocation {
   description: string;
   category: "Library" | "Labs" | "Study space";
   amenities: string[];
+  imageUrls?: string[];
 }
 
 export interface AdminComment extends Comment {
@@ -42,15 +43,9 @@ export interface AdminReport {
   status: "Pending" | "Reviewed" | "Dismissed";
 }
 
-const initialLocations: AdminLocation[] = uaLocations.map((location, index) => ({
+const initialLocations: AdminLocation[] = uaLocations.map((location) => ({
   ...location,
   status: location.status as "Active" | "Inactive",
-  noise: index === 0 ? "Quiet" : index === 1 ? "Moderate" : "Loud",
-  description: `A student study space in the ${location.building} building.`,
-  area: location.building,
-  hours: "Open 8 AM–10 PM",
-  category: index === 2 ? "Labs" : index === 0 ? "Library" : "Study space",
-  amenities: index === 0 ? ["Wi-Fi", "Power outlet", "Quiet seating"] : ["Wi-Fi", "Power outlet"],
 }));
 
 const initialComments: AdminComment[] = uaComments.map((comment) => ({
@@ -58,11 +53,16 @@ const initialComments: AdminComment[] = uaComments.map((comment) => ({
   status: "Visible",
 }));
 
+// Status reports mirror the shared student spots, so moderation flows reference
+// real catalog ids/names instead of separate admin-only placeholders.
+const libraryLocation = uaLocations[0];
+const itLocation = uaLocations[3] ?? libraryLocation;
+
 const initialReports: AdminReport[] = [
   {
     id: "report-1",
-    locationId: "ua-1",
-    locationName: "Central Library Study Zone",
+    locationId: libraryLocation.id,
+    locationName: libraryLocation.name,
     submittedAt: "12 minutes ago",
     noise: "Quiet",
     crowd: "Low",
@@ -73,8 +73,8 @@ const initialReports: AdminReport[] = [
   },
   {
     id: "report-2",
-    locationId: "ua-3",
-    locationName: "IT Computer Labs",
+    locationId: itLocation.id,
+    locationName: itLocation.name,
     submittedAt: "1 hour ago",
     noise: "Loud",
     crowd: "High",

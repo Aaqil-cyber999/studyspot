@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
+import { studySpotCatalog } from "@/mocks/data/study-spots";
 import { useUniversityAdminStore } from "@/stores/university-admin-store";
 
 const schema = z.object({
@@ -35,6 +36,10 @@ export default function AddLocationPage() {
   }
 
   function confirmAdd() {
+    const mockImage =
+      studySpotCatalog[(name.trim().length + building.trim().length) % studySpotCatalog.length]
+        ?.imageUrls[0];
+
     addLocation({
       name: name.trim(),
       building: building.trim(),
@@ -48,6 +53,7 @@ export default function AddLocationPage() {
       description: `A student study space in the ${building.trim()} building.`,
       category: "Study space",
       amenities: ["Wi-Fi", "Power outlet"],
+      imageUrls: mockImage ? [mockImage] : [],
     });
     toast.success("Location added");
     router.push("/university-admin/locations");
@@ -55,11 +61,11 @@ export default function AddLocationPage() {
 
   return (
     <div className="min-h-screen bg-[#fbfbfc]">
-      <div className="flex items-center gap-3 px-[24px] pb-[16px] pt-[64px]">
+      <div className="flex items-center gap-3 px-[24px] pb-[16px] pt-[16px]">
         <button onClick={() => router.back()} className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white">
           <ArrowLeft className="size-5 text-[#0f172a]" />
         </button>
-        <h1 className="text-[20px] font-semibold tracking-[-0.2px] text-[#0f172a]">Add location</h1>
+        <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Add location</h1>
       </div>
       <form onSubmit={submit} className="space-y-[16px] px-[24px]">
         <div className="space-y-[12px] rounded-[20px] border border-[#e2e8f0] bg-white p-[20px] shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">

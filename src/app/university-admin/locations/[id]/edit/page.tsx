@@ -94,13 +94,13 @@ export default function EditLocationPage() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="flex items-center gap-3 px-6 pb-4 pt-16">
+      <header className="flex items-center gap-3 px-6 pb-4 pt-[16px]">
         <button type="button" onClick={() => router.back()} aria-label="Go back" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
           <ArrowLeft className="size-5 text-slate-800" />
         </button>
         <div className="min-w-0">
           <p className="text-xs font-medium text-orange-600">Location management</p>
-          <h1 className="truncate text-xl font-semibold text-slate-900">Edit location</h1>
+          <h1 className="truncate text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Edit location</h1>
         </div>
       </header>
 
@@ -119,7 +119,7 @@ export default function EditLocationPage() {
           <TextField label="Operating hours" value={values.hours} onChange={(value) => update("hours", value)} placeholder="e.g. Open 8 AM–10 PM" />
           <label className="block">
             <span className="mb-2 block text-xs font-medium text-slate-700">Description</span>
-            <textarea value={values.description} onChange={(event) => update("description", event.target.value)} className="min-h-24 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
+            <textarea value={values.description} onChange={(event) => update("description", event.target.value)} className="min-h-24 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none" />
           </label>
           <SelectField label="Category" value={values.category} options={["Library", "Labs", "Study space"]} onChange={(value) => update("category", value as AdminLocation["category"])} />
           <TextField label="Amenities" value={values.amenitiesText} onChange={(value) => update("amenitiesText", value)} placeholder="Wi-Fi, Power outlet, Quiet seating" hint="Separate amenities with commas." />
@@ -154,7 +154,7 @@ function TextField({ label, value, onChange, placeholder, hint }: { label: strin
   return (
     <label className="block">
       <span className="mb-2 block text-xs font-medium text-slate-700">{label}</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
+      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400" />
       {hint ? <span className="mt-1 block text-[11px] text-slate-400">{hint}</span> : null}
     </label>
   );
@@ -164,7 +164,7 @@ function SelectField({ label, value, options, onChange }: { label: string; value
   return (
     <label className="block">
       <span className="mb-2 block text-xs font-medium text-slate-700">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none">
         {options.map((option) => <option key={option}>{option}</option>)}
       </select>
     </label>

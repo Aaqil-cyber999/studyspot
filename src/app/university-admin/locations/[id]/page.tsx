@@ -12,7 +12,9 @@ import {
   ChevronRight,
   Clock3,
   EyeOff,
+  Mic,
   Pencil,
+  Star,
   Trash2,
   ToggleLeft,
   ToggleRight,
@@ -71,7 +73,7 @@ export default function UaLocationDetailsPage() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="flex items-center gap-3 px-6 pb-4 pt-16">
+      <header className="flex items-center gap-3 px-6 pb-4 pt-[16px]">
         <Link
           href="/university-admin/locations"
           aria-label="Back to locations"
@@ -94,13 +96,24 @@ export default function UaLocationDetailsPage() {
 
       <div className="space-y-4 px-6 pb-[120px]">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
-          <div className="flex h-28 items-end justify-between bg-gradient-to-br from-orange-100 via-orange-50 to-white p-4">
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+          <div className="relative flex h-28 items-end justify-between overflow-hidden bg-gradient-to-br from-orange-100 via-orange-50 to-white p-4">
+            {location.imageUrls?.[0] ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt=""
+                  src={location.imageUrls[0]}
+                  className="absolute inset-0 size-full max-w-none object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" aria-hidden="true" />
+              </>
+            ) : null}
+            <span className={`relative z-10 rounded-full px-3 py-1 text-xs font-semibold ${
               location.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
             }`}>
               {location.status}
             </span>
-            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-orange-700 backdrop-blur">
+            <span className="relative z-10 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-orange-700 backdrop-blur">
               {location.category}
             </span>
           </div>
@@ -111,7 +124,7 @@ export default function UaLocationDetailsPage() {
             </div>
             <p className="text-sm leading-5 text-slate-600">{location.description}</p>
             <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className="text-amber-500">★</span>
+              <Star className="size-3 text-amber-500" aria-hidden="true" />
               <span className="font-semibold text-slate-700">{location.rating ? location.rating.toFixed(1) : "New"}</span>
               <span>·</span>
               <span>{location.reviews} student reviews</span>
@@ -131,7 +144,7 @@ export default function UaLocationDetailsPage() {
             <StatusItem icon={<Armchair className="h-4 w-4" />} label="Seats" value={location.seats} />
             <StatusItem icon={<Wifi className="h-4 w-4" />} label="Wi-Fi" value={location.wifi} />
             <StatusItem icon={<Users className="h-4 w-4" />} label="Crowd" value={location.crowd} />
-            <StatusItem icon={<span className="text-sm font-bold">◌</span>} label="Noise" value={location.noise} />
+            <StatusItem icon={<Mic className="h-4 w-4" />} label="Noise" value={location.noise} />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {location.amenities.map((amenity) => (
@@ -187,7 +200,15 @@ export default function UaLocationDetailsPage() {
             {comments.map((comment) => (
               <div key={comment.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold text-amber-500">{"★".repeat(Math.round(comment.rating))}{"☆".repeat(5 - Math.round(comment.rating))}</p>
+                  <p className="flex items-center gap-0.5 text-xs font-semibold text-amber-500" aria-label={`${Math.round(comment.rating)} out of 5 stars`}>
+                    {[...Array(5)].map((_, index) => (
+                      <Star
+                        key={index}
+                        className={`size-3 ${index < Math.round(comment.rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#e2e8f0] text-[#e2e8f0]"}`}
+                        aria-hidden="true"
+                      />
+                    ))}
+                  </p>
                   <span className="text-[11px] text-slate-400">{comment.createdAt}</span>
                 </div>
                 <p className="mt-2 text-sm text-slate-700">&ldquo;{comment.text}&rdquo;</p>

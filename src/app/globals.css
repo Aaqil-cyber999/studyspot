@@ -288,13 +288,6 @@
   opacity: 0.5;
 }
 
-.admin-shell input:focus,
-.admin-shell textarea:focus,
-.admin-shell select:focus {
-  border-color: #f97316;
-  box-shadow: 0 0 0 3px rgb(249 115 22 / 0.14);
-}
-
 .admin-shell input::placeholder,
 .admin-shell textarea::placeholder {
   color: #94a3b8;

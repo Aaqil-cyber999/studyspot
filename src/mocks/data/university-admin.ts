@@ -1,53 +1,69 @@
+import { comments as studentComments, studyLocations } from "@/mocks/data/student";
+import { studySpotCatalog } from "@/mocks/data/study-spots";
 import type { Comment } from "@/types";
 
-export const uaDashboard = {
-  university: "University of Example",
-  locations: 12,
-  avgRating: 4.6,
-  comments: 128,
-  seatsAvailable: 240,
+type AdminCategory = "Library" | "Labs" | "Study space";
+type AdminNoise = "Quiet" | "Moderate" | "Loud";
+
+const toAdminCategory = (category: string): AdminCategory => {
+  if (category === "Library") return "Library";
+  if (category.toLowerCase().includes("lab")) return "Labs";
+  return "Study space";
 };
 
-export const uaLocations = [
-  {
-    id: "ua-1",
-    name: "Central Library Study Zone",
-    building: "Library",
-    rating: 4.6,
-    reviews: 42,
-    status: "Active",
-    seats: "Yes" as const,
-    wifi: "Strong" as const,
-    crowd: "Low" as const,
-  },
-  {
-    id: "ua-2",
-    name: "Engineering Block",
-    building: "Engineering",
-    rating: 4.5,
-    reviews: 31,
-    status: "Active",
-    seats: "Unsure" as const,
-    wifi: "Medium" as const,
-    crowd: "Medium" as const,
-  },
-  {
-    id: "ua-3",
-    name: "IT Computer Labs",
-    building: "IT Faculty",
-    rating: 4.6,
-    reviews: 176,
-    status: "Active",
-    seats: "No" as const,
-    wifi: "Strong" as const,
-    crowd: "High" as const,
-  },
-];
+const toAdminNoise = (crowd: "Low" | "Medium" | "High"): AdminNoise => {
+  if (crowd === "Low") return "Quiet";
+  if (crowd === "Medium") return "Moderate";
+  return "Loud";
+};
 
-export const uaComments: Comment[] = [
-  { id: "ua-c1", locationId: "ua-1", locationName: "Central Library Study Zone", author: "Student", rating: 4.6, text: "Quiet and bright.", createdAt: "3 days ago" },
-  { id: "ua-c2", locationId: "ua-2", locationName: "Engineering Block", author: "Student", rating: 5.0, text: "Plenty of power outlets.", createdAt: "1 week ago" },
-];
+// The university-admin views reuse the same study spots students see, so both
+// roles stay in sync: names, areas, hours, ratings, review counts and the live
+// seats / Wi-Fi / crowd statuses all come from `studySpotCatalog`.
+export const uaLocations = studySpotCatalog.map((spot, index) => {
+  const [building = spot.area] = spot.area.split(" · ");
+  const studentLocation = studyLocations[index];
+
+  return {
+    id: studentLocation?.id ?? `loc-${index + 1}`,
+    name: spot.name,
+    building,
+    area: spot.area,
+    hours: spot.hours,
+    rating: spot.rating,
+    reviews: spot.reviews,
+    status: "Active" as const,
+    seats: spot.seats,
+    wifi: spot.wifi,
+    crowd: spot.crowd,
+    noise: toAdminNoise(spot.crowd),
+    description: spot.description,
+    category: toAdminCategory(spot.category),
+    amenities: spot.amenities,
+    imageUrls: spot.imageUrls,
+  };
+});
+
+const totalReviews = studySpotCatalog.reduce((sum, spot) => sum + spot.reviews, 0);
+const averageRating =
+  studySpotCatalog.reduce((sum, spot) => sum + spot.rating, 0) / studySpotCatalog.length;
+
+export const uaDashboard = {
+  university: "University of Moratuwa",
+  locations: uaLocations.length,
+  avgRating: Math.round(averageRating * 10) / 10,
+  comments: totalReviews,
+  seatsAvailable: studySpotCatalog.filter((spot) => spot.seats === "Yes").length,
+};
+
+// Student feedback reuses the student comment mocks, with the location name
+// resolved from the shared catalog so it always matches the current spot name.
+export const uaComments: Comment[] = studentComments.map((comment) => ({
+  ...comment,
+  locationName:
+    uaLocations.find((location) => location.id === comment.locationId)?.name ??
+    comment.locationName,
+}));
 
 export const uaProfile = {
   name: "University Admin",

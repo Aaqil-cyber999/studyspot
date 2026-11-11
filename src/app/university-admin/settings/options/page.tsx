@@ -74,13 +74,13 @@ export default function AdminOptionsPage() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="flex items-center gap-3 px-6 pb-4 pt-8">
+      <header className="flex items-center gap-3 px-6 pb-4 pt-[16px]">
         <button type="button" onClick={() => router.back()} aria-label="Back to profile" className="flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500">
           <ArrowLeft className="size-4" />
         </button>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-medium text-orange-600">System configuration</p>
-          <h1 className="text-xl font-semibold text-slate-900">Option management</h1>
+          <h1 className="mt-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Option management</h1>
         </div>
       </header>
 
@@ -108,7 +108,7 @@ export default function AdminOptionsPage() {
           </div>
 
           <div className="mt-4 flex gap-2">
-            <input value={newLabel} onChange={(event) => setNewLabel(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") add(); }} placeholder="Add a new option" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
+            <input value={newLabel} onChange={(event) => setNewLabel(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") add(); }} placeholder="Add a new option" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 outline-none" />
             <button type="button" onClick={add} className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white shadow-sm hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2" aria-label="Add option"><Plus className="size-5" /></button>
           </div>
 
@@ -158,7 +158,7 @@ function OptionRow({ option, isFirst, isLast, editing, editingLabel, onStartEdit
   return (
     <div className={`rounded-xl border p-3 ${option.active ? "border-slate-200 bg-white" : "border-slate-200 bg-slate-50 opacity-75"}`}>
       <div className="flex items-center gap-2">
-        {editing ? <input autoFocus value={editingLabel} onChange={(event) => onEditChange(event.target.value)} className="min-w-0 flex-1 rounded-lg border border-orange-300 px-2.5 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-orange-100" /> : <span className="min-w-0 flex-1 text-sm font-medium text-slate-800">{option.label}</span>}
+        {editing ? <input autoFocus value={editingLabel} onChange={(event) => onEditChange(event.target.value)} className="min-w-0 flex-1 rounded-lg border border-orange-300 px-2.5 py-2 text-sm text-slate-900 outline-none" /> : <span className="min-w-0 flex-1 text-sm font-medium text-slate-800">{option.label}</span>}
         <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${option.active ? "bg-emerald-50 text-emerald-700" : "bg-slate-200 text-slate-500"}`}>{option.active ? "Active" : "Inactive"}</span>
       </div>
       <div className="mt-2 flex items-center justify-between gap-2 border-t border-slate-100 pt-2">

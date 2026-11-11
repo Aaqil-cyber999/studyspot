@@ -2,26 +2,13 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Armchair,
-  ArrowUpRight,
-  Building2,
-  ChevronRight,
-  Clock3,
-  MessageSquare,
-  Plus,
-  SlidersHorizontal,
-  Star,
-  Users,
-} from "lucide-react";
+import { Armchair, ArrowUpRight, Building2, ChevronRight, Clock3, MessageSquare, Plus, SlidersHorizontal, Star, Users } from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
 import { getUaComments, getUaDashboard, getUaLocations } from "@/services/university-admin";
 
-const card =
-  "rounded-[20px] border border-[#eef1f5] shadow-[0_2px_10px_rgba(15,23,42,0.03)]";
+const card = "rounded-[20px] border border-[#eef1f5] shadow-[0_2px_10px_rgba(15,23,42,0.03)]";
 const eyebrow = "text-[10px] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]";
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
+const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
 
 export default function UaDashboardPage() {
   const { data: dashboard } = useQuery({
@@ -51,12 +38,8 @@ export default function UaDashboardPage() {
     return seatsScore + wifiScore + crowdScore + ratingScore + reviewConfidenceScore;
   };
 
-  const bestLocation = locations.reduce((best, location) =>
-    scoreLocation(location) > scoreLocation(best) ? location : best
-  );
-  const worstLocation = locations.reduce((worst, location) =>
-    scoreLocation(location) < scoreLocation(worst) ? location : worst
-  );
+  const bestLocation = locations.reduce((best, location) => (scoreLocation(location) > scoreLocation(best) ? location : best));
+  const worstLocation = locations.reduce((worst, location) => (scoreLocation(location) < scoreLocation(worst) ? location : worst));
   const bestLocationScore = Math.round(scoreLocation(bestLocation));
   const worstLocationScore = Math.round(scoreLocation(worstLocation));
   const quietLocations = locations.filter((location) => location.crowd === "Low").length;
@@ -65,7 +48,7 @@ export default function UaDashboardPage() {
     {
       label: "Total locations",
       value: dashboard.locations,
-      detail: "+2 this month",
+      detail: "Across all faculties",
       icon: Building2,
       iconClass: "bg-[#fff7ed] text-[#f97316]",
       href: "/university-admin/locations",
@@ -80,8 +63,8 @@ export default function UaDashboardPage() {
     },
     {
       label: "Student comments",
-      value: dashboard.comments,
-      detail: "12 new this week",
+      value: dashboard.comments.toLocaleString("en-US"),
+      detail: "From student reviews",
       icon: MessageSquare,
       iconClass: "bg-[#eff6ff] text-[#2563eb]",
       href: "/university-admin/comments",
@@ -144,20 +127,14 @@ export default function UaDashboardPage() {
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Link
-                key={stat.label}
-                href={stat.href}
-                className={`group flex flex-col rounded-[18px] border border-[#eef1f5] bg-[#ddd] p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition hover:-translate-y-0.5 hover:border-[#fed7aa] hover:shadow-[0_14px_26px_-18px_rgba(15,23,42,0.35)] ${focusRing}`}
-              >
+              <Link key={stat.label} href={stat.href} className={`group flex flex-col rounded-[18px] border border-[#eef1f5] bg-[#ddd] p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition hover:-translate-y-0.5 hover:border-[#fed7aa] hover:shadow-[0_14px_26px_-18px_rgba(15,23,42,0.35)] ${focusRing}`}>
                 <div className="flex items-start justify-between">
                   <span className={`flex size-8 items-center justify-center rounded-[10px] ${stat.iconClass}`}>
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
                   <ArrowUpRight className="size-3.5 text-[#cbd5e1] transition group-hover:text-[#f97316]" aria-hidden="true" />
                 </div>
-                <p className="mt-4 text-[24px] font-semibold leading-none tracking-[-0.6px] tabular-nums text-[#0f172a]">
-                  {stat.value}
-                </p>
+                <p className="mt-4 text-[24px] font-semibold leading-none tracking-[-0.6px] tabular-nums text-[#0f172a]">{stat.value}</p>
                 <p className="mt-2 text-[12px] font-medium leading-[16px] text-[#334155]">{stat.label}</p>
                 <p className="mt-0.5 text-[10px] leading-[14px] text-[#475569]">{stat.detail}</p>
               </Link>
@@ -169,13 +146,9 @@ export default function UaDashboardPage() {
           <div className="flex items-start justify-between gap-3 px-5 pt-5">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#475569]">Daily comparison</p>
-              <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">
-                Study space performance
-              </h2>
+              <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Study space performance</h2>
             </div>
-            <span className="shrink-0 rounded-full bg-[#fff7ed] px-2.5 py-1 text-[10px] font-medium text-[#c2410c]">
-              All factors
-            </span>
+            <span className="shrink-0 rounded-full bg-[#fff7ed] px-2.5 py-1 text-[10px] font-medium text-[#c2410c]">All factors</span>
           </div>
 
           <div className="mt-4 px-5 pb-5">
@@ -184,20 +157,14 @@ export default function UaDashboardPage() {
               return (
                 <div key={item.key}>
                   {index > 0 ? <div className="my-4 h-px bg-[#f1f5f9]" /> : null}
-                  <Link
-                    href={item.href}
-                    aria-label={`Open ${item.name}`}
-                    className={`group block ${focusRing}`}
-                  >
+                  <Link href={item.href} aria-label={`Open ${item.name}`} className={`group block ${focusRing}`}>
                     <div className="flex items-center gap-3">
                       <span className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] ${item.iconClass}`}>
                         <Icon className="size-4" aria-hidden="true" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#475569]">{item.tag}</p>
-                        <p className="truncate text-[13px] font-semibold leading-[18px] text-[#0f172a] transition-colors group-hover:text-[#f97316]">
-                          {item.name}
-                        </p>
+                        <p className="truncate text-[13px] font-semibold leading-[18px] text-[#0f172a] transition-colors group-hover:text-[#f97316]">{item.name}</p>
                       </div>
                       <p className="shrink-0 text-[15px] font-semibold leading-none tabular-nums text-[#0f172a]">
                         {item.score}
@@ -221,14 +188,9 @@ export default function UaDashboardPage() {
           <div className="flex items-center justify-between px-5 pt-5">
             <div>
               <p className={eyebrow}>Feedback</p>
-              <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">
-                Recent feedback
-              </h2>
+              <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Recent feedback</h2>
             </div>
-            <Link
-              href="/university-admin/comments"
-              className="flex min-h-8 items-center gap-0.5 rounded-lg px-1.5 text-[11px] font-semibold text-[#f97316] transition hover:bg-[#fff7ed] hover:text-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
-            >
+            <Link href="/university-admin/comments" className="flex min-h-8 items-center gap-0.5 rounded-lg px-1.5 text-[11px] font-semibold text-[#f97316] transition hover:bg-[#fff7ed] hover:text-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
               View all
               <ChevronRight className="size-3.5" aria-hidden="true" />
             </Link>
@@ -236,28 +198,16 @@ export default function UaDashboardPage() {
 
           <div className="mt-2 divide-y divide-[#f1f5f9] px-5 pb-1">
             {comments.length === 0 ? (
-              <div className="flex h-24 items-center justify-center text-[13px] text-[#94a3b8]">
-                No comments yet
-              </div>
+              <div className="flex h-24 items-center justify-center text-[13px] text-[#94a3b8]">No comments yet</div>
             ) : (
               comments.slice(0, 2).map((comment) => (
                 <article key={comment.id} className="py-4">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-0.5">
                       {[...Array(5)].map((_, index) => (
-                        <Star
-                          key={index}
-                          className={`size-3 ${
-                            index < Math.round(comment.rating)
-                              ? "fill-[#f59e0b] text-[#f59e0b]"
-                              : "fill-[#f1f5f9] text-[#e2e8f0]"
-                          }`}
-                          aria-hidden="true"
-                        />
+                        <Star key={index} className={`size-3 ${index < Math.round(comment.rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#f1f5f9] text-[#e2e8f0]"}`} aria-hidden="true" />
                       ))}
-                      <span className="ml-1.5 text-[10px] font-semibold tabular-nums text-[#64748b]">
-                        {comment.rating.toFixed(1)}
-                      </span>
+                      <span className="ml-1.5 text-[10px] font-semibold tabular-nums text-[#64748b]">{comment.rating.toFixed(1)}</span>
                     </div>
                     <span className="flex items-center gap-1 text-[10px] text-[#94a3b8]">
                       <Clock3 className="size-3" aria-hidden="true" />
@@ -265,9 +215,7 @@ export default function UaDashboardPage() {
                     </span>
                   </div>
                   <p className="mt-2.5 text-[13px] leading-[19px] text-[#334155]">&ldquo;{comment.text}&rdquo;</p>
-                  <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-[#f97316]">
-                    {comment.locationName}
-                  </p>
+                  <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-[#f97316]">{comment.locationName}</p>
                 </article>
               ))
             )}
@@ -281,24 +229,16 @@ export default function UaDashboardPage() {
             </span>
             <div>
               <p className={eyebrow}>Shortcuts</p>
-              <h2 className="mt-0.5 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">
-                Quick actions
-              </h2>
+              <h2 className="mt-0.5 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Quick actions</h2>
             </div>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2.5">
-            <Link
-              href="/university-admin/locations/new"
-              className={`flex h-11 items-center justify-center gap-1.5 rounded-[14px] bg-[#f97316] text-[12px] font-semibold text-white transition hover:bg-[#ea580c] ${focusRing}`}
-            >
+            <Link href="/university-admin/locations/new" className={`flex h-11 items-center justify-center gap-1.5 rounded-[14px] bg-[#f97316] text-[12px] font-semibold text-white transition hover:bg-[#ea580c] ${focusRing}`}>
               <Plus className="size-3.5" aria-hidden="true" />
               Add location
             </Link>
-            <Link
-              href="/university-admin/settings/options"
-              className={`flex h-11 items-center justify-center gap-1.5 rounded-[14px] border border-[#fed7aa] bg-[#fff7ed] text-[12px] font-semibold text-[#c2410c] transition hover:bg-[#ffedd5] ${focusRing}`}
-            >
+            <Link href="/university-admin/settings/options" className={`flex h-11 items-center justify-center gap-1.5 rounded-[14px] border border-[#fed7aa] bg-[#fff7ed] text-[12px] font-semibold text-[#c2410c] transition hover:bg-[#ffedd5] ${focusRing}`}>
               <SlidersHorizontal className="size-3.5" aria-hidden="true" />
               Options
             </Link>

@@ -1,22 +1,41 @@
-import { AdminBottomNav } from "@/components/navigation/admin-bottom-nav";
+"use client";
+
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/auth-store";
+import { SuperAdminNav } from "@/components/navigation/super-admin-nav";
 
 export const dynamic = "force-dynamic";
 
-const items = [
-  { href: "/super-admin/dashboard", label: "Dashboard" },
-  { href: "/super-admin/universities", label: "Universities" },
-  { href: "/super-admin/admins", label: "Admins" },
-  { href: "/super-admin/requests", label: "Requests" },
-  { href: "/super-admin/locations", label: "Locations" },
-  { href: "/super-admin/comments", label: "Comments" },
-  { href: "/super-admin/profile", label: "Profile" },
-];
-
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const role = useAuthStore((s) => s.role);
+
+  const isLogin = pathname === "/super-admin/login";
+
+  useEffect(() => {
+    if (!isLogin && role !== "super-admin") {
+      router.replace("/super-admin/login");
+    }
+  }, [role, router, isLogin]);
+
+  if (isLogin) {
+    return <div className="min-h-screen bg-[#fbfbfc]">{children}</div>;
+  }
+
+  if (role !== "super-admin") {
+    return null;
+  }
+
   return (
-    <div data-admin-theme="light" className="admin-shell mx-auto min-h-screen w-[412px] bg-[#f8fafc] pb-20">
-      {children}
-      <AdminBottomNav items={items} />
+    <div className="min-h-screen bg-[#fbfbfc] relative">
+      <SuperAdminNav />
+      <main
+        className="px-6 pb-4 pt-0 lg:pl-[260px] lg:px-6 lg:pr-6 lg:overflow-y-auto min-h-screen"
+      >
+        {children}
+      </main>
     </div>
   );
 }

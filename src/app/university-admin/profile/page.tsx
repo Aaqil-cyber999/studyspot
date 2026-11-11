@@ -96,11 +96,11 @@ export default function UaProfilePage() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="px-6 pb-4 pt-8">
+      <header className="px-6 pb-4 pt-[16px]">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs font-medium text-orange-600">Account settings</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-[-0.3px] text-[#0f172a]">Profile</h1>
+            <h1 className="mt-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Profile</h1>
           </div>
           <button
             type="button"
@@ -201,7 +201,7 @@ export default function UaProfilePage() {
           <AccessRow icon={<LockKeyhole className="size-4" />} label="Location and moderation controls" />
         </section>
 
-        <button type="button" onClick={() => setLogoutOpen(true)} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 text-sm font-semibold text-red-600 transition hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2">
+        <button type="button" onClick={() => setLogoutOpen(true)} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#fed7aa] bg-[#fff7ed] text-sm font-semibold text-[#f97316] transition hover:bg-[#ffedd5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
           <LogOut className="size-4" /> Log out
         </button>
       </div>
@@ -212,7 +212,6 @@ export default function UaProfilePage() {
         title="Log out of the Admin portal?"
         description="You will need to sign in again to manage university locations and student feedback."
         confirmLabel="Log out"
-        destructive
         onConfirm={confirmSignOut}
       />
     </main>
@@ -223,7 +222,7 @@ function ProfileField({ label, value, onChange, type = "text" }: { label: string
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-medium text-slate-700">{label}</span>
-      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
+      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none" />
     </label>
   );
 }
