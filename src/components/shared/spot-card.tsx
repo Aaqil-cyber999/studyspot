@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Bookmark, Star, Clock, Wifi, Zap } from "lucide-react";
+import { Star, Clock, Wifi, Zap } from "lucide-react";
 import type { StudyLocation } from "@/types";
-import { cn } from "@/lib/utils";
 
 interface SpotCardProps {
   location: StudyLocation;
@@ -22,7 +21,17 @@ export function SpotCard({ location, href }: SpotCardProps) {
     >
       <div className="relative h-40 bg-orange-100">
         <div className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-white/90">
-          <Bookmark className={cn("size-4", location.saved ? "fill-orange-500 text-orange-500" : "text-slate-500")} />
+          {/* Same bookmark icon as the spot info page */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt=""
+            className="size-[16px] max-w-none"
+            src={
+              location.saved
+                ? "/assets/saved/5cc8f.svg"
+                : "/assets/saved/bookmark-outline.svg"
+            }
+          />
         </div>
       </div>
       <div className="space-y-2 p-4">

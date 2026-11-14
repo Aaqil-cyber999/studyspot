@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, GraduationCap, MapPin, ChevronRight, ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
 import { chooseUniversitySchema } from "@/features/student/schemas";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
@@ -18,7 +20,7 @@ function CampusIllustration() {
 export default function InfoPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [university, setUniversity] = useState("");
+  const university = useOnboardingStore((state) => state.university);
   const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
@@ -26,13 +28,16 @@ export default function InfoPage() {
   function submit() {
     const result = chooseUniversitySchema.safeParse({ name, university, address });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid input");
+      const message = result.error.issues[0]?.message ?? "Invalid input";
+      setError(message);
+      toast.error(message);
       setShake(true);
       setTimeout(() => setShake(false), 400);
       return;
     }
     setError(null);
-    router.push("/student/select-university");
+    toast.success("Details saved");
+    router.push("/student/home");
   }
 
   return (
@@ -64,7 +69,7 @@ export default function InfoPage() {
                 <div className="flex size-[36px] shrink-0 items-center justify-center overflow-clip rounded-[10px] bg-[#feedd2]">
                   <GraduationCap className="size-[18px] text-[#f97316]" />
                 </div>
-                <span className="min-w-0 flex-1 text-left text-[15px] font-light text-[#989FA9]">{university || "Select university"}</span>
+                <span className={`min-w-0 flex-1 truncate text-left text-[15px] font-light ${university ? "text-black" : "text-[#989FA9]"}`}>{university || "Select university"}</span>
                 <ChevronRight className="size-[18px] text-[#64748b]" />
               </button>
             </div>

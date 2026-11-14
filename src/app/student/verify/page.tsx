@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Info } from "lucide-react";
+import toast from "react-hot-toast";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 const otpAsset = (name: string) => `/assets/otp/${name}`;
@@ -31,6 +32,7 @@ export default function OtpVerificationPage() {
   const handleResend = () => {
     if (countdown > 0) return;
     setCountdown(119);
+    toast.success("New verification code sent");
   };
 
   const handleChange = (index: number, value: string) => {
@@ -50,6 +52,7 @@ export default function OtpVerificationPage() {
   };
 
   const submit = () => {
+    toast.success("Email verified");
     router.push("/student/info");
   };
 
@@ -87,10 +90,8 @@ export default function OtpVerificationPage() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center pt-[200px]">
-        <div className="h-[15px] w-[29px] rounded-[7.5px] bg-white blur-[2.5px] opacity-60 mb-[291px]" />
-
         {/* Verify your email heading */}
-        <p className="text-center text-[27px] mt-[-10px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
+        <p className="mt-[296px] text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
           Verify your email
         </p>
 
@@ -107,7 +108,7 @@ export default function OtpVerificationPage() {
           {/* One-time code digits */}
           <div className="flex gap-[7.4px] justify-center">
             {otp.map((digit, i) => (
-              <div key={i} className={`flex h-[58px] w-[52px] shrink-0 items-center justify-center rounded-[12px] border border-solid bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04)] ${i === activeIndex ? "border-2 border-[#f97316] shadow-[0px_2px_10px_0px_rgba(249,115,22,0.18)]" : "border-[#dae2ea]"}`}>
+              <div key={i} className={`flex h-[58px] w-[52px] shrink-0 items-center justify-center rounded-[12px] border border-solid bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04)] ${i === activeIndex ? "border-2 border-[#f97316] shadow-[0px_2px_10px_0px_rgba(249,115,22,0.18)]" : "border-[#b8c4d1]"}`}>
                 <input
                   ref={(el) => {
                     inputRefs.current[i] = el;

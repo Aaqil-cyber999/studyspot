@@ -9,3 +9,7 @@ export const locationSchema = z.object({
   name: z.string().min(2),
   building: z.string().min(2),
 });
+
+export const editAdminProfileSchema = z.object({
+  name: z.string().trim().min(2, "Enter your name"),
+});

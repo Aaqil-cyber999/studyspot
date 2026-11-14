@@ -1,49 +1,49 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
 import { getSaProfile } from "@/services/super-admin";
+import { MapPin } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SaProfilePage() {
-  const { data: profile } = useQuery({
-    queryKey: ["sa", "profile"],
-    queryFn: getSaProfile,
-  });
+  const { data: profile } = useQuery({ queryKey: ["sa", "profile"], queryFn: getSaProfile });
+  if (!profile) {
+    return <PageLoader className="min-h-screen bg-[#fbfbfc] py-0" />;
+  }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-5 pb-10 pt-20 sm:px-8 lg:px-10 lg:pt-10">
-      <header className="mb-8">
-        <p className="text-sm font-medium text-primary">Account</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">Profile</h1>
+    <div className="min-h-screen bg-[#fbfbfc]">
+      <header className="px-6 pb-4 pt-[16px]">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium text-orange-600">Account settings</p>
+            <h1 className="mt-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Profile</h1>
+          </div>
+        </div>
       </header>
 
-          {profile ? (
-            <div className="max-w-2xl rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-              <div className="mb-5 flex items-center gap-4">
-                <div className="flex size-14 items-center justify-center rounded-full bg-orange-100">
-                  {profile.image ? (
-                    <img
-                      src={profile.image}
-                      alt={profile.name}
-                      className="h-full w-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xl font-bold text-orange-700">{profile.name.split(" ")[0][0]}</span>
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{profile.name}</p>
-                  <p className="mt-1 text-xs text-slate-500">{profile.email}</p>
-                </div>
+      <div className="space-y-4 pb-4">
+        <section className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+          <div className="h-20 bg-gradient-to-br from-orange-300 via-orange-100 to-orange-50" />
+          <div className="relative px-4 pb-4">
+            <div className="-mt-8 flex items-end justify-between">
+              <div className="flex size-16 items-center justify-center rounded-full border-4 border-white bg-[#f97316] text-xl font-bold text-white shadow-sm">
+                SA
               </div>
-              <p className="border-t border-slate-100 pt-4 text-sm text-slate-500">
-                Update profile information from the admin panel
-              </p>
             </div>
-          ) : (
-            <div className="rounded-2xl bg-white p-8 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
-              <p className="text-sm">Loading profile...</p>
+            <div className="mt-3">
+              <h2 className="text-lg font-bold text-[#0f172a]">{profile.name}</h2>
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]"><MapPin className="size-3.5" /> University of Moratuwa</p>
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">{profile.email}</p>
             </div>
-          )}
+          </div>
+        </section>
+
+        <button type="button" onClick={() => toast.success("Profile changes saved")} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-bold text-white shadow-[0_6px_16px_rgba(249,115,22,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2">
+          Save changes
+        </button>
+      </div>
     </div>
   );
 }

@@ -19,40 +19,50 @@ export default function SaRequestsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 px-5 pb-10 pt-20 sm:px-8 lg:px-10 lg:pt-10">
-      <header className="mb-8">
-        <p className="text-sm font-medium text-primary">Review queue</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">Registration requests</h1>
+    <div className="min-h-screen bg-[#fbfbfc]">
+      <header className="px-6 pb-4 pt-[16px]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Registration requests</h1>
+            <p className="mt-1 text-xs text-[#64748b]">{requests.length} requests</p>
+          </div>
+        </div>
       </header>
 
+      <div className="pb-4">
+        <div className="space-y-[12px]">
           {requests.length === 0 ? (
-            <div className="rounded-2xl bg-white p-8 text-slate-500 shadow-sm ring-1 ring-slate-200">
-              <p className="text-sm font-medium text-slate-700">No requests yet</p>
-              <p className="mt-1 text-sm">University registration requests will appear here.</p>
+            <div className="rounded-[20px] border border-[#e2e8f0] bg-white p-16 text-center">
+              <p className="text-sm font-medium text-[#0f172a]">No requests yet</p>
+              <p className="mt-1 text-[13px] text-[#64748b]">University registration requests will appear here.</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {requests.map((r) => (
-                <div
-                  key={r.id}
-                  className="rounded-2xl bg-white px-6 py-4 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between gap-4">
+            requests.map((r) => (
+              <div key={r.id} className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
+                <Link href={`/super-admin/requests/${r.id}`} className="block">
+                  <div className="flex items-center justify-between p-[16px]">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{r.university}</p>
-                      <p className="mt-1 text-xs text-slate-500">{r.applicant}</p>
+                      <p className="text-[16px] font-semibold text-[#0f172a]">{r.university}</p>
+                      <p className="mt-1 text-[13px] text-[#64748b]">{r.applicant}</p>
                     </div>
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${r.status === "Pending" ? "bg-amber-50 text-amber-700" : r.status === "Approved" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}
+                      className={`shrink-0 inline-flex items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${
+                        r.status === "Pending" ? "bg-[#fff7ed] text-[#c2410c]" : "bg-[#f1f5f9] text-[#475569]"
+                      }`}
                     >
+                      <span className={`size-2 rounded-full ${r.status === "Pending" ? "bg-[#c2410c]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
                       {r.status}
                     </span>
                   </div>
-                  <p className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500">{r.email} · {r.submittedAt}</p>
+                </Link>
+                <div className="border-t border-slate-100 px-4 py-3">
+                  <p className="text-[13px] text-[#64748b]">{r.email} · {r.submittedAt}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))
           )}
+        </div>
+      </div>
     </div>
   );
 }

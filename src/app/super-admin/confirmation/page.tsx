@@ -12,25 +12,25 @@ export default function ConfirmationPage() {
   const approved = state === "approved";
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-20 text-center">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-      {approved ? (
-        <CheckCircle2 className="mx-auto size-16 text-emerald-500" />
-      ) : (
-        <XCircle className="mx-auto size-16 text-red-500" />
-      )}
-      <h1 className="mt-4 text-2xl font-semibold text-slate-900">
-        {approved ? "Request approved" : "Request rejected"}
-      </h1>
-      <p className="mt-2 text-sm text-slate-500">
-        {approved ? "The registration request has been approved." : "The registration request has been rejected."}
-      </p>
-      <Link
-        href="/super-admin/requests"
-        className="mx-auto mt-8 block w-full max-w-xs rounded-xl bg-primary py-3.5 font-medium text-white transition hover:bg-primary/90"
-      >
-        Back to requests
-      </Link>
+    <div className="min-h-screen bg-[#fbfbfc]">
+      <div className="flex flex-col items-center justify-center bg-[#fbfbfc] px-4 py-4 text-center">
+        {approved ? (
+          <CheckCircle2 className="size-16 text-[#15803d]" />
+        ) : (
+          <XCircle className="size-16 text-[#c2410c]" />
+        )}
+        <h1 className="mt-4 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">
+          {approved ? "Request approved" : "Request rejected"}
+        </h1>
+        <p className="mt-2 text-[13px] text-[#64748b]">
+          {approved ? "The registration request has been approved." : "The registration request has been rejected."}
+        </p>
+        <Link
+          href="/super-admin/requests"
+          className="mt-6 flex min-h-10 w-full max-w-xs items-center justify-center gap-2 rounded-[14px] bg-[#f97316] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
+        >
+          Back to requests
+        </Link>
       </div>
     </div>
   );

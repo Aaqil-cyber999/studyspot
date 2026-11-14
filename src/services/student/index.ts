@@ -1,11 +1,10 @@
-import { api } from "@/services/api";
+import { studyLocations, comments, studentProfile } from "@/mocks/data/student";
+import { getCatalogSpotDetail, spotDetail } from "@/mocks/data/spot-detail";
+
+const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getStudyLocations() {
   return api.get("/locations");
-}
-
-export async function getSavedLocations() {
-  return api.get("/saved-spots");
 }
 
 export async function getComments() {
@@ -13,5 +12,18 @@ export async function getComments() {
 }
 
 export async function getStudentProfile() {
-  return api.get("/api/auth/me");
+  await delay();
+  return studentProfile;
+}
+
+export async function getSpotDetail(id: string) {
+  await delay();
+  if (id === spotDetail.slug) return spotDetail;
+
+  const catalogSpotDetail = getCatalogSpotDetail(id);
+  if (!catalogSpotDetail) {
+    throw new Error(`Study spot not found: ${id}`);
+  }
+
+  return catalogSpotDetail;
 }

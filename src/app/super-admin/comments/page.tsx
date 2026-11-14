@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Star } from "lucide-react";
 import { getSaComments } from "@/services/super-admin";
 import { Star } from "lucide-react";
 
@@ -21,41 +22,42 @@ export default function SaCommentsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 px-5 pb-10 pt-20 sm:px-8 lg:px-10 lg:pt-10">
-      <header className="mb-8">
-        <p className="text-sm font-medium text-primary">Community feedback</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">Comments & ratings</h1>
+    <div className="min-h-screen bg-[#fbfbfc]">
+      <header className="px-6 pb-4 pt-[16px]">
+        <h1 className="mt-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Comments & ratings</h1>
       </header>
 
+      <div className="pb-4">
+        <div className="space-y-3">
           {comments.length === 0 ? (
-            <div className="rounded-2xl bg-white p-8 text-slate-500 shadow-sm ring-1 ring-slate-200">
-              <p className="text-sm font-medium text-slate-700">No comments yet</p>
-              <p className="mt-1 text-sm">Student comments and ratings will appear here.</p>
+            <div className="rounded-2xl border border-dashed border-[#e2e8f0] bg-white p-16 text-center">
+              <p className="text-sm font-medium text-[#0f172a]">No comments yet</p>
+              <p className="mt-1 text-[13px] text-[#64748b]">Student comments and ratings will appear here.</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {comments.map((c) => (
-                <div
-                  key={c.id}
-                  className="rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Star className="size-5 fill-amber-400 text-amber-400" />
-                      <span className="text-sm font-medium text-slate-800">{Math.round(c.rating)} out of 5</span>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${c.status === "Visible" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}
-                    >
-                      {c.status}
+            comments.map((c) => (
+              <div key={c.id} className="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-0.5 text-xs font-medium text-amber-500" aria-label={`${Math.round(c.rating)} out of 5 stars`}>
+                    {[...Array(5)].map((_, index) => (
+                      <Star
+                        key={index}
+                        className={`size-3 ${index < Math.round(c.rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#e2e8f0] text-[#e2e8f0]"}`}
+                        aria-hidden="true"
+                      />
+                    ))}
+                    <span className="ml-1.5 text-[10px] font-semibold tabular-nums text-[#64748b]">
+                      {c.rating.toFixed(1)}
                     </span>
                   </div>
-                  <p className="mt-3 line-clamp-2 text-sm text-slate-600">{c.text}</p>
-                  <p className="mt-2 text-xs text-slate-400">{c.createdAt}</p>
                 </div>
-              ))}
-            </div>
+                <p className="mt-2 text-sm leading-5 text-slate-700">&ldquo;{c.text}&rdquo;</p>
+                <p className="mt-2 text-xs text-[#64748b]">{c.locationName} · {c.createdAt}</p>
+              </div>
+            ))
           )}
+        </div>
+      </div>
     </div>
   );
 }
