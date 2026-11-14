@@ -1,11 +1,22 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getRegistrationRequests } from "@/services/super-admin";
 
+type SaRequest = {
+  id: string;
+  university: string;
+  applicant: string;
+  email: string;
+  status: "Pending" | "Approved" | "Rejected";
+  submittedAt: string;
+};
+
 export default function SaRequestsPage() {
-  const { data: requests = [] } = useQuery({ queryKey: ["sa", "requests"], queryFn: getRegistrationRequests });
+  const { data: requests = [] as SaRequest[] } = useQuery({
+    queryKey: ["sa", "requests"],
+    queryFn: getRegistrationRequests,
+  });
 
   return (
     <div className="min-h-screen bg-[#fbfbfc]">

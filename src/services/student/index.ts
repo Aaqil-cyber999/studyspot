@@ -4,13 +4,11 @@ import { getCatalogSpotDetail, spotDetail } from "@/mocks/data/spot-detail";
 const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getStudyLocations() {
-  await delay();
-  return studyLocations;
+  return api.get("/locations");
 }
 
 export async function getComments() {
-  await delay();
-  return comments;
+  return api.get("/comments");
 }
 
 export async function getStudentProfile() {

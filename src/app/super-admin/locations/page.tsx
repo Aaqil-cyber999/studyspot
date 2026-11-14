@@ -4,9 +4,31 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { getSaLocations } from "@/services/super-admin";
+import { MapPin } from "lucide-react";
+
+type SaLocation = {
+  id: string;
+  name: string;
+  university: string;
+  area: string;
+  hours: string;
+  rating: number;
+  reviews: number;
+  status: "Active" | "Inactive";
+  seats: string;
+  wifi: string;
+  crowd: string;
+  noise: string;
+  description: string;
+  category: string;
+  amenities: string[];
+};
 
 export default function SaLocationsPage() {
-  const { data: locations = [] } = useQuery({ queryKey: ["sa", "locations"], queryFn: getSaLocations });
+  const { data: locations = [] as SaLocation[] } = useQuery({
+    queryKey: ["sa", "locations"],
+    queryFn: getSaLocations,
+  });
 
   return (
     <div className="min-h-screen bg-[#fbfbfc]">

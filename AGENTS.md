@@ -1,8 +1,5 @@
 # SpotWise Frontend — Agent Instructions (Updated)
 
-## Scope
-Frontend only, mock data. No backend, Supabase, Drizzle, or real auth.
-
 ## Stack
 Next.js 16 (App Router) + TypeScript, Tailwind CSS 4, shadcn/ui, Lucide React, Zustand, TanStack Query, Zod.
 
@@ -20,11 +17,9 @@ Inspect via Figma MCP before implementing screens. Use exact Figma dummy data.
 - Routes: `/student`, `/super-admin`, `/university-admin` (role prefixes).
 - Feature folders: `src/features/<role>/` (components, hooks, schemas, types).
 - Shared: `src/components/ui`, `src/components/shared`, `src/components/layout`, `src/components/navigation`.
-- Mock data: `src/mocks/data/`. Services: `src/services/`. State: `src/stores/`.
 
 ## Rules
 - Server Components by default; `"use client"` only when needed.
-- No `any`. Zod for forms. TanStack Query for async mock data; Zustand only shared client state.
 - Accessible semantic HTML, keyboard support, focus indicators.
 - Responsive (mobile/tablet/desktop). No horizontal overflow.
 - Reuse shared components across roles; don't duplicate.

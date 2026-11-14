@@ -3,9 +3,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { getSaComments } from "@/services/super-admin";
+import { Star } from "lucide-react";
+
+type SaComment = {
+  id: string;
+  locationId: string;
+  userId: string;
+  rating: number;
+  text: string;
+  status: "Visible" | "Hidden";
+  createdAt: string;
+};
 
 export default function SaCommentsPage() {
-  const { data: comments = [] } = useQuery({ queryKey: ["sa", "comments"], queryFn: getSaComments });
+  const { data: comments = [] as SaComment[] } = useQuery({
+    queryKey: ["sa", "comments"],
+    queryFn: getSaComments,
+  });
 
   return (
     <div className="min-h-screen bg-[#fbfbfc]">

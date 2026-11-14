@@ -4,8 +4,19 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversities } from "@/services/super-admin";
 
+type University = {
+  id: string;
+  name: string;
+  status: "Active" | "Pending";
+  locations: number;
+  admin?: string;
+};
+
 export default function SaUniversitiesPage() {
-  const { data: universities = [] } = useQuery({ queryKey: ["sa", "universities"], queryFn: getUniversities });
+  const { data: universities = [] as University[] } = useQuery({
+    queryKey: ["sa", "universities"],
+    queryFn: getUniversities,
+  });
 
   return (
     <div className="min-h-screen bg-[#fbfbfc]">

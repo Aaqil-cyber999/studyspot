@@ -5,6 +5,7 @@ import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import { AuthStoreHydrator } from "@/components/shared/auth-store-hydrator";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
+import { Toaster } from "react-hot-toast";
 
 const geologica = Geologica({
   variable: "--font-geologica",
