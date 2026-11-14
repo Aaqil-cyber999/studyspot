@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geologica, Inter } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
+import { Toaster } from "react-hot-toast";
 
 const geologica = Geologica({
   variable: "--font-geologica",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col font-sans">
         <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   );
