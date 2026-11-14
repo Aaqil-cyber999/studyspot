@@ -5,13 +5,13 @@ export type Role = "student" | "university-admin" | "super-admin";
 interface AuthState {
   role: Role | null;
   userName: string;
-  setRole: (role: Role) => void;
+  setAuth: (auth: { role: Role; userName: string; email: string; university: string; image?: string }) => void;
   signOut: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   role: null,
   userName: "Mohamed",
-  setRole: (role) => set({ role }),
-  signOut: () => set({ role: null }),
+  setAuth: (auth) => set({ role: auth.role, userName: auth.userName }),
+  signOut: () => set({ role: null, userName: "Mohamed" }),
 }));

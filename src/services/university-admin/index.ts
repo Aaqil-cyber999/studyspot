@@ -1,8 +1,17 @@
-import { uaDashboard, uaLocations, uaComments, uaProfile } from "@/mocks/data/university-admin";
+import { api } from "@/services/api";
 
-const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
+export async function getUaDashboard() {
+  return api.get("/api/dashboard/stats");
+}
 
-export async function getUaDashboard() { await delay(); return uaDashboard; }
-export async function getUaLocations() { await delay(); return uaLocations; }
-export async function getUaComments() { await delay(); return uaComments; }
-export async function getUaProfile() { await delay(); return uaProfile; }
+export async function getUaLocations() {
+  return api.get("/api/locations");
+}
+
+export async function getUaComments() {
+  return api.get("/api/comments");
+}
+
+export async function getUaProfile() {
+  return api.get("/api/auth/me");
+}

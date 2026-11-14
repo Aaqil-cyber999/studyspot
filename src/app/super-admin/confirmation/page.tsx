@@ -12,11 +12,12 @@ export default function ConfirmationPage() {
   const approved = state === "approved";
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-20 text-center">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
       {approved ? (
-        <CheckCircle2 className="size-16 text-green-500" />
+        <CheckCircle2 className="mx-auto size-16 text-emerald-500" />
       ) : (
-        <XCircle className="size-16 text-red-500" />
+        <XCircle className="mx-auto size-16 text-red-500" />
       )}
       <h1 className="mt-4 text-2xl font-semibold text-slate-900">
         {approved ? "Request approved" : "Request rejected"}
@@ -26,10 +27,11 @@ export default function ConfirmationPage() {
       </p>
       <Link
         href="/super-admin/requests"
-        className="mt-8 w-full max-w-xs rounded-2xl bg-orange-500 py-4 font-medium text-white"
+        className="mx-auto mt-8 block w-full max-w-xs rounded-xl bg-primary py-3.5 font-medium text-white transition hover:bg-primary/90"
       >
         Back to requests
       </Link>
+      </div>
     </div>
   );
 }

@@ -1,23 +1,17 @@
-import { studyLocations, savedLocations, comments, studentProfile } from "@/mocks/data/student";
-
-const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
+import { api } from "@/services/api";
 
 export async function getStudyLocations() {
-  await delay();
-  return studyLocations;
+  return api.get("/locations");
 }
 
 export async function getSavedLocations() {
-  await delay();
-  return savedLocations;
+  return api.get("/saved-spots");
 }
 
 export async function getComments() {
-  await delay();
-  return comments;
+  return api.get("/comments");
 }
 
 export async function getStudentProfile() {
-  await delay();
-  return studentProfile;
+  return api.get("/api/auth/me");
 }
