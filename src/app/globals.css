@@ -397,7 +397,70 @@ body {
   [role="option"]:not([aria-disabled="true"]) {
     cursor: pointer;
   }
+
+  /* Accent orange text selection */
+  ::selection {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+  }
+
+  /* Time picker selection override */
+  input[type="time"]::selection,
+  input[type="time"]::-moz-selection {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+  }
+
+  /* Time picker focused segment override */
+  input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+  input[type="time"]::-webkit-datetime-edit-minute-field:focus {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+  }
 }
+
+/* Time picker selection - unlayered for higher specificity */
+input[type="time"]::selection,
+input[type="time"]::-moz-selection {
+  background-color: #fed7aa !important;
+  color: #9a3412 !important;
+}
+
+input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+input[type="time"]::-webkit-datetime-edit-minute-field:focus {
+  background-color: #fed7aa !important;
+  color: #9a3412 !important;
+}
+
+input[type="time"]:focus {
+  caret-color: #f97316;
+}
+
+/* Additional override for time input selection */
+input[type="time"]::-webkit-datetime-edit {
+  background: transparent;
+}
+
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  background: transparent;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
 .font-material {
   font-family: "Material Symbols Rounded";
   font-variation-settings:

@@ -4,7 +4,14 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import toast from "react-hot-toast";
+
+
+import { Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+
+
+
+
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
@@ -30,6 +37,7 @@ export default function UniversityAdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("Enter your admin credentials");
+  const [showPassword, setShowPassword] = useState(false);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,7 +108,7 @@ export default function UniversityAdminLoginPage() {
                 <input
                   id="admin-password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(event) => {
@@ -110,13 +118,24 @@ export default function UniversityAdminLoginPage() {
                   className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-light leading-normal text-[#334155] outline-none"
                   style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
                 />
+                {password.length > 0 && (
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="flex items-center justify-center text-gray-500" aria-label={showPassword ? "Hide password" : "Show password"}>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                )}
+  
               </div>
             </div>
 
             <button type="submit" className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
-              <span>Continue</span>
+              <span>Sign in</span>
               <img src={asset("dcf95")} alt="" className="block size-[18px]" />
             </button>
+            <div className="mt-4 text-center text-sm text-[#334155]">
+              <span>New to SpotWise?<br />
+                <a href="/university-admin/register" className="font-medium text-[#f97316] hover:underline mt-1 block">Register as University Admin</a>
+              </span>
+            </div>
           </form>
         </div>
       </section>

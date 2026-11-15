@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useInfoStore } from "@/stores/info-store";
 import { useRouter } from "next/navigation";
 import { User, GraduationCap, MapPin, ChevronRight, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
@@ -19,11 +19,11 @@ function CampusIllustration() {
 
 export default function InfoPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const { name, setName, address, setAddress, error, setError, shake, setShake, reset } = useInfoStore();
   const university = useOnboardingStore((state) => state.university);
-  const [address, setAddress] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [shake, setShake] = useState(false);
+
+
+
 
   function submit() {
     const result = chooseUniversitySchema.safeParse({ name, university, address });

@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const d = (name: string) => `/assets/detail/nav-${name}`;
+import { MapPin, MessageSquare, Compass, User } from "lucide-react";
 
 const items = [
-  { href: "/university-admin/dashboard", label: "Dashboard", icon: "32a11.svg", iconSize: "size-[20px]" },
-  { href: "/university-admin/locations", label: "Locations", icon: "d0d92.svg", iconSize: "h-[18px] w-[14px]" },
-  { href: "/university-admin/comments", label: "Feedback", icon: "3d61b.svg", iconSize: "size-[16px]" },
-  { href: "/university-admin/profile", label: "Profile", icon: "3d61b.svg", iconSize: "size-[16px]" },
+  { href: "/university-admin/dashboard", label: "Dashboard", icon: Compass },
+  { href: "/university-admin/locations", label: "Locations", icon: MapPin },
+  { href: "/university-admin/comments", label: "Reviews", icon: MessageSquare },
+  { href: "/university-admin/profile", label: "Profile", icon: User },
 ];
 
 const pillLeft = (index: number) => 2 + index * 90;
@@ -26,8 +25,8 @@ export function AdminStudentNav() {
         <div className="-translate-x-1/2 absolute flex gap-[6px] items-center left-1/2 px-[8px] py-[10px] top-0">
           {items.map((item) => (
             <Link key={item.href} href={item.href} className="content-stretch flex flex-col gap-[4px] items-center justify-center min-h-[44px] w-[84px] py-px relative shrink-0 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]">
-              <div className={`relative shrink-0 ${item.iconSize}`}>
-                <img alt="" className="absolute block inset-0 max-w-none size-full" src={d(item.icon)} />
+              <div className="relative shrink-0">
+                <item.icon className="size-5 text-white" aria-hidden="true" />
               </div>
               <div className="content-stretch flex flex-col items-start relative shrink-0">
                 <p className="font-heading font-medium leading-[14px] text-[11px] text-white tracking-[0.33px] whitespace-nowrap">{item.label}</p>

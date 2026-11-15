@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geologica, Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
 import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import { AuthStoreHydrator } from "@/components/shared/auth-store-hydrator";
 import "./globals.css";

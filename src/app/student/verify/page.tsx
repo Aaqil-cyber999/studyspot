@@ -8,11 +8,15 @@ import toast from "react-hot-toast";
 const asset = (name: string) => `/assets/${name}.svg`;
 const otpAsset = (name: string) => `/assets/otp/${name}`;
 
+const HARDCODED_OTP = "654321";
+
 export default function OtpVerificationPage() {
   const router = useRouter();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [countdown, setCountdown] = useState(0);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [isShaking, setIsShaking] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -35,25 +39,83 @@ export default function OtpVerificationPage() {
     toast.success("New verification code sent");
   };
 
+  const triggerWrongOtp = () => {
+    setStatus("error");
+    setIsShaking(true);
+    toast.error("Incorrect code. Please try again.");
+    setTimeout(() => {
+      setIsShaking(false);
+    }, 450);
+  };
+
+  const triggerCorrectOtp = () => {
+    setStatus("success");
+    toast.success("Email verified");
+    setTimeout(() => {
+      router.push("/student/info");
+    }, 600);
+  };
+
+  const checkOtp = (enteredOtp: string) => {
+    if (enteredOtp === HARDCODED_OTP) {
+      triggerCorrectOtp();
+    } else {
+      triggerWrongOtp();
+    }
+  };
+
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
+    if (status !== "idle") {
+      setStatus("idle");
+    }
+
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
+    }
+
+    const fullCode = newOtp.join("");
+    if (fullCode.length === 6) {
+      checkOtp(fullCode);
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "Enter") {
+      submit();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/[^0-9]/g, "").slice(0, 6);
+    if (!pasted) return;
+    const newOtp = [...otp];
+    for (let i = 0; i < 6; i++) {
+      newOtp[i] = pasted[i] || "";
+    }
+    setOtp(newOtp);
+    if (status !== "idle") setStatus("idle");
+    const nextIndex = Math.min(pasted.length, 5);
+    inputRefs.current[nextIndex]?.focus();
+    if (pasted.length === 6) {
+      checkOtp(pasted);
     }
   };
 
   const submit = () => {
-    toast.success("Email verified");
-    router.push("/student/info");
+    const fullCode = otp.join("");
+    if (fullCode.length < 6) {
+      triggerWrongOtp();
+      return;
+    }
+    checkOtp(fullCode);
   };
 
   return (
@@ -106,27 +168,46 @@ export default function OtpVerificationPage() {
             Enter the six-digit code sent to s•••.@example.com
           </p>
           {/* One-time code digits */}
-          <div className="flex gap-[7.4px] justify-center">
-            {otp.map((digit, i) => (
-              <div key={i} className={`flex h-[58px] w-[52px] shrink-0 items-center justify-center rounded-[12px] border border-solid bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04)] ${i === activeIndex ? "border-2 border-[#f97316] shadow-[0px_2px_10px_0px_rgba(249,115,22,0.18)]" : "border-[#b8c4d1]"}`}>
-                <input
-                  ref={(el) => {
-                    inputRefs.current[i] = el;
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleChange(i, e.target.value.replace(/[^0-9]/g, ""))}
-                  onKeyDown={(e) => handleKeyDown(i, e)}
-                  onFocus={() => setActiveIndex(i)}
-                  onBlur={() => setActiveIndex(-1)}
-                  pattern="[0-9]*"
-                  className="w-full h-full text-center text-[24px] font-semibold leading-normal text-[#0f172a] bg-transparent border-0 outline-none"
-                  style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
-                />
-              </div>
-            ))}
+          <div className={`flex gap-[7.4px] justify-center transition-transform ${isShaking ? "animate-shake" : ""}`}>
+            {otp.map((digit, i) => {
+              let ringClass = "border-[#b8c4d1]";
+              let textClass = "text-[#0f172a]";
+
+              if (status === "success") {
+                ringClass = "border-2 border-emerald-500 bg-emerald-50/25 shadow-[0px_2px_12px_0px_rgba(16,185,129,0.3)]";
+                textClass = "text-emerald-700 font-bold";
+              } else if (status === "error") {
+                ringClass = "border-2 border-red-500 bg-red-50/25 shadow-[0px_2px_12px_0px_rgba(239,68,68,0.3)]";
+                textClass = "text-red-600 font-bold";
+              } else if (i === activeIndex) {
+                ringClass = "border-2 border-[#f97316] shadow-[0px_2px_10px_0px_rgba(249,115,22,0.18)]";
+              }
+
+              return (
+                <div
+                  key={i}
+                  className={`flex h-[58px] w-[52px] shrink-0 items-center justify-center rounded-[12px] border border-solid bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04)] transition-all duration-200 ${ringClass}`}
+                >
+                  <input
+                    ref={(el) => {
+                      inputRefs.current[i] = el;
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(i, e.target.value.replace(/[^0-9]/g, ""))}
+                    onKeyDown={(e) => handleKeyDown(i, e)}
+                    onPaste={handlePaste}
+                    onFocus={() => setActiveIndex(i)}
+                    onBlur={() => setActiveIndex(-1)}
+                    pattern="[0-9]*"
+                    className={`w-full h-full text-center text-[24px] font-semibold leading-normal bg-transparent border-0 outline-none transition-colors duration-200 ${textClass}`}
+                    style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}
+                  />
+                </div>
+              );
+            })}
           </div>
           {/* Continue button */}
           <button onClick={submit} className="mt-[23px] flex w-full items-center justify-center gap-[10px] overflow-clip rounded-[16px] bg-[#f97316] p-[16px] cursor-pointer">

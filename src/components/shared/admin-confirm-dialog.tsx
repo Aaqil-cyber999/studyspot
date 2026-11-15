@@ -28,7 +28,7 @@ export function AdminConfirmDialog({
 }: AdminConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-5 p-5">
+      <DialogContent className="gap-5 p-5 max-w-[380px]">
         <div className="space-y-2">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

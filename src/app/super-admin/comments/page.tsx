@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { getSaComments } from "@/services/super-admin";
-import { Star } from "lucide-react";
 
 type SaComment = {
   id: string;

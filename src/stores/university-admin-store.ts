@@ -11,6 +11,9 @@ export interface AdminLocation {
   id: string;
   name: string;
   building: string;
+  faculty?: string;
+  department?: string;
+  staffMonitored?: boolean;
   area: string;
   hours: string;
   rating: number;

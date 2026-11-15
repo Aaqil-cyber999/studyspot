@@ -21,7 +21,7 @@ function getFilledSegmentCount(metric: LiveMetric) {
   }
 
   if (metric.id === "noise") {
-    return metric.value === "Loud" ? 3 : metric.value === "Moderate" ? 2 : 1;
+    return metric.value === "Quiet" ? 3 : metric.value === "Moderate" ? 2 : 1;
   }
 
   return metric.value === "High" ? 3 : metric.value === "Medium" ? 2 : 1;
@@ -30,9 +30,10 @@ function getFilledSegmentCount(metric: LiveMetric) {
 interface CurrentStatusSectionProps {
   metrics: LiveMetric[];
   lastUpdated: string;
+  showReportButton?: boolean;
 }
 
-export function CurrentStatusSection({ metrics, lastUpdated }: CurrentStatusSectionProps) {
+export function CurrentStatusSection({ metrics, lastUpdated, showReportButton = true }: CurrentStatusSectionProps) {
   return (
     <section aria-labelledby="current-status-heading" className="flex w-full flex-col gap-[15px]">
       <div className="flex h-[21px] w-full items-center justify-between gap-2">
@@ -40,11 +41,9 @@ export function CurrentStatusSection({ metrics, lastUpdated }: CurrentStatusSect
           Current Status
         </h2>
 
-        <div className="flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#ddd] p-[5px]">
-          <span className="flex size-5 shrink-0 items-center justify-center overflow-clip rounded-md bg-[rgba(66,133,244,0.14)]">
-            <Clock aria-hidden="true" className="size-3 text-[#4285f4]" strokeWidth={2} />
-          </span>
-          <p className="font-body text-[11px] font-medium leading-[14px] text-black">{lastUpdated}</p>
+        <div className="flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#fed7aa] px-2.5 py-1.5">
+          <Clock aria-hidden="true" className="size-3.5 text-[#f97316]" strokeWidth={2} />
+          <p className="font-body text-[11px] font-medium leading-[14px] text-[#9a3412]">{lastUpdated}</p>
         </div>
       </div>
 
@@ -79,12 +78,14 @@ export function CurrentStatusSection({ metrics, lastUpdated }: CurrentStatusSect
         })}
       </div>
 
-      <Link href="/student/rate" className="flex h-[46px] w-full items-center justify-center gap-[10px] overflow-clip rounded-xl border border-[#e2e8f0] bg-[#f97316] px-3.5 shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06)] transition-colors hover:bg-[#ea6a0f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
-        <span className="flex items-center gap-2.5">
-          <ClipboardPen aria-hidden="true" className="size-[18px] shrink-0 text-white" strokeWidth={2} />
-          <span className="text-[14px] font-semibold leading-normal text-white">Report Current Status</span>
-        </span>
-      </Link>
+      {showReportButton && (
+        <Link href="/student/rate" className="flex h-[46px] w-full items-center justify-center gap-[10px] overflow-clip rounded-xl border border-[#e2e8f0] bg-[#f97316] px-3.5 shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06)] transition-colors hover:bg-[#ea6a0f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
+          <span className="flex items-center gap-2.5">
+            <ClipboardPen aria-hidden="true" className="size-[18px] shrink-0 text-white" strokeWidth={2} />
+            <span className="text-[14px] font-semibold leading-normal text-white">Report Current Status</span>
+          </span>
+        </Link>
+      )}
     </section>
   );
 }

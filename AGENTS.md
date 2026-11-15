@@ -19,6 +19,7 @@ Inspect via Figma MCP before implementing screens. Use exact Figma dummy data.
 - Shared: `src/components/ui`, `src/components/shared`, `src/components/layout`, `src/components/navigation`.
 
 ## Rules
+- **Always use shadcn/ui components.** Only build a custom component when that particular component does not exist in the shadcn library.
 - Server Components by default; `"use client"` only when needed.
 - Accessible semantic HTML, keyboard support, focus indicators.
 - Responsive (mobile/tablet/desktop). No horizontal overflow.

@@ -1,0 +1,31 @@
+src/app/super-admin/admins/page.tsx(27,57): error TS18046: 'admins' is of type 'unknown'.
+src/app/super-admin/admins/page.tsx(34,12): error TS18046: 'admins' is of type 'unknown'.
+src/app/super-admin/admins/page.tsx(40,13): error TS18046: 'admins' is of type 'unknown'.
+src/app/super-admin/admins/page.tsx(40,25): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/super-admin/comments/page.tsx(31,12): error TS18046: 'comments' is of type 'unknown'.
+src/app/super-admin/comments/page.tsx(37,13): error TS18046: 'comments' is of type 'unknown'.
+src/app/super-admin/comments/page.tsx(37,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/app/super-admin/dashboard/page.tsx(56,41): error TS2339: Property 'universities' does not exist on type '{}'.
+src/app/super-admin/dashboard/page.tsx(57,41): error TS2339: Property 'admins' does not exist on type '{}'.
+src/app/super-admin/dashboard/page.tsx(58,41): error TS2339: Property 'requests' does not exist on type '{}'.
+src/app/super-admin/dashboard/page.tsx(59,41): error TS2339: Property 'locations' does not exist on type '{}'.
+src/app/super-admin/locations/[id]/page.tsx(12,20): error TS18046: 'locations' is of type 'unknown'.
+src/app/super-admin/locations/[id]/page.tsx(12,36): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/super-admin/locations/page.tsx(39,57): error TS18046: 'locations' is of type 'unknown'.
+src/app/super-admin/locations/page.tsx(46,12): error TS18046: 'locations' is of type 'unknown'.
+src/app/super-admin/locations/page.tsx(52,13): error TS18046: 'locations' is of type 'unknown'.
+src/app/super-admin/locations/page.tsx(52,28): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/super-admin/profile/page.tsx(36,73): error TS2339: Property 'name' does not exist on type '{}'.
+src/app/super-admin/profile/page.tsx(38,93): error TS2339: Property 'email' does not exist on type '{}'.
+src/app/super-admin/requests/[id]/page.tsx(14,19): error TS18046: 'requests' is of type 'unknown'.
+src/app/super-admin/requests/[id]/page.tsx(14,34): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/super-admin/requests/page.tsx(27,57): error TS18046: 'requests' is of type 'unknown'.
+src/app/super-admin/requests/page.tsx(34,12): error TS18046: 'requests' is of type 'unknown'.
+src/app/super-admin/requests/page.tsx(40,13): error TS18046: 'requests' is of type 'unknown'.
+src/app/super-admin/requests/page.tsx(40,27): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/super-admin/requests/page.tsx(42,18): error TS2304: Cannot find name 'Link'.
+src/app/super-admin/requests/page.tsx(57,19): error TS2304: Cannot find name 'Link'.
+src/app/super-admin/universities/page.tsx(27,57): error TS18046: 'universities' is of type 'unknown'.
+src/app/super-admin/universities/page.tsx(34,12): error TS18046: 'universities' is of type 'unknown'.
+src/app/super-admin/universities/page.tsx(40,13): error TS18046: 'universities' is of type 'unknown'.
+src/app/super-admin/universities/page.tsx(40,31): error TS7006: Parameter 'u' implicitly has an 'any' type.
