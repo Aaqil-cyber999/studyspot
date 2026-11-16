@@ -1,16 +1,31 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Building2, Search, ShieldCheck, ShieldOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaUniversities, setSaUniversityStatus } from "@/services/super-admin";
 
 type UniversityFilter = "All" | "Active" | "Inactive";
 
 export default function SaUniversitiesPage() {
-  const universities = useSuperAdminStore((state) => state.universities);
-  const toggleUniversityStatus = useSuperAdminStore((state) => state.toggleUniversityStatus);
+  const queryClient = useQueryClient();
+  const { data: universities = [], isPending } = useQuery({
+    queryKey: ["sa", "universities"],
+    queryFn: getSaUniversities,
+  });
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "Active" | "Inactive" }) =>
+      setSaUniversityStatus(id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "universities"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to update the university."),
+  });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<UniversityFilter>("All");
   const [target, setTarget] = useState<{ id: string; name: string; status: string } | null>(null);
@@ -29,7 +44,7 @@ export default function SaUniversitiesPage() {
       universities.filter((university) => {
         const matchesQuery =
           !normalizedQuery ||
-          `${university.name} ${university.admin ?? ""}`.toLowerCase().includes(normalizedQuery);
+          `${university.name} ${university.adminName ?? ""}`.toLowerCase().includes(normalizedQuery);
         const matchesFilter = filter === "All" || university.status === filter;
         return matchesQuery && matchesFilter;
       }),
@@ -40,9 +55,19 @@ export default function SaUniversitiesPage() {
 
   function confirmStatusChange() {
     if (!target) return;
-    toggleUniversityStatus(target.id);
-    toast.success(target.status === "Active" ? `${target.name} deactivated` : `${target.name} activated`);
+    const nextStatus = target.status === "Active" ? "Inactive" : "Active";
+    toggleMutation.mutate(
+      { id: target.id, status: nextStatus },
+      {
+        onSuccess: () =>
+          toast.success(nextStatus === "Active" ? `${target.name} activated` : `${target.name} deactivated`),
+      },
+    );
     setTarget(null);
+  }
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
   }
 
   return (
@@ -106,7 +131,7 @@ export default function SaUniversitiesPage() {
                 <div className="flex items-center justify-between gap-3 p-[14px]">
                   <div className="min-w-0">
                     <p className="text-[16px] font-semibold leading-5 text-[#0f172a]">{university.name}</p>
-                    <p className="mt-1 text-[13px] text-[#64748b]">{university.locations} locations</p>
+                    <p className="mt-1 text-[13px] text-[#64748b]">{university.locationCount} locations</p>
                   </div>
                   <div className="shrink-0">
                     <span
@@ -120,11 +145,12 @@ export default function SaUniversitiesPage() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-2.5 py-2.5">
-                  <p className="min-w-0 truncate text-[13px] text-[#64748b]">Admin: {university.admin ?? "—"}</p>
+                  <p className="min-w-0 truncate text-[13px] text-[#64748b]">Admin: {university.adminName ?? "—"}</p>
                   <button
                     type="button"
                     onClick={() => openDialog({ id: university.id, name: university.name, status: university.status })}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 ${
+                    disabled={toggleMutation.isPending}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60 ${
                       university.status === "Active"
                         ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c] hover:bg-[#fee2e2]"
                         : "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7]"

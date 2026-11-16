@@ -2,16 +2,30 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin, Search, Star, MessageSquare, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
-import { saLocationDetails } from "@/mocks/data/sa-location-details";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaLocations, setSaLocationStatus } from "@/services/super-admin";
 
 type StatusFilter = "All" | "Active" | "Inactive";
 
 export default function SaLocationsPage() {
-  const locations = useSuperAdminStore((state) => state.locations);
-  const toggleLocationStatus = useSuperAdminStore((state) => state.toggleLocationStatus);
+  const queryClient = useQueryClient();
+  const { data: locations = [], isPending } = useQuery({
+    queryKey: ["sa", "locations"],
+    queryFn: getSaLocations,
+  });
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "Active" | "Inactive" }) =>
+      setSaLocationStatus(id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "locations"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to update the location."),
+  });
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
 
@@ -19,10 +33,9 @@ export default function SaLocationsPage() {
   const filteredLocations = useMemo(
     () =>
       locations.filter((location) => {
-        const detail = saLocationDetails[location.id];
         const matchesQuery =
           !normalizedQuery ||
-          `${location.name} ${location.university} ${detail?.building ?? ""}`.toLowerCase().includes(normalizedQuery);
+          `${location.name} ${location.universityName} ${location.building ?? ""}`.toLowerCase().includes(normalizedQuery);
         const matchesStatus = statusFilter === "All" || location.status === statusFilter;
         return matchesQuery && matchesStatus;
       }),
@@ -32,8 +45,14 @@ export default function SaLocationsPage() {
   const activeCount = locations.filter((location) => location.status === "Active").length;
 
   function toggleStatus(id: string, name: string, status: string) {
-    toggleLocationStatus(id);
-    toast.success(status === "Active" ? `${name} deactivated` : `${name} activated`);
+    const nextStatus = status === "Active" ? "Inactive" : "Active";
+    toggleMutation.mutate(
+      { id, status: nextStatus },
+      {
+        onSuccess: () =>
+          toast.success(nextStatus === "Active" ? `${name} activated` : `${name} deactivated`),
+      },
+    );
   }
 
   return (
@@ -77,7 +96,9 @@ export default function SaLocationsPage() {
       </div>
 
       <div className="flex flex-1 flex-col pb-4 pt-3">
-        {filteredLocations.length === 0 ? (
+        {isPending ? (
+          <PageLoader className="min-h-[40vh]" />
+        ) : filteredLocations.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
             <span className="flex size-16 items-center justify-center rounded-full bg-[#ffdbca] text-[#f97316]">
               <MapPin className="size-7" aria-hidden="true" />
@@ -90,83 +111,79 @@ export default function SaLocationsPage() {
         ) : (
           <div className="space-y-[12px]">
             {filteredLocations.map((location) => {
-              const detail = saLocationDetails[location.id];
-              const open = detail?.hours.isOpen ?? true;
+              const open = location.status === "Active"; // location open/closed tracks its own status
 
               return (
-              <div
-                key={location.id}
-                className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]"
-              >
-                <div className="flex items-stretch gap-4 p-[14px]">
-                  {detail ? (
-                    <Link
-                      href={`/super-admin/locations/${location.id}`}
-                      aria-label={`View ${location.name}`}
-                      className="shrink-0 self-center rounded-[16px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={detail.image}
-                        alt=""
-                        className="size-20 rounded-[16px] object-cover sm:size-24"
-                      />
-                    </Link>
-                  ) : null}
-                  <div className="flex min-w-0 flex-1 flex-col justify-center">
-                    <Link
-                      href={`/super-admin/locations/${location.id}`}
-                      className="min-w-0 rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
-                    >
-                      <p className="truncate text-[16px] font-semibold leading-5 text-[#0f172a]">{location.name}</p>
-                      <p className="mt-1 flex items-center gap-1.5 text-[12px] leading-4 text-[#64748b]">
-                        <MapPin className="size-3.5 shrink-0 text-[#f97316]" aria-hidden="true" />
-                        <span className="min-w-0 truncate">
-                          {location.university}
-                          {detail ? <> · <span className="text-[#94a3b8]">{detail.building}</span></> : null}
+                <div
+                  key={location.id}
+                  className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]"
+                >
+                  <div className="flex items-stretch gap-4 p-[14px]">
+                    {location.imageUrls[0] ? (
+                      <Link
+                        href={`/super-admin/locations/${location.id}`}
+                        aria-label={`View ${location.name}`}
+                        className="shrink-0 self-center rounded-[16px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={location.imageUrls[0]}
+                          alt=""
+                          className="size-20 rounded-[16px] object-cover sm:size-24"
+                        />
+                      </Link>
+                    ) : null}
+                    <div className="flex min-w-0 flex-1 flex-col justify-center">
+                      <Link
+                        href={`/super-admin/locations/${location.id}`}
+                        className="min-w-0 rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
+                      >
+                        <p className="truncate text-[16px] font-semibold leading-5 text-[#0f172a]">{location.name}</p>
+                        <p className="mt-1 flex items-center gap-1.5 text-[12px] leading-4 text-[#64748b]">
+                          <MapPin className="size-3.5 shrink-0 text-[#f97316]" aria-hidden="true" />
+                          <span className="min-w-0 truncate">
+                            {location.universityName}
+                            {location.building ? <> · <span className="text-[#94a3b8]">{location.building}</span></> : null}
+                          </span>
+                        </p>
+                      </Link>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] leading-4 text-[#64748b]">
+                        <span className="flex items-center gap-1" aria-label={`Rating ${location.rating.toFixed(1)} out of 5`}>
+                          <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
+                          <span className="font-semibold tabular-nums text-[#0f172a]">{location.rating.toFixed(1)}</span>
                         </span>
-                      </p>
-                    </Link>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] leading-4 text-[#64748b]">
-                      <span className="flex items-center gap-1" aria-label={`Rating ${location.rating.toFixed(1)} out of 5`}>
-                        <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                        <span className="font-semibold tabular-nums text-[#0f172a]">{location.rating.toFixed(1)}</span>
-                      </span>
-                      <span className="flex items-center gap-1" aria-label={`${location.reviews} reviews`}>
-                        <MessageSquare className="size-3.5 text-[#94a3b8]" aria-hidden="true" />
-                        <span className="tabular-nums">{location.reviews} reviews</span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <span className={`size-2 rounded-full ${open ? "bg-[#10b981]" : "bg-[#ef4444]"}`} aria-hidden="true" />
-                        <span className={open ? "text-[#077857]" : "text-[#b91c1c]"}>{open ? "Open now" : "Closed"}</span>
-                      </span>
-                      {detail?.staffMonitored ? (
-                        <span className="flex items-center gap-1.5 text-[#15803d]">
-                          <ShieldCheck className="size-3.5" aria-hidden="true" />
-                          Staffed
+                        <span className="flex items-center gap-1" aria-label={`${location.reviews} reviews`}>
+                          <MessageSquare className="size-3.5 text-[#94a3b8]" aria-hidden="true" />
+                          <span className="tabular-nums">{location.reviews} reviews</span>
                         </span>
-                      ) : null}
+                        {location.staffMonitored ? (
+                          <span className="flex items-center gap-1.5 text-[#15803d]">
+                            <ShieldCheck className="size-3.5" aria-hidden="true" />
+                            Staffed
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end justify-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${
+                          location.status === "Active" ? "bg-[#f0fdf4] text-[#15803d]" : "bg-[#f1f5f9] text-[#475569]"
+                        }`}
+                      >
+                        <span className={`size-2 rounded-full ${location.status === "Active" ? "bg-[#15803d]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
+                        {location.status}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleStatus(location.id, location.name, location.status)}
+                        disabled={toggleMutation.isPending}
+                        className="rounded-full border border-[#e2e8f0] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#334155] transition hover:border-[#fed7aa] hover:text-[#c2410c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60"
+                      >
+                        {location.status === "Active" ? "Deactivate" : "Activate"}
+                      </button>
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end justify-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${
-                        location.status === "Active" ? "bg-[#f0fdf4] text-[#15803d]" : "bg-[#f1f5f9] text-[#475569]"
-                      }`}
-                    >
-                      <span className={`size-2 rounded-full ${location.status === "Active" ? "bg-[#15803d]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
-                      {location.status}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toggleStatus(location.id, location.name, location.status)}
-                      className="rounded-full border border-[#e2e8f0] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#334155] transition hover:border-[#fed7aa] hover:text-[#c2410c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
-                    >
-                      {location.status === "Active" ? "Deactivate" : "Activate"}
-                    </button>
-                  </div>
                 </div>
-              </div>
               );
             })}
           </div>

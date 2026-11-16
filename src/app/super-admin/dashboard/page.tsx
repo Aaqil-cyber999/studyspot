@@ -1,26 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { useQuery } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
 import { Building2, Users, MapPin, ArrowRight, Star, Inbox } from "lucide-react";
+import { getSaOverview } from "@/services/super-admin";
 
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
 
 export default function SaDashboardPage() {
-  const universities = useSuperAdminStore((state) => state.universities);
-  const admins = useSuperAdminStore((state) => state.admins);
-  const requests = useSuperAdminStore((state) => state.requests);
-  const locations = useSuperAdminStore((state) => state.locations);
-  const comments = useSuperAdminStore((state) => state.comments);
+  const { data: overview, isPending } = useQuery({
+    queryKey: ["sa", "overview"],
+    queryFn: getSaOverview,
+  });
 
-  const pendingRequests = requests.filter((request) => request.status === "Pending");
-  const recentComments = comments.filter((comment) => comment.status === "Visible").slice(0, 3);
+  if (isPending || !overview) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
+  }
 
-  const stats = [
-    { label: "Universities", value: universities.length, icon: Building2, iconClass: "bg-[#fff7ed] text-[#f97316]", href: "/super-admin/universities" },
-    { label: "Admins", value: admins.length, icon: Users, iconClass: "bg-[#eff6ff] text-[#2563eb]", href: "/super-admin/admins" },
-    { label: "Pending requests", value: pendingRequests.length, icon: Inbox, iconClass: "bg-[#fffbeb] text-[#d97706]", href: "/super-admin/requests" },
-    { label: "Locations", value: locations.length, icon: MapPin, iconClass: "bg-[#ecfdf5] text-[#059669]", href: "/super-admin/locations" },
+  const { stats, pendingApprovals, recentReviews } = overview;
+
+  const statCards = [
+    { label: "Universities", value: stats.universities, icon: Building2, iconClass: "bg-[#fff7ed] text-[#f97316]", href: "/super-admin/universities" },
+    { label: "Admins", value: stats.admins, icon: Users, iconClass: "bg-[#eff6ff] text-[#2563eb]", href: "/super-admin/admins" },
+    { label: "Pending requests", value: stats.pendingRequests, icon: Inbox, iconClass: "bg-[#fffbeb] text-[#d97706]", href: "/super-admin/requests" },
+    { label: "Locations", value: stats.locations, icon: MapPin, iconClass: "bg-[#ecfdf5] text-[#059669]", href: "/super-admin/locations" },
   ];
 
   return (
@@ -35,7 +39,7 @@ export default function SaDashboardPage() {
 
       <div className="pb-4">
         <div className="grid grid-cols-2 gap-3">
-          {stats.map((stat) => {
+          {statCards.map((stat) => {
             const Icon = stat.icon;
             return (
               <Link key={stat.label} href={stat.href} className={`group flex flex-col rounded-[20px] border border-[#e2e8f0] bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition hover:border-[#fed7aa] ${focusRing}`}>
@@ -65,16 +69,16 @@ export default function SaDashboardPage() {
             </div>
 
             <div className="px-6 pb-5">
-              {pendingRequests.length === 0 ? (
+              {pendingApprovals.length === 0 ? (
                 <div className="flex h-20 items-center justify-center text-[13px] text-[#94a3b8]">All requests handled</div>
               ) : (
                 <ul className="divide-y divide-[#f1f5f9] border-t border-[#f1f5f9]">
-                  {pendingRequests.map((request) => (
+                  {pendingApprovals.map((request) => (
                     <li key={request.id} className="flex items-center justify-between gap-3 py-3">
                       <div className="min-w-0">
                         <p className="truncate text-[13px] font-semibold text-[#0f172a]">{request.university}</p>
                         <p className="mt-0.5 truncate text-[12px] text-[#64748b]">
-                          {request.title} {request.name} · {request.submittedAt}
+                          {[request.title, request.name].filter(Boolean).join(" ")} · {formatRelative(request.createdAt)}
                         </p>
                       </div>
                       <Link href={`/super-admin/requests/${request.id}`} className="shrink-0 rounded-full border border-[#fed7aa] bg-[#fff7ed] px-3 py-1.5 text-[11px] font-semibold text-[#c2410c] transition hover:bg-[#ffedd5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
@@ -99,22 +103,22 @@ export default function SaDashboardPage() {
             </div>
 
             <div className="px-6 pb-5">
-              {recentComments.length === 0 ? (
+              {recentReviews.length === 0 ? (
                 <div className="flex h-20 items-center justify-center text-[13px] text-[#94a3b8]">No reviews yet</div>
               ) : (
                 <ul className="divide-y divide-[#f1f5f9] border-t border-[#f1f5f9]">
-                  {recentComments.map((comment) => (
-                    <li key={comment.id} className="py-3">
+                  {recentReviews.map((review) => (
+                    <li key={review.id} className="py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-1 text-[11px] font-medium text-[#64748b]">
                           <Star className="size-3.5 shrink-0 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                          <span className="tabular-nums font-semibold text-[#0f172a]">{comment.rating.toFixed(1)}</span>
+                          <span className="tabular-nums font-semibold text-[#0f172a]">{review.rating.toFixed(1)}</span>
                           <span className="mx-1">·</span>
-                          <span className="truncate">{comment.locationName}</span>
+                          <span className="truncate">{review.locationName}</span>
                         </div>
-                        <span className="shrink-0 text-[11px] text-[#94a3b8]">{comment.createdAt}</span>
+                        <span className="shrink-0 text-[11px] text-[#94a3b8]">{formatRelative(review.createdAt)}</span>
                       </div>
-                      <p className="mt-1.5 line-clamp-1 text-[13px] leading-5 text-[#334155]">{comment.text}</p>
+                      <p className="mt-1.5 line-clamp-1 text-[13px] leading-5 text-[#334155]">{review.text}</p>
                     </li>
                   ))}
                 </ul>
@@ -125,4 +129,16 @@ export default function SaDashboardPage() {
       </div>
     </div>
   );
+}
+
+function formatRelative(iso: string): string {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.round(days / 7);
+  return `${weeks}w ago`;
 }

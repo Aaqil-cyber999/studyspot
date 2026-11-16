@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/stores/auth-store";
+import { login, logout } from "@/services/auth";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 
 const schema = z.object({
@@ -14,12 +15,12 @@ const schema = z.object({
 
 export default function SuperAdminLoginPage() {
   const router = useRouter();
-  const setRole = useAuthStore((s) => s.setRole);
+  const setSession = useAuthStore((s) => s.setSession);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = schema.safeParse({ email, password });
     if (!result.success) {
@@ -28,12 +29,21 @@ export default function SuperAdminLoginPage() {
       return;
     }
     setLoading(true);
-    setRole("super-admin");
-    toast.success("Welcome back, Super Admin!");
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const user = await login(result.data.email, result.data.password);
+      if (user.role !== "super-admin") {
+        await logout();
+        toast.error("This account is not a super admin.");
+        return;
+      }
+      setSession("super-admin", user.name);
+      toast.success("Welcome back, Super Admin!");
       router.push("/super-admin/dashboard");
-    }, 800);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to sign in.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

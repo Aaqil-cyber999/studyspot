@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, Star, User, Eye, EyeOff, MessageSquare } from "lucide-react";
 import toast from "react-hot-toast";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaReviews, moderateSaReview } from "@/services/super-admin";
 
 type StatusFilter = "All" | "Visible" | "Hidden";
 
@@ -24,30 +26,64 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
+function relativeTime(iso: string): string {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.round(days / 7);
+  return `${weeks}w ago`;
+}
+
 export default function SaReviewsPage() {
-  const comments = useSuperAdminStore((state) => state.comments);
-  const moderateComment = useSuperAdminStore((state) => state.moderateComment);
+  const queryClient = useQueryClient();
+  const { data: reviews = [], isPending } = useQuery({
+    queryKey: ["sa", "reviews"],
+    queryFn: () => getSaReviews(),
+  });
+  const moderateMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "Visible" | "Hidden" }) =>
+      moderateSaReview(id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "reviews"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to update the review."),
+  });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("All");
 
   const normalizedQuery = query.trim().toLowerCase();
-  const filteredComments = useMemo(
+  const filteredReviews = useMemo(
     () =>
-      comments.filter((comment) => {
+      reviews.filter((review) => {
         const matchesQuery =
           !normalizedQuery ||
-          `${comment.text} ${comment.locationName} ${comment.author}`.toLowerCase().includes(normalizedQuery);
-        const matchesFilter = filter === "All" || comment.status === filter;
+          `${review.text} ${review.locationName} ${review.authorName}`.toLowerCase().includes(normalizedQuery);
+        const matchesFilter = filter === "All" || review.status === filter;
         return matchesQuery && matchesFilter;
       }),
-    [comments, filter, normalizedQuery],
+    [reviews, filter, normalizedQuery],
   );
 
-  const visibleCount = comments.filter((comment) => comment.status === "Visible").length;
+  const visibleCount = reviews.filter((review) => review.status === "Visible").length;
 
   function toggleVisibility(id: string, status: "Visible" | "Hidden") {
-    moderateComment(id, status === "Visible" ? "Hidden" : "Visible");
-    toast.success(status === "Visible" ? "Review hidden" : "Review shown");
+    moderateMutation.mutate(
+      { id, status: status === "Visible" ? "Hidden" : "Visible" },
+      {
+        onSuccess: (updated) =>
+          toast.success(updated.status === "Visible" ? "Review shown" : "Review hidden"),
+      },
+    );
+  }
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
   }
 
   return (
@@ -55,7 +91,7 @@ export default function SaReviewsPage() {
       <header className="pb-4 pt-[16px]">
         <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Reviews</h1>
         <p className="mt-1 text-xs text-[#64748b]">
-          {comments.length} reviews · {visibleCount} visible
+          {reviews.length} reviews · {visibleCount} visible
         </p>
       </header>
 
@@ -91,7 +127,7 @@ export default function SaReviewsPage() {
       </div>
 
       <div className="flex flex-1 flex-col pb-4 pt-3">
-        {filteredComments.length === 0 ? (
+        {filteredReviews.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
             <span className="flex size-16 items-center justify-center rounded-full bg-[#ffdbca] text-[#f97316]">
               <MessageSquare className="size-7" aria-hidden="true" />
@@ -103,11 +139,11 @@ export default function SaReviewsPage() {
           </div>
         ) : (
           <div className="space-y-[12px]">
-            {filteredComments.map((comment) => (
+            {filteredReviews.map((review) => (
               <article
-                key={comment.id}
+                key={review.id}
                 className={`rounded-2xl border bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
-                  comment.status === "Hidden" ? "border-dashed border-slate-300 opacity-70" : "border-[#e2e8f0]"
+                  review.status === "Hidden" ? "border-dashed border-slate-300 opacity-70" : "border-[#e2e8f0]"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -116,32 +152,29 @@ export default function SaReviewsPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-[14px] font-semibold text-[#0f172a]">{comment.author}</p>
-                      <span className="shrink-0 text-[11px] text-[#94a3b8]">{comment.createdAt}</span>
+                      <p className="truncate text-[14px] font-semibold text-[#0f172a]">{review.authorName}</p>
+                      <span className="shrink-0 text-[11px] text-[#94a3b8]">{relativeTime(review.createdAt)}</span>
                     </div>
-                    <p className="truncate text-[12px] text-[#64748b]">{comment.locationName}</p>
+                    <p className="truncate text-[12px] text-[#64748b]">{review.locationName}</p>
                   </div>
                 </div>
 
-                <p className="mt-3 text-sm leading-6 text-slate-700">&ldquo;{comment.text}&rdquo;</p>
+                <p className="mt-3 text-sm leading-6 text-slate-700">&ldquo;{review.text}&rdquo;</p>
 
                 <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
-                  <Stars rating={comment.rating} />
+                  <Stars rating={review.rating} />
                   <button
                     type="button"
-                    onClick={() => toggleVisibility(comment.id, comment.status)}
-                    className={`flex items-center gap-1.5 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 ${
-                      comment.status === "Visible" ? "text-red-600 hover:text-red-700" : "text-orange-600 hover:text-orange-700"
+                    disabled={moderateMutation.isPending}
+                    onClick={() => toggleVisibility(review.id, review.status)}
+                    className={`flex items-center gap-1.5 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60 ${
+                      review.status === "Visible" ? "text-red-600 hover:text-red-700" : "text-orange-600 hover:text-orange-700"
                     }`}
                   >
-                    {comment.status === "Visible" ? (
-                      <>
-                        <EyeOff className="size-3.5" aria-hidden="true" /> Hide
-                      </>
+                    {review.status === "Visible" ? (
+                      <><EyeOff className="size-3.5" aria-hidden="true" /> Hide</>
                     ) : (
-                      <>
-                        <Eye className="size-3.5" aria-hidden="true" /> Show
-                      </>
+                      <><Eye className="size-3.5" aria-hidden="true" /> Show</>
                     )}
                   </button>
                 </div>

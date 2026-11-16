@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, GraduationCap, Mail, Clock, FileText, CheckCircle2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaRequestById, approveSaRequest, rejectSaRequest } from "@/services/super-admin";
 
 const statusPill = (status: string) => (status === "Approved" ? "bg-[#f0fdf4] text-[#15803d]" : status === "Pending" ? "bg-[#fff7ed] text-[#c2410c]" : "bg-[#fef2f2] text-[#b91c1c]");
 
@@ -20,6 +22,18 @@ function initials(name: string) {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+}
+
+function formatRelative(iso: string): string {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.round(days / 7);
+  return `${weeks}w ago`;
 }
 
 function DetailRow({ icon: Icon, label, children }: { icon: typeof GraduationCap; label: string; children: React.ReactNode }) {
@@ -39,17 +53,41 @@ function DetailRow({ icon: Icon, label, children }: { icon: typeof GraduationCap
 export default function SaRequestDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const requests = useSuperAdminStore((state) => state.requests);
-  const approveRequest = useSuperAdminStore((state) => state.approveRequest);
-  const rejectRequest = useSuperAdminStore((state) => state.rejectRequest);
-  const request = requests.find((item) => item.id === params.id);
+  const queryClient = useQueryClient();
+  const { data: request, isPending } = useQuery({
+    queryKey: ["sa", "request", params.id],
+    queryFn: () => getSaRequestById(params.id),
+  });
+  const approveMutation = useMutation({
+    mutationFn: () => approveSaRequest(params.id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "requests"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "admins"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "universities"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to approve the request."),
+  });
+  const rejectMutation = useMutation({
+    mutationFn: () => rejectSaRequest(params.id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "requests"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to reject the request."),
+  });
   const [action, setAction] = useState<"approve" | "reject" | null>(null);
-  // Mirror the last chosen action so the closing frame of the dialog doesn't flash empty content.
   const [shownAction, setShownAction] = useState(action);
 
   function openAction(next: "approve" | "reject") {
     setAction(next);
     setShownAction(next);
+  }
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
   }
 
   if (!request) {
@@ -65,18 +103,18 @@ export default function SaRequestDetailsPage() {
     );
   }
 
-  const isPending = request.status === "Pending";
-  const fullName = `${request.title} ${request.name}`;
+  const isPendingStatus = request.status === "Pending";
+  const fullName = [request.title, request.name].filter(Boolean).join(" ");
 
-  function confirmAction() {
+  async function confirmAction() {
     if (!request || !action) return;
 
     if (action === "approve") {
-      approveRequest(request.id);
+      await approveMutation.mutateAsync();
       toast.success("Request approved");
       router.push("/super-admin/confirmation?state=approved");
     } else {
-      rejectRequest(request.id);
+      await rejectMutation.mutateAsync();
       toast.success("Request rejected");
       router.push("/super-admin/confirmation?state=rejected");
     }
@@ -137,7 +175,7 @@ export default function SaRequestDetailsPage() {
           </DetailRow>
 
           <DetailRow icon={Clock} label="Submitted">
-            {request.submittedAt}
+            {formatRelative(request.createdAt)}
           </DetailRow>
 
           <DetailRow icon={FileText} label="Note from the applicant">
@@ -146,14 +184,14 @@ export default function SaRequestDetailsPage() {
         </section>
 
         {/* Decision actions */}
-        {isPending ? (
+        {isPendingStatus ? (
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => openAction("approve")} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#4ade80] bg-[#bbf7d0] text-sm font-semibold text-[#14532d] transition hover:bg-[#86efac] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#15803d] focus-visible:ring-offset-2">
+              <button type="button" onClick={() => openAction("approve")} disabled={approveMutation.isPending || rejectMutation.isPending} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#4ade80] bg-[#bbf7d0] text-sm font-semibold text-[#14532d] transition hover:bg-[#86efac] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#15803d] focus-visible:ring-offset-2 disabled:opacity-60">
                 <CheckCircle2 className="size-4" aria-hidden="true" />
                 Approve
               </button>
-              <button type="button" onClick={() => openAction("reject")} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#f87171] bg-[#fecaca] text-sm font-semibold text-[#7f1d1d] transition hover:bg-[#fca5a5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b91c1c] focus-visible:ring-offset-2">
+              <button type="button" onClick={() => openAction("reject")} disabled={approveMutation.isPending || rejectMutation.isPending} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#f87171] bg-[#fecaca] text-sm font-semibold text-[#7f1d1d] transition hover:bg-[#fca5a5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b91c1c] focus-visible:ring-offset-2 disabled:opacity-60">
                 <XCircle className="size-4" aria-hidden="true" />
                 Reject
               </button>

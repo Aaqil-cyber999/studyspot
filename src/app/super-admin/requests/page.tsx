@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Inbox, Search, ChevronRight } from "lucide-react";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaRequests, type ApiRegistrationRequest } from "@/services/super-admin";
 
 type RequestFilter = "All" | "Pending" | "Approved" | "Rejected";
 
@@ -28,7 +30,10 @@ function initials(name: string) {
 }
 
 export default function SaRequestsPage() {
-  const requests = useSuperAdminStore((state) => state.requests);
+  const { data: requests = [], isPending } = useQuery({
+    queryKey: ["sa", "requests"],
+    queryFn: () => getSaRequests(),
+  });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<RequestFilter>("Pending");
 
@@ -38,7 +43,7 @@ export default function SaRequestsPage() {
       requests.filter((request) => {
         const matchesQuery =
           !normalizedQuery ||
-          `${request.title} ${request.name} ${request.university} ${request.email}`
+          `${request.title ?? ""} ${request.name} ${request.university} ${request.email}`
             .toLowerCase()
             .includes(normalizedQuery);
         const matchesFilter = filter === "All" || request.status === filter;
@@ -48,6 +53,10 @@ export default function SaRequestsPage() {
   );
 
   const pendingCount = requests.filter((request) => request.status === "Pending").length;
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
+  }
 
   return (
     <div className="min-h-screen bg-[#E2E8F0] px-4 sm:px-6">
@@ -110,7 +119,7 @@ export default function SaRequestsPage() {
                 <Link
                   href={`/super-admin/requests/${request.id}`}
                   className="block rounded-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
-                  aria-label={`View registration request from ${request.title} ${request.name}`}
+                  aria-label={`View registration request from ${[request.title, request.name].filter(Boolean).join(" ")}`}
                 >
                   <div className="flex items-center justify-between gap-3 p-[16px]">
                     <div className="flex min-w-0 items-center gap-3">
@@ -119,7 +128,7 @@ export default function SaRequestsPage() {
                       </span>
                       <div className="min-w-0">
                         <p className="truncate text-[16px] font-semibold leading-5 text-[#0f172a]">
-                          {request.title} {request.name}
+                          {[request.title, request.name].filter(Boolean).join(" ")}
                         </p>
                         <p className="mt-0.5 truncate text-[13px] text-[#64748b]">{request.email}</p>
                       </div>
@@ -136,7 +145,7 @@ export default function SaRequestsPage() {
                 <div className="border-t border-slate-100 px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="min-w-0 truncate text-[13px] font-medium text-[#64748b]">{request.university}</p>
-                    <span className="shrink-0 text-[12px] text-[#94a3b8]">{request.submittedAt}</span>
+                    <span className="shrink-0 text-[12px] text-[#94a3b8]">{formatRelative(request.createdAt)}</span>
                   </div>
                   {request.note ? (
                     <p className="mt-1 line-clamp-1 truncate text-[12px] text-[#94a3b8]">&ldquo;{request.note}&rdquo;</p>
@@ -149,4 +158,16 @@ export default function SaRequestsPage() {
       </div>
     </div>
   );
+}
+
+function formatRelative(iso: string): string {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.round(days / 7);
+  return `${weeks}w ago`;
 }

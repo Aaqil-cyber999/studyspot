@@ -2,21 +2,34 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, ShieldCheck, ShieldOff, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaUniversityAdmins, setSaAdminStatus } from "@/services/super-admin";
 
 type AdminFilter = "All" | "Active" | "Inactive";
 
 export default function SaAdminsPage() {
-  const admins = useSuperAdminStore((state) => state.admins);
-  const toggleAdminStatus = useSuperAdminStore((state) => state.toggleAdminStatus);
+  const queryClient = useQueryClient();
+  const { data: admins = [], isPending } = useQuery({
+    queryKey: ["sa", "admins"],
+    queryFn: getSaUniversityAdmins,
+  });
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "Active" | "Inactive" }) =>
+      setSaAdminStatus(id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "admins"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to update the admin."),
+  });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<AdminFilter>("All");
   const [target, setTarget] = useState<{ id: string; name: string; email: string; status: string } | null>(null);
-  // Mirror the last opened target so the closing frame doesn't flash
-  // "Activate undefined?" during the dialog's exit animation.
   const [shown, setShown] = useState(target);
 
   function openDialog(next: NonNullable<typeof target>) {
@@ -28,7 +41,10 @@ export default function SaAdminsPage() {
   const filteredAdmins = useMemo(
     () =>
       admins.filter((admin) => {
-        const matchesQuery = !normalizedQuery || `${admin.name} ${admin.email} ${admin.university}`.toLowerCase().includes(normalizedQuery);
+        const university = admin.universityName ?? "";
+        const matchesQuery =
+          !normalizedQuery ||
+          `${admin.name} ${admin.email} ${university}`.toLowerCase().includes(normalizedQuery);
         const matchesFilter = filter === "All" || admin.status === filter;
         return matchesQuery && matchesFilter;
       }),
@@ -39,9 +55,19 @@ export default function SaAdminsPage() {
 
   function confirmStatusChange() {
     if (!target) return;
-    toggleAdminStatus(target.id);
-    toast.success(target.status === "Active" ? `${target.name} deactivated` : `${target.name} activated`);
+    const nextStatus = target.status === "Active" ? "Inactive" : "Active";
+    toggleMutation.mutate(
+      { id: target.id, status: nextStatus },
+      {
+        onSuccess: () =>
+          toast.success(nextStatus === "Active" ? `${target.name} activated` : `${target.name} deactivated`),
+      },
+    );
     setTarget(null);
+  }
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
   }
 
   return (
@@ -95,7 +121,9 @@ export default function SaAdminsPage() {
                           .toUpperCase()}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-[16px] font-semibold text-[#0f172a]">{admin.name}</p>
+                        <p className="truncate text-[16px] font-semibold text-[#0f172a]">
+                          {[admin.universityName === null ? undefined : admin.title, admin.name].filter(Boolean).join(" ")}
+                        </p>
                         <p className="mt-0.5 truncate text-[13px] text-[#64748b]">{admin.email}</p>
                       </div>
                     </div>
@@ -108,8 +136,8 @@ export default function SaAdminsPage() {
                   </div>
                 </Link>
                 <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-2.5 py-2">
-                  <p className="min-w-0 pl-1 truncate text-[13px] text-[#64748b]">{admin.university}</p>
-                  <button type="button" onClick={() => openDialog({ id: admin.id, name: admin.name, email: admin.email, status: admin.status })} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 ${admin.status === "Active" ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c] hover:bg-[#fee2e2]" : "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7]"}`}>
+                  <p className="min-w-0 pl-1 truncate text-[13px] text-[#64748b]">{admin.universityName ?? "Not assigned"}</p>
+                  <button type="button" onClick={() => openDialog({ id: admin.id, name: admin.name, email: admin.email, status: admin.status })} disabled={toggleMutation.isPending} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60 ${admin.status === "Active" ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c] hover:bg-[#fee2e2]" : "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7]"}`}>
                     {admin.status === "Active" ? <ShieldOff className="size-3" aria-hidden="true" /> : <ShieldCheck className="size-3" aria-hidden="true" />}
                     {admin.status === "Active" ? "Deactivate" : "Activate"}
                   </button>

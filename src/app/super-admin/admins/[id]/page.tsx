@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, GraduationCap, Mail, ShieldCheck, ShieldOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getSaUniversityAdmins, setSaAdminStatus } from "@/services/super-admin";
 
 function initials(name: string) {
   return name
@@ -34,11 +36,28 @@ function DetailRow({ icon: Icon, label, children }: { icon: typeof GraduationCap
 
 export default function SaAdminDetailsPage() {
   const params = useParams<{ id: string }>();
-  const admins = useSuperAdminStore((state) => state.admins);
-  const toggleAdminStatus = useSuperAdminStore((state) => state.toggleAdminStatus);
+  const queryClient = useQueryClient();
+  const { data: admins = [], isPending } = useQuery({
+    queryKey: ["sa", "admins"],
+    queryFn: getSaUniversityAdmins,
+  });
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "Active" | "Inactive" }) =>
+      setSaAdminStatus(id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["sa", "admins"] });
+      void queryClient.invalidateQueries({ queryKey: ["sa", "overview"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to update the admin."),
+  });
   const admin = admins.find((item) => item.id === params.id);
   const [target, setTarget] = useState<{ id: string; name: string; status: string } | null>(null);
   const [shown, setShown] = useState(target);
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
+  }
 
   if (!admin) {
     return (
@@ -60,10 +79,18 @@ export default function SaAdminDetailsPage() {
 
   function confirmStatusChange() {
     if (!target) return;
-    toggleAdminStatus(target.id);
-    toast.success(target.status === "Active" ? `${target.name} deactivated` : `${target.name} activated`);
+    const nextStatus = target.status === "Active" ? "Inactive" : "Active";
+    toggleMutation.mutate(
+      { id: target.id, status: nextStatus },
+      {
+        onSuccess: () =>
+          toast.success(nextStatus === "Active" ? `${target.name} activated` : `${target.name} deactivated`),
+      },
+    );
     setTarget(null);
   }
+
+  const displayName = [admin.title, admin.name].filter(Boolean).join(" ");
 
   return (
     <div className="min-h-screen bg-[#E2E8F0] px-4 sm:px-6">
@@ -85,7 +112,7 @@ export default function SaAdminDetailsPage() {
                 {initials(admin.name)}
               </span>
               <div className="min-w-0">
-                <p className="truncate text-[17px] font-semibold text-[#0f172a]">{admin.name}</p>
+                <p className="truncate text-[17px] font-semibold text-[#0f172a]">{displayName}</p>
                 <p className="mt-0.5 flex items-center gap-1.5 truncate text-[13px] text-[#64748b]">
                   <Mail className="size-3.5 shrink-0" aria-hidden="true" />
                   {admin.email}
@@ -106,7 +133,7 @@ export default function SaAdminDetailsPage() {
           </h2>
 
           <DetailRow icon={GraduationCap} label="University">
-            {admin.university}
+            {admin.universityName ?? "Not assigned"}
           </DetailRow>
 
           <DetailRow icon={Mail} label="Email address">
@@ -121,7 +148,7 @@ export default function SaAdminDetailsPage() {
         </section>
 
         {/* Activate / deactivate */}
-        <button type="button" onClick={() => openDialog({ id: admin.id, name: admin.name, status: admin.status })} className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 ${admin.status === "Active" ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c] hover:bg-[#fee2e2]" : "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7]"}`}>
+        <button type="button" onClick={() => openDialog({ id: admin.id, name: admin.name, status: admin.status })} disabled={toggleMutation.isPending} className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60 ${admin.status === "Active" ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c] hover:bg-[#fee2e2]" : "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7]"}`}>
           {admin.status === "Active" ? <ShieldOff className="size-4" aria-hidden="true" /> : <ShieldCheck className="size-4" aria-hidden="true" />}
           {admin.status === "Active" ? "Deactivate admin" : "Activate admin"}
         </button>
