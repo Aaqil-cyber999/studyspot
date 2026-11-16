@@ -44,7 +44,7 @@ export default function SavedPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-[412px] mx-auto flex-col overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[20px] pb-[90px]">
+    <div className="flex min-h-screen w-[412px] mx-auto flex-col overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[20px] pb-[90px]">
       <p
         ref={titleRef}
         tabIndex={-1}

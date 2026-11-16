@@ -10,7 +10,7 @@ export function ReviewCard({ review }: { review: SpotReview }) {
   const [helpful, setHelpful] = useState(false);
 
   return (
-    <article className="flex w-full flex-col gap-3.5 rounded-xl border border-[#e2e8f0] bg-[#ddd] p-4 drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]">
+    <article className="flex w-full flex-col gap-3.5 rounded-xl border border-[#e2e8f0] bg-white p-4 drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]">
       <header className="flex h-[38px] w-full items-start gap-2.5">
         <span
           aria-hidden="true"

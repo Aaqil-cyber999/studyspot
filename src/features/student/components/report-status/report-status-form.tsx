@@ -39,13 +39,13 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
   const [comment, setComment] = useState(storedComment);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[412px] flex-col gap-[20px] bg-[#fbfbfc] px-[24px] pb-[24px] pt-[32px]">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[412px] flex-col gap-[20px] bg-[#E2E8F0] px-[24px] pb-[24px] pt-[32px]">
       <header className="flex h-[46px] items-center gap-[12px]">
         <button
           type="button"
           onClick={() => router.back()}
           aria-label="Go back"
-          className="flex size-[36px] shrink-0 items-center justify-center rounded-[18px] border border-[#e2e8f0] bg-[#ddd] transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
+          className="flex size-[36px] shrink-0 items-center justify-center rounded-[18px] border border-[#e2e8f0] bg-white transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" className="student-invert size-[18px] max-w-none" src="/assets/rate/18c00.svg" />
@@ -69,48 +69,48 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
       >
         <section
           aria-labelledby="current-status-heading"
-          className="flex flex-col overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white p-px shadow-[0px_4px_8px_0px_rgba(0,0,0,0.08)]"
+          className="flex flex-col overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white p-[16px] pb-0 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.08)]"
         >
-          <div className="flex items-center border border-[#e2e8f0] p-[16px]">
-            <h2
-              id="current-status-heading"
-              className="text-[15px] font-semibold leading-[20px] text-[#0f172a]"
-            >
-              Current status
-            </h2>
-          </div>
+          <h2
+            id="current-status-heading"
+            className="text-[15px] font-semibold leading-[20px] text-[#0f172a]"
+          >
+            Current status
+          </h2>
 
-          <StatusChoiceRow
-            label="Noise level"
-            options={[...NOISE_LEVELS]}
-            value={noise}
-            onChange={setNoise}
-          />
-          <StatusChoiceRow
-            label="Crowd level"
-            options={getActiveOptions("crowd", crowd)}
-            value={crowd}
-            onChange={setCrowd}
-          />
-          <StatusChoiceRow
-            label="Seats available"
-            options={getActiveOptions("seats", seats)}
-            value={seats}
-            onChange={setSeats}
-          />
-          <StatusChoiceRow
-            label="Wi-Fi"
-            options={getActiveOptions("wifi", wifi)}
-            value={wifi}
-            onChange={setWifi}
-          />
+          <div className="mt-[16px] flex flex-col divide-y divide-[#e2e8f0] border-t border-[#e2e8f0]">
+            <StatusChoiceRow
+              label="Noise level"
+              options={[...NOISE_LEVELS]}
+              value={noise}
+              onChange={setNoise}
+            />
+            <StatusChoiceRow
+              label="Crowd level"
+              options={getActiveOptions("crowd", crowd)}
+              value={crowd}
+              onChange={setCrowd}
+            />
+            <StatusChoiceRow
+              label="Seats available"
+              options={getActiveOptions("seats", seats)}
+              value={seats}
+              onChange={setSeats}
+            />
+            <StatusChoiceRow
+              label="Wi-Fi"
+              options={getActiveOptions("wifi", wifi)}
+              value={wifi}
+              onChange={setWifi}
+            />
+          </div>
         </section>
 
         <section
           aria-labelledby="report-comment-heading"
-          className="flex flex-col overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white p-px shadow-[0px_4px_8px_0px_rgba(0,0,0,0.08)]"
+          className="flex flex-col overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white p-[16px] shadow-[0px_4px_8px_0px_rgba(0,0,0,0.08)]"
         >
-          <div className="flex h-[54px] items-center border border-[#e2e8f0] px-[16px]">
+          <div className="flex items-center">
             <h2
               id="report-comment-heading"
               className="w-[80px] shrink-0 text-[15px] font-semibold leading-[20px] text-[#0f172a]"
@@ -122,7 +122,7 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
             </span>
           </div>
 
-          <div className="p-[16px]">
+          <div className="mt-[16px]">
             <label htmlFor="report-comment" className="sr-only">
               Comment (optional)
             </label>

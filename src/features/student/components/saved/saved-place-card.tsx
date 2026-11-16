@@ -18,7 +18,7 @@ export function SavedPlaceCard({ card, onRemove, buttonRef }: SavedPlaceCardProp
         "mb-[19px] flex flex-col items-start rounded-[16px]",
         outlined
           ? "overflow-clip border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]"
-          : "bg-[#ddd] drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)]",
+          : "bg-white drop-shadow-[0px_4px_8px_rgba(0,0,0,0.08)]",
       )}
     >
       <div
@@ -48,7 +48,7 @@ export function SavedPlaceCard({ card, onRemove, buttonRef }: SavedPlaceCardProp
       <div
         className={cn(
           "flex w-full flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]",
-          outlined && "bg-[#ddd]",
+          outlined && "bg-white",
         )}
       >
         <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">{card.name}</p>

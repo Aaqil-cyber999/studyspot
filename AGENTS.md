@@ -34,9 +34,15 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 
 ## Recently Implemented Features
 
+### Student Content Area `#E2E8F0` + White Tiles
+- Every `/student` route now renders its content area on **`#E2E8F0`**: the `student-shell` in `src/app/student/layout.tsx` (plus the `.student-shell` background in `src/app/globals.css`, which overrides Tailwind's class), every page-level container (`#fbfbfc` / `#f8f9ff` / `bg-white` mains), `student/loading.tsx`, the home rounded content container, and the spot-detail sticky top-bar wash (`rgba(226,232,240,0.9)`).
+- All former `#ddd` gray surfaces are now **white**: home search bar, inactive filter chips and spot tiles, Saved cards (flat + outlined variants), review/summary cards, spot-detail amenity tiles, review cards, all top-bar/back icon buttons, the report form back button and status chips, select-university back button and search bar, preference/amenity/dialog cancel buttons, the sign-out trigger, and the shared `MenuContent` popup (`src/components/ui/menu.tsx`).
+- Dark mode: `.student-shell` uses `#0b1120`; white tiles flip via the existing `[data-admin-theme="dark"].student-shell .bg-white` → `#111827` rule; `.student-shell.bg-[#E2E8F0]` → `#0b1120`.
+- Verified on `:3001` — shell/content compute to `rgb(226,232,240)`, tiles/chips/buttons to white, no console errors. Hover states (`#d0d0d0` / `#d4d4d4`) unchanged.
+
 ### Favorite/Save Button Icon Toggle
 - **`src/features/student/components/spot-detail/spot-detail-top-bar.tsx`**: the favorite button uses the Saved tab's bookmark icons but the same button shell as the neighbouring top-bar icons:
-  - **Container**: the shared `iconButton` — 40×40, `#ddd`, fully rounded, `hover:bg-[#d0d0d0]`, orange focus-visible ring — identical to back/share/ask in both states (no special saved background).
+  - **Container**: the shared `iconButton` — 40×40, `bg-white`, fully rounded, `hover:bg-[#d0d0d0]`, orange focus-visible ring — identical to back/share/ask in both states (no special saved background).
   - **Icon** (`favoriteIcon`, 16×16 in both states): `/assets/saved/bookmark-outline.svg` (dark `#0f172a` outline) when unsaved, `/assets/saved/5cc8f.svg` (filled `#f97316` bookmark) when saved. Both assets share the same 12.83×16 silhouette inside a 16×16 viewBox, so the hollow icon is not visually smaller than the filled one.
   - `aria-label` toggles between "Save this spot" / "Remove from saved spots", `aria-pressed` reflects state, and the `role="status"` region announces "Added to saved places" / "Removed from saved places".
   - State comes from the shared `useSavedStore` keyed by the route slug (`spot.slug`), so saving here adds the spot to `/student/saved` and keeps the same spot's Discover tile filled.
@@ -76,7 +82,7 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 - **`src/components/ui/dialog.tsx`**: Reusable Base UI dialog primitives (backdrop, popup, title, description, close).
 
 ### Profile "Edit info" Modal (Figma node `169:449`)
-- **`src/features/student/components/profile/edit-info-dialog.tsx`**: 340×314 dialog (white, `#e2e8f0` border, 16px radius, 20px padding, 16px gap) with orange pencil header, 26×26 close button, Name/Location inputs (12px radius, 16×14 inner padding, black value text) and Cancel (`#ddd`) / Edit (`#f97316`, `0 6px 16px rgba(249,115,22,.25)`) actions.
+- **`src/features/student/components/profile/edit-info-dialog.tsx`**: 340×314 dialog (white, `#e2e8f0` border, 16px radius, 20px padding, 16px gap) with orange pencil header, 26×26 close button, Name/Location inputs (12px radius, 16×14 inner padding, black value text) and Cancel (`bg-white`) / Edit (`#f97316`, `0 6px 16px rgba(249,115,22,.25)`) actions.
 - **`src/app/student/profile/page.tsx`**: The header card's Edit button is the dialog trigger; saved values update the profile card locally (mock data, no persistence).
 - **`src/features/student/schemas/index.ts`**: `editStudentInfoSchema` (Zod) validates name/location before saving.
 - Behaviour: focus moves into the dialog, Cancel/Escape discard drafts, Edit saves and closes, invalid input shows an inline `role="alert"` message linked via `aria-describedby`.
@@ -95,7 +101,7 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 
 ### Preference Menus (Figma nodes `174:448`, `174:461`, `174:474`)
 - **`src/components/ui/menu.tsx`**: Base UI menu primitives — `Menu`, `MenuTrigger`, `MenuContent` (portal + positioner + popup), `MenuRadioGroup`, `MenuRadioItem`, `MenuRadioItemIndicator`.
-- **`src/features/student/components/profile/preference-menu.tsx`**: reusable preference row + dropdown. Popup is 220×132 (`bg-[#ddd]`, `#e2e8f0` border, 12px radius, 6px padding, 2px gap, `0 8px 24px rgba(0,0,0,.14)` shadow); options are 206×38, selected `#f5f5f7`, 16px orange Lucide check.
+- **`src/features/student/components/profile/preference-menu.tsx`**: reusable preference row + dropdown. Popup is 220×132 (`bg-white`, `#e2e8f0` border, 12px radius, 6px padding, 2px gap, `0 8px 24px rgba(0,0,0,.14)` shadow); options are 206×38, selected `#f5f5f7`, 16px orange Lucide check.
 - **`src/app/student/profile/page.tsx`**: Study style (`Quiet`/`Focused`/`Social`), Noise level (`Low`/`Medium`/`High`), and Study type (`Individual`/`Group`/`Hybrid`) rows all use the menu; selection updates local state (mock only). Menus open bottom-aligned to their row, 8px offset, and support pointer, keyboard, Escape, and outside-click dismissal.
 
 ### Required Amenities Card (Figma node `161:484`)
@@ -113,8 +119,8 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 - **`src/app/student/profile/page.tsx`**: tracks the selected `amenities` list (initialised from the profile mock); adding appends once, closing the menu and returning focus to the `+` button.
 
 ### Sign Out Button (Figma node `148:485`)
-- **`src/features/student/components/profile/sign-out-dialog.tsx`**: the bottom action is a 364×39 "Sign out" trigger — `#ddd` background, `#e5e5e5` border, 10px radius, `px-10 py-6`, 6px gap, 16px `a7c4a.svg` log-out icon, 14px/20px Medium black label.
-- Clicking it opens a confirmation dialog that matches the Edit info modal: 340px wide, `#e2e8f0` border, 16px radius, 20px padding, orange `LogOut` header, 26×26 close button, 13px `#64748b` copy, and Cancel (`#ddd`) / Sign out (`#f97316`, orange shadow) actions. Escape or Cancel dismisses and returns focus to the trigger.
+- **`src/features/student/components/profile/sign-out-dialog.tsx`**: the bottom action is a 364×39 "Sign out" trigger — white background, `#e5e5e5` border, 10px radius, `px-10 py-6`, 6px gap, 16px `a7c4a.svg` log-out icon, 14px/20px Medium black label.
+- Clicking it opens a confirmation dialog that matches the Edit info modal: 340px wide, `#e2e8f0` border, 16px radius, 20px padding, orange `LogOut` header, 26×26 close button, 13px `#64748b` copy, and Cancel (`bg-white`) / Sign out (`#f97316`, orange shadow) actions. Escape or Cancel dismisses and returns focus to the trigger.
 - Confirming routes to `/student/login` (mock sign-out; no real auth state).
 
 ### Student Bottom Nav (Figma node `341:328`)
@@ -126,8 +132,8 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 ### Saved Page (Figma node `7:804`)
 - **`src/app/student/saved/page.tsx`** matches the Figma absolute layout: 24px side padding, title at `y=64` (20px Geologica Bold, `-0.3px` tracking), **19px** below the title to the first card, and **19px** between cards.
 - The card list is driven by `useSavedStore.savedSlugs` through **`src/mocks/data/saved-spots.ts`** (`savedSpotCatalog`): the Figma order is **Faculty of IT Computer Labs** then **Faculty of Engineering Halls**, and places saved from Discover or the info page are appended at the end.
-- Card 1 (Faculty of IT Computer Labs): 364×302 at `y=108`, `#ddd` body with a 160px photo, rounded top corners, a 32px white bookmark at `left:320/top:12`, and the Figma amenities **Computers / Wi-Fi / Power outlets** in a single row.
-- Card 2 (Faculty of Engineering Halls): 364×340 at `y=429`, white 1px `#e2e8f0` border with a `#ddd` content body, and amenities **Wi-Fi / Spacious seating / Power outlets** wrapping onto two rows.
+- Card 1 (Faculty of IT Computer Labs): 364×302 at `y=108`, white body with a 160px photo, rounded top corners, a 32px white bookmark at `left:320/top:12`, and the Figma amenities **Computers / Wi-Fi / Power outlets** in a single row.
+- Card 2 (Faculty of Engineering Halls): 364×340 at `y=429`, white 1px `#e2e8f0` border with a white content body, and amenities **Wi-Fi / Spacious seating / Power outlets** wrapping onto two rows.
 - **`src/features/student/components/saved/saved-place-card.tsx`** renders both Figma variants (`variant: "flat" | "outlined"`) and the same treatment for every new save (160px photo, content `pt-14/pb-16/px-16`, 8px gaps, 14px star, 13px/18px metadata, 28px chips with `px-10 py-6`, 6px icon/text gap, 14px icons, 12px/16px labels).
 - The "Auth prompt…" text exists at `y=568` in Figma but is fully covered by card 2, so it is intentionally not rendered on the visible page.
 
@@ -148,10 +154,10 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 
 ### Report Current Status (Figma node `25:1187`)
 - **`src/app/student/rate/page.tsx`** is a thin server page that renders **`src/features/student/components/report-status/report-status-form.tsx`** with the Figma dummy spot name `Central Library Study Zone`.
-- Layout: 412px max-width column, 24px side padding, 32px top offset, 20px gaps, `#fbfbfc` background. Top bar is 46px tall with a 36px `#ddd` back button (`18c00.svg`), 18px/24px semibold title and 13px/18px `#64748b` spot name.
-- Status card: 364px wide, `#e2e8f0` border, 16px radius, `p-px`, `0 4 8 rgba(0,0,0,.08)` shadow, `overflow-clip`. Header is 16px padded "Current status" (15px/20px semibold). Four rows (`Noise level`, `Crowd level`, `Seats available`, `Wi-Fi`) use 16px/14px padding and the shared **`status-choice-row.tsx`**.
-- Chips are real `<button>`s in a `role="group"` labelled by the row, with `aria-pressed`: 36px tall, 18px radius, `px-14 py-8`, 13px/20px Medium. Active is `#f97316` + white, inactive `#ddd` + `#334155`; defaults match Figma (Quiet / Low / Yes / Strong). Rows wrap the chips below the label on narrow widths.
-- Comment card: separate 54px header with "Comment" in an 80px slot and "(optional)" beside it, then a 16px body holding a 153px textarea (`10px` radius, 12/10 padding, Inter body font, placeholder `Share what others should know…`).
+- Layout: 412px max-width column, 24px side padding, 32px top offset, 20px gaps, `#E2E8F0` background. Top bar is 46px tall with a 36px white back button (`18c00.svg`), 18px/24px semibold title and 13px/18px `#64748b` spot name.
+- Status card: 364px wide, `#e2e8f0` border, 16px radius, `p-[16px] pb-0` (the last row's `py-[14px]` provides the bottom spacing), `0 4 8 rgba(0,0,0,.08)` shadow, `overflow-clip`. Header is "Current status" (15px/20px semibold) with a `border-t` divider below it, and the four rows (`Noise level`, `Crowd level`, `Seats available`, `Wi-Fi`) are wrapped in a `divide-y divide-[#e2e8f0]` container — no per-row borders — using the shared **`status-choice-row.tsx`**.
+- Chips are real `<button>`s in a `role="group"` labelled by the row, with `aria-pressed`: 36px tall, 18px radius, `px-14 py-8`, 13px/20px Medium. Active is `#f97316` + white, inactive `bg-white` + `#334155`; defaults match Figma (Quiet / Low / Yes / Strong). Rows wrap the chips below the label on narrow widths.
+- Comment card: `#e2e8f0` border, 16px radius, `p-[16px]`. Plain "Comment" header (15px/20px semibold) with an "(optional)" hint (13px `#64748b`), then a 153px textarea (`10px` radius, 12/10 padding, Inter body font, placeholder `Share what others should know…`).
 - Actions at the bottom of the column: 48px orange "Review report" button (`df482.svg` arrow, navigates to `/student/review`), 32px white "Cancel" button (`d3eff.svg` X, `router.back()`), and a centered 12px/18px helper line. All controls have orange focus-visible rings.
 - **`src/stores/report-store.ts`**: in-memory `useReportStore` holds the draft (`noise`, `crowd`, `seats`, `wifi`, `comment`) seeded from the Figma defaults; the status form writes it on submit and `src/app/student/review/page.tsx` renders those values in its summary rows, so "Review report" reflects the actual choices. Confirming resets the draft.
 - **`src/app/student/layout.tsx`**: `/student/rate`, `/student/review` and `/student/result` join the routes that hide the floating student nav, since the report flow is full-screen like Figma.
@@ -227,11 +233,11 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 
 ## Visual Design Tokens (from Figma)
 - **Primary color**: `#f97316` (orange)
-- **Background**: `#fbfbfc` (light)
+- **Background**: `#E2E8F0` (light student content area)
 - **Borders**: `#e2e8f0`, `#e5e5e5`
 - **Text**: `#0f172a`, `#334155`, `#64748b`, `#515f74`
 - **Font**: Geologica
-- **Chips**: `#f97316` (active), `#ddd` (inactive)
+- **Chips**: `#f97316` (active), `bg-white` (inactive)
 - **Card**: `bg-white`, border `#e2e8f0`
 - **Rating stars**: `#f59e0b` (filled), `#ddd` (outline)
 

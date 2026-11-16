@@ -57,8 +57,8 @@ export default function StudentLoginPage() {
   };
 
   return (
-    <main className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-white">
-      <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-white" aria-label="University students">
+    <main className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
+      <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-[#E2E8F0]" aria-label="University students">
         <CampusIllustration />
       </section>
 

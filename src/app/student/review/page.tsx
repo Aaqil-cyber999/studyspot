@@ -10,11 +10,11 @@ export default function ReviewSubmissionPage() {
   const report = useReportStore();
   const resetReport = useReportStore((state) => state.resetReport);
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#fbfbfc] px-[24px] pt-[32px] pb-[24px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[32px] pb-[24px] flex flex-col gap-[20px]">
         <div className="flex items-center gap-[12px]">
           <button
             onClick={() => router.back()}
-            className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] border border-[#e2e8f0] bg-[#ddd]"
+            className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] border border-[#e2e8f0] bg-white"
           >
             <img alt="" className="student-invert size-[18px] max-w-none" src="/assets/review/87c6d.svg" />
           </button>
@@ -24,7 +24,7 @@ export default function ReviewSubmissionPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-start overflow-clip rounded-[10px] border border-[#b9bec7] bg-[#ddd] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
+        <div className="flex flex-col items-start overflow-clip rounded-[10px] border border-[#b9bec7] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
           <div className="relative h-[176px] w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt="" className="absolute inset-0 max-w-none object-cover size-full" src="/assets/review/96063.png" />

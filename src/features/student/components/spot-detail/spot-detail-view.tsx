@@ -53,7 +53,7 @@ export function SpotDetailView({ spot }: { spot: SpotDetail }) {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#f8f9ff]">
+    <div className="relative min-h-screen w-full bg-[#E2E8F0]">
       <SpotDetailTopBar
         slug={spot.slug}
         onAddReview={() => setReviewOpen(true)}

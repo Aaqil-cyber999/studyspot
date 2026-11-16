@@ -41,11 +41,11 @@ export default function StudentProfilePage() {
       .map((option) => option.label);
 
   if (!profile) {
-    return <PageLoader className="min-h-[calc(100dvh-90px)] bg-[#fbfbfc] py-0" />;
+    return <PageLoader className="min-h-[calc(100dvh-90px)] bg-[#E2E8F0] py-0" />;
   }
 
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden bg-[#fbfbfc] px-[24px] pt-[20px] pb-[110px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden bg-[#E2E8F0] px-[24px] pt-[20px] pb-[110px] flex flex-col gap-[20px]">
       <p className="text-[20px] font-bold leading-[25px] text-[#0f172a]">Profile</p>
 
       <div className="overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">

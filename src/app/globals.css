@@ -391,7 +391,7 @@
    page/background split: shell #0b1120, cards #111827. */
 .student-shell {
   color: #0f172a;
-  background: #ffffff;
+  background: #E2E8F0;
 }
 
 [data-admin-theme="dark"].student-shell {
@@ -399,7 +399,7 @@
   background: #0b1120;
 }
 
-[data-admin-theme="dark"].student-shell.bg-white {
+[data-admin-theme="dark"].student-shell.bg-\[\#E2E8F0\] {
   background-color: #0b1120;
 }
 
@@ -457,7 +457,7 @@
   filter: brightness(0) invert(1);
 }
 
-/* Sticky spot-detail top bar uses a translucent white wash in Figma. */
+/* Sticky spot-detail top bar uses a translucent content-area wash. */
 [data-admin-theme="dark"].student-shell .student-topbar {
   background-color: rgba(11, 17, 32, 0.9);
 }

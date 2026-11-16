@@ -31,7 +31,7 @@ export function EditInfoDialog({
   image,
   onSave,
   triggerLabel = "Edit",
-  triggerClassName = "flex shrink-0 items-center gap-[6px] rounded-[8px] bg-[#ddd] px-[10px] py-[4px] transition-colors hover:bg-[#d4d4d4] focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:outline-none",
+  triggerClassName = "flex shrink-0 items-center gap-[6px] rounded-[8px] bg-white px-[10px] py-[4px] transition-colors hover:bg-[#d4d4d4] focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:outline-none",
   triggerTextClassName = "text-[14px] font-medium text-black",
 }: EditInfoDialogProps) {
   const [open, setOpen] = useState(false);
@@ -272,7 +272,7 @@ export function EditInfoDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-[52px] min-w-0 flex-1 gap-2.5 rounded-[12px] border-[#e2e8f0] bg-[#ddd] px-[22px] py-[14px] font-heading text-[15px] font-semibold tracking-[0.3px] text-[#334052] hover:bg-[#d4d4d4]"
+                  className="h-[52px] min-w-0 flex-1 gap-2.5 rounded-[12px] border-[#e2e8f0] bg-white px-[22px] py-[14px] font-heading text-[15px] font-semibold tracking-[0.3px] text-[#334052] hover:bg-[#d4d4d4]"
                 />
               }
             >

@@ -25,10 +25,10 @@ export default function SelectUniversityPage() {
   );
 
   return (
-    <main className="flex min-h-screen w-[412px] mx-auto flex-col bg-white px-[24px] pt-[32px] overflow-x-hidden overflow-y-auto">
+    <main className="flex min-h-screen w-[412px] mx-auto flex-col bg-[#E2E8F0] px-[24px] pt-[32px] overflow-x-hidden overflow-y-auto">
       {/* Header */}
       <div className="mb-[24px] flex h-[36px] items-center gap-[12px]">
-        <button onClick={() => router.back()} className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] bg-[#ddd]">
+        <button onClick={() => router.back()} className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] bg-white">
           <ArrowLeft className="size-[18px] text-[#334052]" />
         </button>
         <p className="min-w-0 flex-1 truncate text-left text-[20px] font-semibold leading-normal tracking-[-0.6px] text-[#0f172a]" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
@@ -37,7 +37,7 @@ export default function SelectUniversityPage() {
       </div>
 
       {/* Search field */}
-      <div className="mb-[15px] flex items-center gap-[12px] overflow-clip rounded-[26px] border border-[rgba(226,232,240,0.5)] bg-[#ddd] px-[18px] py-[14px] shadow-[0px_3px_10px_0px_rgba(0,0,0,0.05)]">
+      <div className="mb-[15px] flex items-center gap-[12px] overflow-clip rounded-[26px] border border-[rgba(226,232,240,0.5)] bg-white px-[18px] py-[14px] shadow-[0px_3px_10px_0px_rgba(0,0,0,0.05)]">
         <Search className="size-[20px] shrink-0 text-[#64748b]" />
         <input
           value={query}

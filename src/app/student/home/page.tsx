@@ -159,8 +159,8 @@ export default function StudentHomePage() {
         </div>
       </div>
 
-      <div className="relative -mt-[110px] w-full rounded-tl-[40px] rounded-tr-[40px] bg-white px-[24px] pb-0 pt-[16px]">
-        <div className="mt-[5px] flex items-center gap-[12px] overflow-clip rounded-[26px] bg-[#ddd] px-[18px] py-[14px] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.04)]">
+      <div className="relative -mt-[110px] w-full rounded-tl-[40px] rounded-tr-[40px] bg-[#E2E8F0] px-[24px] pb-0 pt-[16px]">
+        <div className="mt-[5px] flex items-center gap-[12px] overflow-clip rounded-[26px] bg-white px-[18px] py-[14px] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.04)]">
           <Search className="size-[20px] shrink-0 text-[#64748b]" aria-hidden="true" />
           <input
             value={query}
@@ -186,7 +186,7 @@ export default function StudentHomePage() {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setSelectedFilter(active ? "" : filter)}
-                className={cn("inline-flex h-[34px] shrink-0 items-center rounded-[18px] px-[14px] py-0 focus-visible:outline-2 focus-visible:outline-[#f97316]", active ? "bg-[#f97316]" : "bg-[#ddd]")}
+                className={cn("inline-flex h-[34px] shrink-0 items-center rounded-[18px] px-[14px] py-0 focus-visible:outline-2 focus-visible:outline-[#f97316]", active ? "bg-[#f97316]" : "bg-white")}
               >
                 <span className={cn("whitespace-nowrap text-[13px] font-medium", active ? "text-white" : "text-[#334052]")}>{filter}</span>
               </button>
@@ -205,7 +205,7 @@ export default function StudentHomePage() {
           <div>
             {visibleSpots.map((spot) => (
               <div key={spot.slug} className="relative mb-[12px]">
-                <Link href={`/student/results/${spot.slug}`} className="block overflow-clip rounded-[16px] bg-[#ddd] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
+                <Link href={`/student/results/${spot.slug}`} className="block overflow-clip rounded-[16px] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
                   <div className="relative h-[160px] w-full overflow-clip rounded-tl-[16px] rounded-tr-[16px] bg-[#cbd5e1]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img alt="" className="absolute inset-0 size-full max-w-none scale-[1.05] object-cover" src={spot.imageUrls[0]} />

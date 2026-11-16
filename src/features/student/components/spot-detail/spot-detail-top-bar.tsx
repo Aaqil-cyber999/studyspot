@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useSavedStore } from "@/stores/saved-store";
 
 const iconButton =
-  "flex size-10 shrink-0 items-center justify-center rounded-full bg-[#ddd] transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
+  "flex size-10 shrink-0 items-center justify-center rounded-full bg-white transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
 
 // Bookmark icon from the Saved tab, sized to the neighbouring icons (16px)
 // inside the shared 40px icon button.
@@ -39,7 +39,7 @@ export function SpotDetailTopBar({
   }
 
   return (
-    <header className="student-topbar sticky top-0 z-30 flex items-center justify-between bg-[rgba(248,249,255,0.9)] px-4 py-2 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] backdrop-blur-[6px]">
+    <header className="student-topbar sticky top-0 z-30 flex items-center justify-between bg-[rgba(226,232,240,0.9)] px-4 py-2 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] backdrop-blur-[6px]">
       <button type="button" onClick={() => router.back()} className={iconButton} aria-label="Go back">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img alt="" className="student-invert h-[13.333px] w-[13.333px] max-w-none" src="/assets/detail/c667a.svg" />

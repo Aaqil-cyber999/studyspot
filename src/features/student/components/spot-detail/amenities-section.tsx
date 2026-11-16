@@ -16,7 +16,7 @@ export function AmenitiesSection({ amenities }: { amenities: SpotAmenity[] }) {
         {amenities.map((amenity) => (
           <li
             key={amenity.label}
-            className="flex h-14 items-center gap-2.5 rounded-xl bg-[#ddd] p-3 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+            className="flex h-14 items-center gap-2.5 rounded-xl bg-white p-3 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#e5eeff]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
