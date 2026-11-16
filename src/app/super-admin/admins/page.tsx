@@ -2,18 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityAdmins } from "@/services/super-admin";
-import { UserRound } from "lucide-react";
-
-type UniversityAdmin = {
-  id: string;
-  name: string;
-  email: string;
-  university: string;
-  status: "Active" | "Inactive";
-};
 
 export default function SaAdminsPage() {
-  const { data: admins = [] as UniversityAdmin[] } = useQuery({
+  const { data: admins = [] } = useQuery({
     queryKey: ["sa", "admins"],
     queryFn: getUniversityAdmins,
   });

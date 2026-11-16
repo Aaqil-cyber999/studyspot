@@ -1,29 +1,46 @@
-import { api } from "@/services/api";
+import {
+  saDashboard,
+  saComments,
+  saLocations,
+  saProfile,
+  registrationRequests,
+  universities,
+  universityAdmins,
+} from "@/mocks/data/super-admin";
+
+const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getSaDashboard() {
-  return api.get("/api/dashboard/stats");
+  await delay();
+  return saDashboard;
 }
 
 export async function getUniversities() {
-  return api.get("/api/universities");
+  await delay();
+  return universities;
 }
 
 export async function getUniversityAdmins() {
-  return api.get("/api/users");
+  await delay();
+  return universityAdmins;
 }
 
 export async function getRegistrationRequests() {
-  return api.get("/api/registration-requests");
+  await delay();
+  return registrationRequests;
 }
 
 export async function getSaComments() {
-  return api.get("/api/comments");
+  await delay();
+  return saComments;
 }
 
 export async function getSaProfile() {
-  return api.get("/api/auth/me");
+  await delay();
+  return saProfile;
 }
 
 export async function getSaLocations() {
-  return api.get("/api/locations");
+  await delay();
+  return saLocations;
 }

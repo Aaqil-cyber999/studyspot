@@ -4,16 +4,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversities } from "@/services/super-admin";
 
-type University = {
-  id: string;
-  name: string;
-  status: "Active" | "Pending";
-  locations: number;
-  admin?: string;
-};
-
 export default function SaUniversitiesPage() {
-  const { data: universities = [] as University[] } = useQuery({
+  const { data: universities = [] } = useQuery({
     queryKey: ["sa", "universities"],
     queryFn: getUniversities,
   });

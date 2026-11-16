@@ -4,18 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { getSaComments } from "@/services/super-admin";
 
-type SaComment = {
-  id: string;
-  locationId: string;
-  userId: string;
-  rating: number;
-  text: string;
-  status: "Visible" | "Hidden";
-  createdAt: string;
-};
-
 export default function SaCommentsPage() {
-  const { data: comments = [] as SaComment[] } = useQuery({
+  const { data: comments = [] } = useQuery({
     queryKey: ["sa", "comments"],
     queryFn: getSaComments,
   });

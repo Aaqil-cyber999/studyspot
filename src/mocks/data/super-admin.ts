@@ -1,6 +1,25 @@
 import type { University, UniversityAdmin, RegistrationRequest, Comment } from "@/types";
 
-export const saDashboard = {
+export interface SaLocation {
+  id: string;
+  name: string;
+  university: string;
+  rating: number;
+}
+
+export interface SaProfile {
+  name: string;
+  email: string;
+}
+
+export interface SaDashboard {
+  universities: number;
+  admins: number;
+  requests: number;
+  locations: number;
+}
+
+export const saDashboard: SaDashboard = {
   universities: 8,
   admins: 24,
   requests: 5,
@@ -27,12 +46,12 @@ export const saComments: Comment[] = [
   { id: "sa-c1", locationId: "loc-1", locationName: "Central Library Study Zone", author: "Student", rating: 4.6, text: "Quiet and bright.", createdAt: "3 days ago" },
 ];
 
-export const saLocations = [
+export const saLocations: SaLocation[] = [
   { id: "sa-loc-1", name: "Central Library Study Zone", university: "University of Moratuwa", rating: 4.6 },
   { id: "sa-loc-2", name: "Engineering Block", university: "University of Colombo", rating: 4.5 },
 ];
 
-export const saProfile = {
+export const saProfile: SaProfile = {
   name: "Super Admin",
   email: "superadmin@spotwise.lk",
 };
