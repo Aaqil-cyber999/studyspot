@@ -71,17 +71,15 @@ export function SignOutDialog() {
           Are you sure you want to sign out? You can sign back in anytime.
         </DialogDescription>
 
-        <div className="flex w-full items-start gap-3">
+        <div className="flex w-full items-center gap-2">
           <DialogClose
             render={
               <Button
                 type="button"
-                variant="outline"
-                className="h-[52px] min-w-0 flex-1 gap-2.5 rounded-[12px] border-[#e2e8f0] bg-white px-[22px] py-[14px] font-heading text-[15px] font-semibold tracking-[0.3px] text-[#334052] hover:bg-[#d4d4d4]"
+                className="min-h-10 min-w-0 flex-1 rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-800 hover:bg-slate-300 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
               />
             }
           >
-            <X aria-hidden="true" className="size-[18px]" strokeWidth={2} />
             Cancel
           </DialogClose>
 
@@ -93,11 +91,10 @@ export function SignOutDialog() {
             render={
               <Button
                 type="button"
-                className="h-[52px] min-w-0 flex-1 gap-2.5 rounded-[12px] bg-[#f97316] px-[22px] py-[14px] font-heading text-[15px] font-semibold tracking-[0.3px] text-white shadow-[0px_6px_16px_0px_rgba(249,115,22,0.25)] hover:bg-[#ea6a0c]"
+                className="min-h-10 min-w-0 flex-1 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
               />
             }
           >
-            <LogOut aria-hidden="true" className="size-[18px]" strokeWidth={2} />
             Sign out
           </DialogClose>
         </div>

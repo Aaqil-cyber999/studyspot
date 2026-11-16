@@ -1,22 +1,29 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Info } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuthStore } from "@/stores/auth-store";
+import { api, ApiError } from "@/services/api";
+import { showDemoOtpToast } from "@/components/shared/demo-otp-toast";
+import { me } from "@/services/auth";
+import { useProfileStore } from "@/stores/profile-store";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 const otpAsset = (name: string) => `/assets/otp/${name}`;
 
-const HARDCODED_OTP = "654321";
-
-export default function OtpVerificationPage() {
+function OtpVerification() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+  const setSession = useAuthStore((s) => s.setSession);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [countdown, setCountdown] = useState(0);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [isShaking, setIsShaking] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -33,34 +40,73 @@ export default function OtpVerificationPage() {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  const handleResend = () => {
-    if (countdown > 0) return;
-    setCountdown(119);
-    toast.success("New verification code sent");
+  const handleResend = async () => {
+    if (countdown > 0 || !email) return;
+    try {
+      const res = await api.post<{ ok: boolean; devCode?: string }>("/auth/otp/request", { email });
+      setCountdown(119);
+      if (res.devCode) {
+        showDemoOtpToast(email, res.devCode);
+      } else {
+        toast.success("New verification code sent");
+      }
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.message : "Unable to resend the code");
+    }
   };
 
-  const triggerWrongOtp = () => {
+  const triggerWrongOtp = (message = "Incorrect code. Please try again.") => {
     setStatus("error");
     setIsShaking(true);
-    toast.error("Incorrect code. Please try again.");
+    toast.error(message);
     setTimeout(() => {
       setIsShaking(false);
     }, 450);
   };
 
-  const triggerCorrectOtp = () => {
+  const triggerCorrectOtp = (destination: string, isNewAccount?: boolean) => {
     setStatus("success");
-    toast.success("Email verified");
+    toast.success(isNewAccount ? "Email verified" : "Welcome back!");
     setTimeout(() => {
-      router.push("/student/info");
+      router.push(destination);
     }, 600);
   };
 
-  const checkOtp = (enteredOtp: string) => {
-    if (enteredOtp === HARDCODED_OTP) {
-      triggerCorrectOtp();
-    } else {
-      triggerWrongOtp();
+  const checkOtp = async (enteredOtp: string) => {
+    if (!email) {
+      triggerWrongOtp("Missing email — go back and enter your email again.");
+      return;
+    }
+    setVerifying(true);
+    try {
+      const res = await api.post<{ user: { name: string }; isNewAccount?: boolean }>("/auth/otp/verify", { email, code: enteredOtp });
+      setSession("student", res.user.name);
+      // Hydrate the profile cache too — the app-mount hydrator ran before the
+      // session existed, so refresh it now that /auth/me will succeed.
+      try {
+        const user = await me();
+        if (user) {
+          useProfileStore.getState().hydrateFromApi({
+            name: user.name,
+            address: user.address,
+            faculty: user.faculty,
+            studyStyle: user.studyStyle,
+            noiseLevel: user.noiseLevel,
+            studyType: user.studyType,
+            amenities: user.amenities,
+            profileImg: user.profileImg,
+          });
+        }
+      } catch {
+        // Greeting falls back to defaults; the profile page re-fetches.
+      }
+      // Returning students go straight to Discover; brand-new accounts go
+      // through onboarding (name / university / details).
+      triggerCorrectOtp(res.isNewAccount ? "/student/info" : "/student/home", res.isNewAccount);
+    } catch (error) {
+      triggerWrongOtp(error instanceof ApiError ? error.message : "Incorrect code. Please try again.");
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -165,8 +211,7 @@ export default function OtpVerificationPage() {
           </p>
           {/* Helper text */}
           <p className="mb-[13px] text-center text-[14px] font-normal leading-[1.45] text-[#64748b]" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
-            Enter the six-digit code sent to s•••.@example.com
-          </p>
+            Enter the six-digit code sent to {email || "your email"}</p>
           {/* One-time code digits */}
           <div className={`flex gap-[7.4px] justify-center transition-transform ${isShaking ? "animate-shake" : ""}`}>
             {otp.map((digit, i) => {
@@ -210,9 +255,9 @@ export default function OtpVerificationPage() {
             })}
           </div>
           {/* Continue button */}
-          <button onClick={submit} className="mt-[23px] flex w-full items-center justify-center gap-[10px] overflow-clip rounded-[16px] bg-[#f97316] p-[16px] cursor-pointer">
+          <button onClick={submit} disabled={verifying} className="mt-[23px] flex w-full items-center justify-center gap-[10px] overflow-clip rounded-[16px] bg-[#f97316] p-[16px] cursor-pointer disabled:cursor-not-allowed disabled:opacity-70">
             <p className="text-[15px] font-medium leading-normal text-white whitespace-nowrap" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
-              Verify &amp; Continue
+              {verifying ? "Verifying…" : "Verify & Continue"}
             </p>
             <img alt="" className="size-[18px] max-w-none" src="/assets/dcf95.svg" />
           </button>{" "}
@@ -230,5 +275,13 @@ export default function OtpVerificationPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function OtpVerificationPage() {
+  return (
+    <Suspense fallback={null}>
+      <OtpVerification />
+    </Suspense>
   );
 }

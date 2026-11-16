@@ -1,7 +1,7 @@
 "use client";
 
 import toast from "react-hot-toast";
-import { useSavedStore } from "@/stores/saved-store";
+import { useSavedPlaces } from "@/hooks/use-saved-places";
 
 interface SpotBookmarkProps {
   slug: string;
@@ -13,14 +13,12 @@ interface SpotBookmarkProps {
  * list (same icon assets as the spot info page) without following the tile link.
  */
 export function SpotBookmark({ slug, name }: SpotBookmarkProps) {
-  const saved = useSavedStore((state) => state.savedSlugs.includes(slug));
-  const toggleSaved = useSavedStore((state) => state.toggleSaved);
+  const { savedIds, toggleSaved } = useSavedPlaces();
+  const saved = savedIds.has(slug);
 
   function handleToggle() {
     toggleSaved(slug);
-    toast.success(
-      saved ? `${name} removed from saved places` : `${name} added to saved places`,
-    );
+    toast.success(saved ? `${name} removed from saved places` : `${name} added to saved places`);
   }
 
   return (

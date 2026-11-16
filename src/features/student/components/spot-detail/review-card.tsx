@@ -4,10 +4,27 @@ import { useState } from "react";
 import { Star, ThumbsUp } from "lucide-react";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { api, ApiError } from "@/services/api";
 import type { SpotReview } from "@/features/student/types/spot-detail";
 
 export function ReviewCard({ review }: { review: SpotReview }) {
-  const [helpful, setHelpful] = useState(false);
+  const [helpful, setHelpful] = useState(review.votedByMe);
+  const [count, setCount] = useState(review.helpfulVotes);
+
+  async function toggleHelpful() {
+    const next = !helpful;
+    setHelpful(next);
+    setCount((current) => (next ? current + 1 : Math.max(0, current - 1)));
+    try {
+      await api.post(`/reviews/${review.id}/vote`, {});
+      toast.success(next ? "Marked as helpful" : "Helpful mark removed");
+    } catch (error) {
+      // Roll back the optimistic toggle.
+      setHelpful(!next);
+      setCount((current) => (next ? Math.max(0, current - 1) : current + 1));
+      toast.error(error instanceof ApiError ? error.message : "Unable to update your vote. Please try again.");
+    }
+  }
 
   return (
     <article className="flex w-full flex-col gap-3.5 rounded-xl border border-[#e2e8f0] bg-white p-4 drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]">
@@ -21,13 +38,15 @@ export function ReviewCard({ review }: { review: SpotReview }) {
         </span>
 
         <div className="flex min-w-0 flex-col items-start gap-[3px]">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <p className="font-body text-[14px] font-bold leading-5 text-[#0b1c30]">{review.author}</p>
-            <span className="inline-flex h-[15px] items-center rounded-[4px] bg-[#e5eeff] px-1.5 font-body text-[10px] font-semibold leading-[15px] text-[#515f74]">
-              {review.year}
-            </span>
-          </div>
-          <p className="font-body text-[11px] font-medium leading-[14px] text-[#515f74]">{review.meta}</p>
+          <p className="font-body text-[14px] font-bold leading-5 text-[#0b1c30]">{review.author}</p>
+          {review.faculty ? (
+            <p
+              title={review.faculty}
+              className="max-w-full truncate font-body text-[11px] font-medium leading-[14px] text-[#515f74]"
+            >
+              {review.faculty}
+            </p>
+          ) : null}
         </div>
       </header>
 
@@ -52,11 +71,7 @@ export function ReviewCard({ review }: { review: SpotReview }) {
       <footer className="flex w-full items-center gap-2">
         <button
           type="button"
-          onClick={() => {
-            const next = !helpful;
-            setHelpful(next);
-            toast.success(next ? "Marked as helpful" : "Helpful mark removed");
-          }}
+          onClick={toggleHelpful}
           aria-pressed={helpful}
           className={cn(
             "flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-[10px] border border-[#e2e8f0] bg-white px-3 transition-colors hover:bg-[#fff7ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2",
@@ -68,11 +83,12 @@ export function ReviewCard({ review }: { review: SpotReview }) {
             className={cn("size-3.5 text-[#515f74]", helpful && "fill-[#f97316] text-[#f97316]")}
             strokeWidth={2}
           />
-          <span className={cn("font-body text-[12px] font-medium leading-4 text-[#515f74]", helpful && "text-[#f97316]")}>
-            Helpful
+          <span className={cn("font-body text-[12px] font-medium tabular-nums leading-4 text-[#515f74]", helpful && "text-[#f97316]")}>
+            Helpful · {count}
           </span>
         </button>
         <span className="h-px min-w-px flex-1" />
+        <p className="shrink-0 font-body text-[11px] font-medium leading-[14px] text-[#515f74]">{review.meta}</p>
       </footer>
     </article>
   );

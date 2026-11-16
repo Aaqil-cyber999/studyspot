@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Mail, MapPin } from "lucide-react";
+import { GraduationCap, Landmark, Mail, MapPin } from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
 import { EditInfoDialog } from "@/features/student/components/profile/edit-info-dialog";
 import { AmenitiesCard } from "@/features/student/components/profile/amenities-card";
@@ -9,9 +9,8 @@ import { PreferenceMenu } from "@/features/student/components/profile/preference
 import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { SettingsCard } from "@/components/shared/settings-card";
 import { SignOutDialog } from "@/features/student/components/profile/sign-out-dialog";
-import { getStudentProfile } from "@/services/student";
+import { getStudentProfile, STUDENT_AMENITY_OPTIONS } from "@/services/student";
 import { useProfileStore } from "@/stores/profile-store";
-import { useAdminOptionsStore } from "@/stores/admin-options-store";
 
 
 export default function StudentProfilePage() {
@@ -22,23 +21,21 @@ export default function StudentProfilePage() {
 
   const name = useProfileStore((state) => state.name);
   const location = useProfileStore((state) => state.location);
+  const faculty = useProfileStore((state) => state.faculty);
   const image = useProfileStore((state) => state.image);
   const studyStyle = useProfileStore((state) => state.studyStyle);
   const noiseLevel = useProfileStore((state) => state.noiseLevel);
   const studyType = useProfileStore((state) => state.studyType);
   const amenities = useProfileStore((state) => state.amenities);
+  const STUDY_STYLE_OPTIONS = ["Quiet", "Focused", "Social"];
+  const NOISE_LEVEL_OPTIONS = ["Low", "Medium", "High"];
+  const STUDY_TYPE_OPTIONS = ["Individual", "Group", "Hybrid"];
   const setDetails = useProfileStore((state) => state.setDetails);
   const setStudyStyle = useProfileStore((state) => state.setStudyStyle);
   const setNoiseLevel = useProfileStore((state) => state.setNoiseLevel);
   const setStudyType = useProfileStore((state) => state.setStudyType);
   const addAmenity = useProfileStore((state) => state.addAmenity);
   const removeAmenity = useProfileStore((state) => state.removeAmenity);
-  const options = useAdminOptionsStore((state) => state.options);
-  const activeOptions = (category: "noise" | "studyEnvironment" | "amenities") =>
-    options
-      .filter((option) => option.category === category && option.active)
-      .sort((a, b) => a.order - b.order)
-      .map((option) => option.label);
 
   if (!profile) {
     return <PageLoader className="min-h-[calc(100dvh-90px)] bg-[#E2E8F0] py-0" />;
@@ -61,22 +58,30 @@ export default function StudentProfilePage() {
             <EditInfoDialog
               name={name}
               location={location}
+              faculty={faculty}
               image={image}
               onSave={setDetails}
-              triggerLabel="Edit profile"
               triggerClassName="flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
               triggerTextClassName="text-xs font-semibold"
             />
           </div>
           <div className="mt-3 min-w-0">
-            <h2 className="truncate text-lg font-bold text-[#0f172a]">{name}</h2>
+            <h2 className="truncate text-lg font-bold text-[#0f172a]">{name.trim().length > 0 ? name : "Not set"}</h2>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">
+              <Landmark aria-hidden="true" className="size-3.5 shrink-0" />
+              <span className="min-w-0 truncate">{(faculty || profile.faculty || "").trim().length > 0 ? (faculty || profile.faculty) : "Not set"}</span>
+            </p>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">
+              <GraduationCap aria-hidden="true" className="size-3.5 shrink-0" />
+              <span className="min-w-0 truncate">{profile.universityName?.trim().length ? profile.universityName : "Not set"}</span>
+            </p>
             <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">
               <Mail aria-hidden="true" className="size-3.5 shrink-0" />
-              <span className="min-w-0 truncate">{profile.email}</span>
+              <span className="min-w-0 truncate">{profile.email?.trim().length ? profile.email : "Not set"}</span>
             </p>
             <p className="mt-1 flex items-center gap-1.5 text-xs text-[#64748b]">
               <MapPin aria-hidden="true" className="size-3.5 shrink-0" />
-              <span className="min-w-0 truncate">{location}</span>
+              <span className="min-w-0 truncate">{location.trim().length > 0 ? location : "Not set"}</span>
             </p>
           </div>
         </div>
@@ -92,7 +97,7 @@ export default function StudentProfilePage() {
             label="Study style"
             iconSrc="/assets/profile/f9268.svg"
             value={studyStyle}
-            options={activeOptions("studyEnvironment")}
+            options={STUDY_STYLE_OPTIONS}
             onValueChange={setStudyStyle}
             withBorder
           />
@@ -100,7 +105,7 @@ export default function StudentProfilePage() {
             label="Noise level"
             iconSrc="/assets/profile/28e38.svg"
             value={noiseLevel}
-            options={activeOptions("noise")}
+            options={NOISE_LEVEL_OPTIONS}
             onValueChange={setNoiseLevel}
             withBorder
           />
@@ -108,7 +113,7 @@ export default function StudentProfilePage() {
             label="Study type"
             iconSrc="/assets/profile/59cad.svg"
             value={studyType}
-            options={activeOptions("studyEnvironment")}
+            options={STUDY_TYPE_OPTIONS}
             onValueChange={setStudyType}
           />
         </div>
@@ -121,16 +126,13 @@ export default function StudentProfilePage() {
         </div>
         <AmenitiesCard
           amenities={amenities}
-          availableOptions={activeOptions("amenities")}
+          availableOptions={STUDENT_AMENITY_OPTIONS}
           onAddAmenity={addAmenity}
           onRemoveAmenity={removeAmenity}
         />
       </div>
 
-      <SettingsCard
-        notificationsTitle="Study notifications"
-        notificationsDescription="Updates about saved spots and reviews"
-      />
+      <SettingsCard showNotifications={false} />
 
       <SignOutDialog />
     </div>

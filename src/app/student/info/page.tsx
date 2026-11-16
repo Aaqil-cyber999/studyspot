@@ -2,16 +2,20 @@
 
 import { useInfoStore } from "@/stores/info-store";
 import { useRouter } from "next/navigation";
-import { User, GraduationCap, MapPin, ChevronRight, ArrowRight } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { User, MapPin, Landmark, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { chooseUniversitySchema } from "@/features/student/schemas";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useProfileStore } from "@/stores/profile-store";
+import { SelectUniversityDialog } from "@/features/student/components/info/select-university-dialog";
+import { api, ApiError } from "@/services/api";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
 function CampusIllustration() {
   return (
-    <div className="art-canvas absolute top-[14%] left-1/2 w-[min(90%,370px)] aspect-[412/397] -translate-x-1/2" aria-hidden="true">
+    <div className="art-canvas absolute top-[18%] left-1/2 w-[min(72%,280px)] aspect-[412/397] -translate-x-1/2" aria-hidden="true">
       <img className="absolute block max-w-none inset-0 size-full" src="/assets/info/illustration.svg" alt="" />
     </div>
   );
@@ -19,14 +23,13 @@ function CampusIllustration() {
 
 export default function InfoPage() {
   const router = useRouter();
-  const { name, setName, address, setAddress, error, setError, shake, setShake, reset } = useInfoStore();
+  const { name, setName, address, setAddress, faculty, setFaculty, error, setError, shake, setShake, reset } = useInfoStore();
   const university = useOnboardingStore((state) => state.university);
+  const universityId = useOnboardingStore((state) => state.universityId);
+  const queryClient = useQueryClient();
 
-
-
-
-  function submit() {
-    const result = chooseUniversitySchema.safeParse({ name, university, address });
+  async function submit() {
+    const result = chooseUniversitySchema.safeParse({ name, university, faculty, address });
     if (!result.success) {
       const message = result.error.issues[0]?.message ?? "Invalid input";
       setError(message);
@@ -35,21 +38,42 @@ export default function InfoPage() {
       setTimeout(() => setShake(false), 400);
       return;
     }
-    setError(null);
-    toast.success("Details saved");
-    router.push("/student/home");
-  }
 
+    setError(null);
+    try {
+      await api.put("/users/me", {
+        name: result.data.name.trim(),
+        address: result.data.address?.trim() || null,
+        universityId: universityId ?? undefined,
+        faculty: result.data.faculty.trim(),
+      });
+      // Reflect the new values in the profile cache right away.
+      useProfileStore.getState().hydrateFromApiPartial({
+        name: result.data.name.trim(),
+        address: result.data.address?.trim() || null,
+        faculty: result.data.faculty.trim(),
+      });
+      // Make Discover and the profile see the new university immediately.
+      await queryClient.invalidateQueries({ queryKey: ["student"] });
+      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      toast.success("Details saved");
+      router.push("/student/home");
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unable to save your details. Please try again.";
+      setError(message);
+      toast.error(message);
+    }
+  }
   return (
-    <main className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
+    <main className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#F97316]">
       <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}`}</style>
       <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-[#E2E8F0]" aria-label="University students">
         <CampusIllustration />
       </section>
 
       <section className="relative z-20 min-h-[calc(100dvh-500px)] px-[13px] bg-[#F97316]">
-        <div className="absolute z-[-1] top-[-20px] left-[-50px] w-[125%] h-25 rounded-t-[50%] rounded-b-none bg-[#F97316]" />
-        <div className="w-full z-1 pt-[20px]">
+        <div className="absolute z-[-1] top-[-28px] left-[-50px] w-[125%] h-25 rounded-t-[50%] rounded-b-none bg-[#F97316]" />
+        <div className="-mt-[58px] w-full z-1">
           <h1 className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Your details
           </h1>
@@ -65,13 +89,19 @@ export default function InfoPage() {
             </div>
 
             <div className="flex flex-col gap-0">
-              <button onClick={() => router.push("/student/select-university")} className={`flex h-[58px] w-full items-center gap-[12px] overflow-clip rounded-[14px] border bg-white px-[14px] py-[10px] ${error && university.trim().length < 1 ? "border-red-500" : "border-[#fed7aa]"} ${shake && university.trim().length < 1 ? "animate-[shake_0.4s_ease-in-out]" : ""}`}>
+              <SelectUniversityDialog
+                error={Boolean(error && university.trim().length < 1)}
+                shake={Boolean(shake && university.trim().length < 1)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-0">
+              <div className={`flex h-[58px] w-full items-center gap-[12px] overflow-clip rounded-[14px] border bg-white px-[14px] py-[10px] ${error && faculty.trim().length < 2 ? "border-red-500" : "border-[#fed7aa]"} ${shake && faculty.trim().length < 2 ? "animate-[shake_0.4s_ease-in-out]" : ""}`}>
                 <div className="flex size-[36px] shrink-0 items-center justify-center overflow-clip rounded-[10px] bg-[#feedd2]">
-                  <GraduationCap className="size-[18px] text-[#f97316]" />
+                  <Landmark className="size-[18px] text-[#f97316]" />
                 </div>
-                <span className={`min-w-0 flex-1 truncate text-left text-[15px] font-light ${university ? "text-black" : "text-[#989FA9]"}`}>{university || "Select university"}</span>
-                <ChevronRight className="size-[18px] text-[#64748b]" />
-              </button>
+                <input value={faculty} onChange={(e) => setFaculty(e.target.value)} placeholder="Faculty" aria-label="Faculty" className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-light leading-normal text-[#334155] outline-none placeholder:text-[#94a3b8]" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }} />
+              </div>
             </div>
 
             <div className="flex flex-col gap-0">

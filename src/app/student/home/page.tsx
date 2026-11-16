@@ -1,100 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Accessibility,
-  AirVent,
-  Armchair,
-  Beaker,
-  BookOpen,
-  Boxes,
-  Clock3,
-  CircleHelp,
-  Coffee,
-  FlaskConical,
-  Library,
-  Monitor,
-  Microscope,
-  PencilRuler,
-  Presentation,
-  Plug,
-  Printer,
-  Search,
-  ScanLine,
-  Table2,
-  Users,
-  VolumeX,
-  Waves,
-  Wifi,
-  Wrench,
-  X,
-} from "lucide-react";
+import { GraduationCap, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { studySpotCatalog } from "@/mocks/data/study-spots";
+import { getStudyLocations, getStudentProfile } from "@/services/student";
+import { LocationTile } from "@/features/student/components/shared/location-tile";
 import { SpotBookmark } from "@/features/student/components/discover/spot-bookmark";
 import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { useProfileStore } from "@/stores/profile-store";
-import { useAdminOptionsStore } from "@/stores/admin-options-store";
+import { STUDENT_AMENITY_OPTIONS } from "@/services/student";
 
-const a = (name: string) => `/assets/home/${name}`;
-const amenityIcons: Record<string, typeof Wifi> = {
-  "Wi-Fi": Wifi,
-  "Power outlets": Plug,
-  "Power outlet": Plug,
-  Computers: Monitor,
-  "60 computers": Monitor,
-  "Air conditioning": AirVent,
-  "Silent zones": VolumeX,
-  "Quiet zones": VolumeX,
-  "Quiet seating": Armchair,
-  "Individual carrels": Table2,
-  "Open tables": Table2,
-  "Group work": Users,
-  "Group study": Users,
-  "Casual seating": Armchair,
-  "Spacious seating": Armchair,
-  "Design studios": PencilRuler,
-  "Open late": Clock3,
-  "Library space": Library,
-  "Reading desks": BookOpen,
-  "Reference books": BookOpen,
-  "Lecture rooms": BookOpen,
-  "Seminar space": Presentation,
-  Whiteboard: Presentation,
-  "Near photocopier": Printer,
-  Printing: Printer,
-  Printers: Printer,
-  Photocopier: Printer,
-  Scanners: ScanLine,
-  "Research equipment": FlaskConical,
-  Equipment: Wrench,
-  "Computer access": Monitor,
-  "GIS software": Boxes,
-  Matlab: Monitor,
-  Petrel: Monitor,
-  "Simulation software": Monitor,
-  "Medical technology": Beaker,
-  "Hands-on learning": Wrench,
-  Prototyping: Wrench,
-  "Project space": Boxes,
-  "Project work": Boxes,
-  "Research work": Boxes,
-  "Practical work": FlaskConical,
-  Oceanography: Waves,
-  Characterisation: Microscope,
-  Synthesis: FlaskConical,
-  Processing: Wrench,
-  "Motion analysis": Accessibility,
-  Cafeteria: Coffee,
-};
 
 const normalize = (value: string) => value.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
 
-const searchableText = (spot: (typeof studySpotCatalog)[number]) =>
+type Spot = Awaited<ReturnType<typeof getStudyLocations>>[number];
+
+const searchableText = (spot: Spot) =>
   normalize([spot.name, spot.category, spot.area, spot.description, spot.hours, ...spot.amenities].join(" "));
 
-function matchesFilter(spot: (typeof studySpotCatalog)[number], filter: string) {
+function matchesFilter(spot: Spot, filter: string) {
   if (filter === "Quiet") {
     const text = [spot.name, spot.category, spot.description, ...spot.amenities].join(" ").toLocaleLowerCase();
     return text.includes("quiet") || text.includes("silent");
@@ -118,16 +44,18 @@ function matchesFilter(spot: (typeof studySpotCatalog)[number], filter: string) 
 export default function StudentHomePage() {
   const profileName = useProfileStore((state) => state.name);
   const profileImage = useProfileStore((state) => state.image);
-  const options = useAdminOptionsStore((state) => state.options);
-  const configuredAmenities = useMemo(
-    () =>
-      options
-        .filter((option) => option.category === "amenities" && option.active)
-        .sort((a, b) => a.order - b.order)
-        .map((option) => option.label),
-    [options],
-  );
+  const configuredAmenities = useMemo(() => [...STUDENT_AMENITY_OPTIONS], []);
   const filterChips = useMemo(() => ["Quiet", "Seats available", ...configuredAmenities], [configuredAmenities]);
+  const { data: me } = useQuery({
+    queryKey: ["student", "profile"],
+    queryFn: getStudentProfile,
+  });
+  const universityId = me?.universityId;
+  const { data: studySpotCatalog = [], isPending } = useQuery({
+    queryKey: ["student", "locations", universityId],
+    queryFn: () => getStudyLocations(universityId),
+    enabled: !!me,
+  });
   const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
   const normalizedQuery = normalize(query);
@@ -140,7 +68,7 @@ export default function StudentHomePage() {
 
         return matchesSearch && matchesSelectedFilter;
       }),
-    [normalizedQuery, selectedFilter],
+    [studySpotCatalog, normalizedQuery, selectedFilter],
   );
 
   return (
@@ -201,45 +129,26 @@ export default function StudentHomePage() {
           </p>
         </div>
 
-        {visibleSpots.length ? (
+        {isPending ? (
+          <div className="py-10 text-center text-sm text-slate-500">Loading study spaces…</div>
+        ) : visibleSpots.length ? (
           <div>
             {visibleSpots.map((spot) => (
-              <div key={spot.slug} className="relative mb-[12px]">
-                <Link href={`/student/results/${spot.slug}`} className="block overflow-clip rounded-[16px] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-                  <div className="relative h-[160px] w-full overflow-clip rounded-tl-[16px] rounded-tr-[16px] bg-[#cbd5e1]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img alt="" className="absolute inset-0 size-full max-w-none scale-[1.05] object-cover" src={spot.imageUrls[0]} />
-                    <p className="absolute left-[10px] top-[10px] rounded-full bg-white px-[9px] py-[4px] text-[11px] leading-[14px] text-black">
-                      {spot.lastUpdated}
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[14px]">
-                    <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">{spot.name}</p>
-                    <p className="text-[13px] font-medium leading-[18px] text-[#334155]">{spot.category} · {spot.area}</p>
-                    <p className="line-clamp-2 text-[12px] leading-[17px] text-[#64748b]">{spot.description}</p>
-                    <div className="flex items-center gap-[6px]">
-                      <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
-                      <p className="text-[13px] font-medium text-[#0f172a]">{spot.rating.toFixed(1)} · {spot.reviews} reviews</p>
-                      <p className="text-[13px] text-[#64748b]">·</p>
-                      <img alt="" className="size-[14px] max-w-none student-invert" src={a("9abac.svg")} />
-                      <p className="truncate text-[13px] text-[#334155]">{spot.hours}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-[8px]">
-                      {spot.amenities.slice(0, 3).map((amenity) => (
-                        <span key={amenity} className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium text-[#334155]">
-                          {(() => {
-                            const Icon = amenityIcons[amenity] ?? CircleHelp;
-                            return <Icon aria-hidden="true" className="size-[14px] shrink-0" strokeWidth={2} />;
-                          })()}
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Link>
-                <SpotBookmark slug={spot.slug} name={spot.name} />
-              </div>
+              <LocationTile
+                key={spot.id}
+                spot={{ ...spot, building: spot.category, address: spot.area }}
+                bookmark={<SpotBookmark slug={spot.id} name={spot.name} />}
+              />
             ))}
+          </div>
+        ) : !universityId ? (
+          <div className="flex min-h-[calc(100dvh-420px)] flex-col items-center justify-center rounded-[16px] bg-[#f8fafc] px-6 text-center">
+            <GraduationCap className="mb-3 size-8 text-[#f97316]" aria-hidden="true" />
+            <p className="text-[15px] font-semibold text-[#0f172a]">Select your university</p>
+            <p className="mt-1 text-[13px] text-[#64748b]">Discover shows study spots on your own campus only.</p>
+            <Link href="/student/select-university" className="mt-4 rounded-full bg-[#fed7aa] px-4 py-2 text-[13px] font-medium text-[#9a3412] focus-visible:outline-2 focus-visible:outline-[#f97316]">
+              Choose university
+            </Link>
           </div>
         ) : (
           <div className="flex min-h-[calc(100dvh-420px)] flex-col items-center justify-center rounded-[16px] bg-[#f8fafc] px-6 text-center">

@@ -54,11 +54,14 @@ export interface SpotReview {
   rating: number;
   initials: string;
   author: string;
-  year: string;
   meta: string;
   text: string;
   avatarBackground: string;
   avatarColor: string;
+  helpfulVotes: number;
+  votedByMe: boolean;
+  /** Author's faculty (shown under the student name). */
+  faculty?: string | null;
 }
 
 export interface SpotReviewSummary {

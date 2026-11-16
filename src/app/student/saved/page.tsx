@@ -3,20 +3,16 @@
 import { useEffect, useRef } from "react";
 import { Bookmark } from "lucide-react";
 import toast from "react-hot-toast";
-import { savedSpotCatalog } from "@/mocks/data/saved-spots";
-import { SavedPlaceCard } from "@/features/student/components/saved/saved-place-card";
-import { useSavedStore } from "@/stores/saved-store";
+import { LocationTile, toLocationTileSpot } from "@/features/student/components/shared/location-tile";
+import { useSavedPlaces } from "@/hooks/use-saved-places";
 
 export default function SavedPage() {
-  const savedSlugs = useSavedStore((state) => state.savedSlugs);
-  const removeLocation = useSavedStore((state) => state.removeLocation);
+  const { savedPlaces, isPending, removeSaved } = useSavedPlaces();
   const titleRef = useRef<HTMLParagraphElement>(null);
   const cardButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const pendingFocus = useRef<string | "title" | null>(null);
 
-  const cards = savedSlugs
-    .map((slug) => savedSpotCatalog[slug])
-    .filter((card) => card !== undefined);
+  const cards = savedPlaces.map((row) => toLocationTileSpot(row.location));
   const isEmpty = cards.length === 0;
 
   // After a card is removed, move focus to the next bookmark (or the title)
@@ -33,13 +29,13 @@ export default function SavedPage() {
         : (cardButtonRefs.current[target] ?? titleRef.current);
 
     element?.focus();
-  }, [savedSlugs]);
+  }, [savedPlaces]);
 
-  function removeCard(slug: string, name: string) {
-    const remaining = savedSlugs.filter((cardSlug) => cardSlug !== slug);
+  function removeCard(id: string, name: string) {
+    const remaining = cards.filter((card) => card.id !== id);
 
-    pendingFocus.current = remaining[0] ?? "title";
-    removeLocation(slug);
+    pendingFocus.current = remaining[0]?.id ?? "title";
+    removeSaved(id);
     toast.success(`${name} removed from saved places`);
   }
 
@@ -61,13 +57,24 @@ export default function SavedPage() {
         }
       >
         {cards.map((card) => (
-          <SavedPlaceCard
-            key={card.slug}
-            card={card}
-            buttonRef={(element) => {
-              cardButtonRefs.current[card.slug] = element;
-            }}
-            onRemove={() => removeCard(card.slug, card.name)}
+          <LocationTile
+            key={card.id}
+            spot={card}
+            bookmark={
+              <button
+                ref={(element) => {
+                  cardButtonRefs.current[card.id] = element;
+                }}
+                type="button"
+                onClick={() => removeCard(card.id, card.name)}
+                aria-label={`Remove ${card.name} from saved places`}
+                aria-pressed="true"
+                className="absolute left-[320px] top-[12px] z-10 flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img alt="" className="size-[16px] max-w-none" src="/assets/saved/5cc8f.svg" />
+              </button>
+            }
           />
         ))}
 
@@ -80,7 +87,9 @@ export default function SavedPage() {
                 className="size-[28px] fill-[#f97316] text-[#f97316]"
               />
             </span>
-            <p className="text-[14px] leading-[20px] font-medium text-[#334155]">No saved places yet.</p>
+            <p className="text-[14px] leading-[20px] font-medium text-[#334155]">
+              {isPending ? "Loading saved places…" : "No saved places yet."}
+            </p>
           </>
         )}
       </div>

@@ -6,6 +6,7 @@ export const chooseUniversitySchema = z.object({
   name: z.string().min(2, "Name is required"),
   university: z.string().min(1, "Select a university"),
   address: z.string().optional(),
+  faculty: z.string().trim().min(2, "Enter your faculty").max(120, "Faculty is too long"),
 });
 
 export const rateCommentSchema = z.object({
@@ -15,5 +16,6 @@ export const rateCommentSchema = z.object({
 
 export const editStudentInfoSchema = z.object({
   name: z.string().trim().min(2, "Enter your name"),
-  location: z.string().trim().min(3, "Enter your location"),
+  location: z.string().trim().max(200, "Location is too long"),
+  faculty: z.string().trim().min(2, "Enter your faculty").max(120, "Faculty is too long"),
 });

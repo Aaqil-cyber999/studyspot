@@ -3,20 +3,9 @@
 import Link from "next/link";
 import { GraduationCap, ShieldCheck } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
-import { toast } from "react-hot-toast";
 
 export default function WelcomePage() {
   const setRole = useAuthStore((s) => s.setRole);
-  const role = useAuthStore((s) => s.role);
-
-  const handleSetRole = (targetRole: "student" | "university-admin") => {
-    setRole(targetRole);
-    const roleNames: Record<string, string> = {
-      student: "Student",
-      "university-admin": "University Admin",
-    };
-    toast.success(`Signed in as ${roleNames[targetRole]}`);
-  };
 
   return (
     <div className="relative min-h-screen w-[412px] mx-auto overflow-hidden bg-white">
@@ -56,7 +45,7 @@ export default function WelcomePage() {
 
           <Link
             href="/student/login"
-            onClick={() => handleSetRole("student")}
+            onClick={() => setRole("student")}
             className="flex w-full items-center gap-[16px] overflow-clip rounded-[50px] border border-[rgba(226,232,240,0.6)] bg-white p-[18px] shadow-[0px_2px_10px_0px_rgba(0,0,0,0.05)]"
           >
             <div className="flex size-[48px] shrink-0 items-center justify-center overflow-clip rounded-[24px] bg-[rgba(249,115,22,0.1)]">

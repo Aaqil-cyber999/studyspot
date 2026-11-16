@@ -1,18 +1,40 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { StudentBottomNav } from "@/components/navigation/student-bottom-nav";
 import { useThemeStore } from "@/stores/theme-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 export const dynamic = "force-dynamic";
 
+const PUBLIC_PATHS = new Set(["/student/login", "/student/verify"]);
+
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isDark = useThemeStore((state) => state.isDark);
+  const role = useAuthStore((s) => s.role);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
+
+  const isPublic = PUBLIC_PATHS.has(pathname);
+
+  useEffect(() => {
+    if (hasHydrated && !isPublic && role !== "student") {
+      router.replace("/student/login");
+    }
+  }, [hasHydrated, role, router, isPublic]);
+
+  if (isPublic) {
+    return <div className="min-h-screen bg-[#E2E8F0]">{children}</div>;
+  }
+
+  if (!hasHydrated || role !== "student") {
+    return null;
+  }
+
   const hideNav =
-    pathname === "/student/login" ||
     pathname === "/student/info" ||
-    pathname === "/student/verify" ||
     pathname === "/student/select-university" ||
     pathname === "/student/rate" ||
     pathname === "/student/review" ||

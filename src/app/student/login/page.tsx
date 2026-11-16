@@ -3,6 +3,8 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { api, ApiError } from "@/services/api";
+import { showDemoOtpToast } from "@/components/shared/demo-otp-toast";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
@@ -32,8 +34,9 @@ export default function StudentLoginPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("We'll send an OTP to verify your email");
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const submitEmail = (event: FormEvent<HTMLFormElement>) => {
+  const submitEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -44,10 +47,25 @@ export default function StudentLoginPage() {
       return;
     }
 
-    setSubmitted(true);
-    setMessage(`OTP sent to ${email}`);
-    toast.success(`OTP sent to ${email}`);
-    router.push("/student/verify");
+    setSending(true);
+    try {
+      const res = await api.post<{ ok: boolean; devCode?: string }>("/auth/otp/request", { email });
+      setSubmitted(true);
+      setMessage(`OTP sent to ${email}`);
+      if (res.devCode) {
+      showDemoOtpToast(email, res.devCode);
+    } else {
+      toast.success(`OTP sent to ${email}`);
+    }
+      router.push(`/student/verify?email=${encodeURIComponent(email)}`);
+    } catch (error) {
+      const msg = error instanceof ApiError ? error.message : "Unable to send the code. Please try again.";
+      setSubmitted(false);
+      setMessage(msg);
+      toast.error(msg);
+    } finally {
+      setSending(false);
+    }
   };
 
   const useGoogle = () => {
@@ -100,8 +118,8 @@ export default function StudentLoginPage() {
               </p>
             </div>
 
-            <button type="submit" className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
-              <span>Continue</span>
+            <button type="submit" disabled={sending} className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c] disabled:cursor-not-allowed disabled:opacity-70">
+              <span>{sending ? "Sending…" : "Continue"}</span>
               <img src={asset("dcf95")} alt="" className="block size-[18px]" />
             </button>
 

@@ -13,6 +13,8 @@ interface InfoState {
   name: string;
   /** Optional address input */
   address: string;
+  /** Faculty input */
+  faculty: string;
   /** Validation error message, if any */
   error: string | null;
   /** Whether the shake animation should be shown */
@@ -21,6 +23,8 @@ interface InfoState {
   setName: (value: string) => void;
   /** Update the address */
   setAddress: (value: string) => void;
+  /** Update the faculty */
+  setFaculty: (value: string) => void;
   /** Set the current error message */
   setError: (msg: string | null) => void;
   /** Toggle the shake flag */
@@ -32,12 +36,14 @@ interface InfoState {
 export const useInfoStore = create<InfoState>((set) => ({
   name: "",
   address: "",
+  faculty: "",
   error: null,
   shake: false,
   setName: (value) => set({ name: value }),
   setAddress: (value) => set({ address: value }),
+  setFaculty: (value) => set({ faculty: value }),
   setError: (msg) => set({ error: msg }),
   setShake: (value) => set({ shake: value }),
   reset: () =>
-    set({ name: "", address: "", error: null, shake: false }),
+    set({ name: "", address: "", faculty: "", error: null, shake: false }),
 }));

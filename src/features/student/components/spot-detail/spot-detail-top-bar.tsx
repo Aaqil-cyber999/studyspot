@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useSavedStore } from "@/stores/saved-store";
+import { useSavedPlaces } from "@/hooks/use-saved-places";
 
 const iconButton =
   "flex size-10 shrink-0 items-center justify-center rounded-full bg-white transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
@@ -19,14 +19,12 @@ export function SpotDetailTopBar({
   onAddReview: () => void;
 }) {
   const router = useRouter();
-  const saved = useSavedStore((state) => state.savedSlugs.includes(slug));
-  const toggleSaved = useSavedStore((state) => state.toggleSaved);
+  const { savedIds, toggleSaved } = useSavedPlaces();
+  const saved = savedIds.has(slug);
 
   function toggleSavedWithToast() {
-    toggleSaved(slug);
-    toast.success(
-      saved ? "Removed from saved places" : "Added to saved places",
-    );
+    const next = toggleSaved(slug);
+    toast.success(next ? "Added to saved places" : "Removed from saved places");
   }
 
   async function share() {

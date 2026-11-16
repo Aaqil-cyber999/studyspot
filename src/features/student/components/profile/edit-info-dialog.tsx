@@ -18,8 +18,9 @@ import { editStudentInfoSchema, profileImageSchema } from "@/features/student/sc
 interface EditInfoDialogProps {
   name: string;
   location: string;
+  faculty: string;
   image: string | null;
-  onSave: (values: { name: string; location: string; image: string | null }) => void;
+  onSave: (values: { name: string; location: string; faculty: string; image: string | null }) => void;
   triggerLabel?: string;
   triggerClassName?: string;
   triggerTextClassName?: string;
@@ -28,6 +29,7 @@ interface EditInfoDialogProps {
 export function EditInfoDialog({
   name,
   location,
+  faculty,
   image,
   onSave,
   triggerLabel = "Edit",
@@ -37,6 +39,7 @@ export function EditInfoDialog({
   const [open, setOpen] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [draftLocation, setDraftLocation] = useState(location);
+  const [draftFaculty, setDraftFaculty] = useState(faculty);
   const [draftImage, setDraftImage] = useState<string | null>(image);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +47,7 @@ export function EditInfoDialog({
 
   const nameId = useId();
   const locationId = useId();
+  const facultyId = useId();
   const descriptionId = useId();
   const imageHintId = useId();
   const errorId = useId();
@@ -53,6 +57,7 @@ export function EditInfoDialog({
     if (!nextOpen) return;
     setDraftName(name);
     setDraftLocation(location);
+    setDraftFaculty(faculty);
     setDraftImage(image);
     setError(null);
   }
@@ -100,6 +105,7 @@ export function EditInfoDialog({
     const result = editStudentInfoSchema.safeParse({
       name: draftName,
       location: draftLocation,
+      faculty: draftFaculty,
     });
 
     if (!result.success) {
@@ -112,6 +118,7 @@ export function EditInfoDialog({
     onSave({
       name: result.data.name,
       location: result.data.location,
+      faculty: result.data.faculty,
       image: draftImage,
     });
     setError(null);
@@ -167,7 +174,7 @@ export function EditInfoDialog({
           </div>
 
           <DialogDescription id={descriptionId} className="sr-only">
-            Update the photo, name and location shown on your student profile.
+            Update the photo, name, faculty and location shown on your student profile.
           </DialogDescription>
 
           <div className="flex w-full items-center gap-3">
@@ -240,6 +247,27 @@ export function EditInfoDialog({
 
           <div className="flex w-full flex-col gap-[6px]">
             <label
+              htmlFor={facultyId}
+              className="w-full font-heading text-[13px] leading-4 font-medium text-[#334052]"
+            >
+              Faculty
+            </label>
+            <input
+              id={facultyId}
+              name="faculty"
+              type="text"
+              autoComplete="organization"
+              value={draftFaculty}
+              onChange={(event) => setDraftFaculty(event.target.value)}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : undefined}
+              placeholder="Faculty"
+              className="w-full rounded-[12px] border border-[#e2e8f0] bg-white px-4 py-[14px] font-heading text-[15px] leading-[19px] font-normal text-black outline-none focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/30 aria-invalid:border-[#dc2626]"
+            />
+          </div>
+
+          <div className="flex w-full flex-col gap-[6px]">
+            <label
               htmlFor={locationId}
               className="w-full font-heading text-[13px] leading-4 font-medium text-[#334052]"
             >
@@ -266,25 +294,22 @@ export function EditInfoDialog({
             {error}
           </p>
 
-          <div className="flex w-full items-start gap-3">
+          <div className="flex w-full items-center gap-2">
             <DialogClose
               render={
                 <Button
                   type="button"
-                  variant="outline"
-                  className="h-[52px] min-w-0 flex-1 gap-2.5 rounded-[12px] border-[#e2e8f0] bg-white px-[22px] py-[14px] font-heading text-[15px] font-semibold tracking-[0.3px] text-[#334052] hover:bg-[#d4d4d4]"
+                  className="min-h-10 min-w-0 flex-1 rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-800 hover:bg-slate-300 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                 />
               }
             >
-              <X aria-hidden="true" className="size-[18px]" strokeWidth={2} />
               Cancel
             </DialogClose>
 
             <Button
               type="submit"
-              className="h-[52px] min-w-0 flex-1 gap-2.5 rounded-[12px] bg-[#f97316] px-[22px] py-[14px] font-heading text-[15px] font-semibold tracking-[0.3px] text-white shadow-[0px_6px_16px_0px_rgba(249,115,22,0.25)] hover:bg-[#ea6a0c]"
+              className="min-h-10 min-w-0 flex-1 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
             >
-              <Pencil aria-hidden="true" className="size-[18px]" strokeWidth={2} />
               Edit
             </Button>
           </div>

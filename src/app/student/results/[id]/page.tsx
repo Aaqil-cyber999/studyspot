@@ -1,5 +1,4 @@
-import { SpotDetailView } from "@/features/student/components/spot-detail/spot-detail-view";
-import { getSpotDetail } from "@/services/student";
+import { SpotDetailPageClient } from "@/features/student/components/spot-detail/spot-detail-page-client";
 
 interface SpotDetailPageProps {
   params: Promise<{ id: string }>;
@@ -7,7 +6,5 @@ interface SpotDetailPageProps {
 
 export default async function SpotDetailPage({ params }: SpotDetailPageProps) {
   const { id } = await params;
-  const spot = await getSpotDetail(id);
-
-  return <SpotDetailView spot={spot} />;
+  return <SpotDetailPageClient id={id} />;
 }
