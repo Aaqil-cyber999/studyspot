@@ -7,7 +7,7 @@ import { MapPin, MessageSquare, Compass, User } from "lucide-react";
 const items = [
   { href: "/university-admin/dashboard", label: "Dashboard", icon: Compass },
   { href: "/university-admin/locations", label: "Locations", icon: MapPin },
-  { href: "/university-admin/comments", label: "Reviews", icon: MessageSquare },
+  { href: "/university-admin/reviews", label: "Reviews", icon: MessageSquare },
   { href: "/university-admin/profile", label: "Profile", icon: User },
 ];
 

@@ -1,11 +1,21 @@
 "use client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 
-async function request(
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+
+async function request<T = unknown>(
   path: string,
-  options: RequestInit = {}
-): Promise<unknown> {
+  options: RequestInit = {},
+): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
@@ -18,25 +28,26 @@ async function request(
     });
   } catch (error) {
     console.error("API connection failed:", error);
-    throw new Error("Unable to reach the StudySpot server. Make sure the backend is running on port 4000.");
+    throw new ApiError(
+      0,
+      "Unable to reach the SpotWise server. Make sure the backend is running on port 4000.",
+    );
   }
 
   if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as
-      | { error?: string }
-      | null;
-    throw new Error(body?.error || `Request failed: ${res.status}`);
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new ApiError(res.status, body?.error || `Request failed: ${res.status}`);
   }
 
-  if (res.status === 204) return null;
-  return res.json();
+  if (res.status === 204) return null as T;
+  return res.json() as Promise<T>;
 }
 
 export const api = {
-  get: (path: string) => request(path),
-  post: (path: string, body: unknown) =>
-    request(path, { method: "POST", body: JSON.stringify(body) }),
-  put: (path: string, body: unknown) =>
-    request(path, { method: "PUT", body: JSON.stringify(body) }),
-  del: (path: string) => request(path, { method: "DELETE" }),
+  get: <T = unknown>(path: string) => request<T>(path),
+  post: <T = unknown>(path: string, body: unknown) =>
+    request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+  put: <T = unknown>(path: string, body: unknown) =>
+    request<T>(path, { method: "PUT", body: JSON.stringify(body) }),
+  del: <T = unknown>(path: string) => request<T>(path, { method: "DELETE" }),
 };
