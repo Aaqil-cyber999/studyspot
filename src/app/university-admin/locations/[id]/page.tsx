@@ -4,10 +4,18 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { ArrowLeft, Armchair, ChevronLeft, ChevronRight, EyeOff, Mic, Pencil, Star, Trash2, ToggleLeft, ToggleRight, Users, Wifi } from "lucide-react";
-import { useUniversityAdminStore } from "@/stores/university-admin-store";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, ChevronLeft, ChevronRight, EyeOff, Pencil, Star, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
+import {
+  getUaLocation,
+  getUaLocationReviews,
+  updateUaLocation,
+  deleteUaLocation,
+  moderateUaReview,
+} from "@/services/university-admin";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { CurrentStatusSection } from "@/features/student/components/spot-detail/current-status-section";
 import type { LiveMetric } from "@/features/student/types/spot-detail";
@@ -15,20 +23,35 @@ import type { LiveMetric } from "@/features/student/types/spot-detail";
 export default function UaLocationDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const location = useUniversityAdminStore((state) => state.locations.find((item) => item.id === params.id));
-  const allComments = useUniversityAdminStore((state) => state.comments);
-  const allReports = useUniversityAdminStore((state) => state.reports);
-  const comments = useMemo(() => allComments.filter((item) => item.locationId === params.id && item.status === "Visible"), [allComments, params.id]);
-  const reports = useMemo(() => allReports.filter((item) => item.locationId === params.id), [allReports, params.id]);
-  const toggleLocation = useUniversityAdminStore((state) => state.toggleLocation);
-  const deleteLocation = useUniversityAdminStore((state) => state.deleteLocation);
-  const moderateComment = useUniversityAdminStore((state) => state.moderateComment);
+  const queryClient = useQueryClient();
+  const { data: location, isPending, isError } = useQuery({
+    queryKey: ["ua", "location", params.id],
+    queryFn: () => getUaLocation(params.id),
+    retry: 1,
+  });
+  const { data: comments = [] } = useQuery({
+    queryKey: ["ua", "location-reviews", params.id],
+    queryFn: () => getUaLocationReviews(params.id, false),
+  });
+  const invalidateLocations = () => {
+    void queryClient.invalidateQueries({ queryKey: ["ua", "locations"] });
+    void queryClient.invalidateQueries({ queryKey: ["ua", "location", params.id] });
+    void queryClient.invalidateQueries({ queryKey: ["ua", "location-reviews", params.id] });
+  };
+  const toggleMutation = useMutation({
+    mutationFn: (status: "Active" | "Inactive") => updateUaLocation(params.id, { status }),
+    onSuccess: invalidateLocations,
+  });
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [statusToggleOpen, setStatusToggleOpen] = useState(false);
   const [commentToHide, setCommentToHide] = useState<string | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
 
-  if (!location) {
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
+  }
+
+  if (isError || !location) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#E2E8F0] px-6 text-center">
         <div>
@@ -98,15 +121,25 @@ export default function UaLocationDetailsPage() {
     },
   ];
 
-  function handleToggle() {
-    toggleLocation(currentLocation.id);
-    toast.success(currentLocation.status === "Active" ? "Location deactivated" : "Location activated");
+  async function handleToggle() {
+    const next = currentLocation.status === "Active" ? "Inactive" : "Active";
+    try {
+      await toggleMutation.mutateAsync(next);
+      toast.success(next === "Inactive" ? "Location deactivated" : "Location activated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to update the location.");
+    }
   }
 
-  function handleDelete() {
-    deleteLocation(currentLocation.id);
-    toast.success("Location deleted");
-    router.replace("/university-admin/locations");
+  async function handleDelete() {
+    try {
+      await deleteUaLocation(currentLocation.id);
+      toast.success("Location deleted");
+      await queryClient.invalidateQueries({ queryKey: ["ua", "locations"] });
+      router.replace("/university-admin/locations");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to delete the location.");
+    }
   }
 
   return (
@@ -243,8 +276,15 @@ export default function UaLocationDetailsPage() {
         confirmLabel="Hide review"
         onConfirm={() => {
           if (commentToHide) {
-            moderateComment(commentToHide, "Hidden");
-            toast.success("Review hidden");
+            void (async () => {
+              try {
+                await moderateUaReview(commentToHide, "Hidden");
+                toast.success("Review hidden");
+                invalidateLocations();
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Unable to hide the review.");
+              }
+            })();
           }
           setCommentToHide(null);
         }}

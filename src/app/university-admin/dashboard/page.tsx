@@ -4,36 +4,39 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Building2, ChevronRight, Clock3, MessageSquare, Search, Star, TrendingUp, User, Users } from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
-import { getUaComments, getUaDashboard, getUaLocations } from "@/services/university-admin";
+import { getUaReviews, getUaDashboard, getUaLocations } from "@/services/university-admin";
+import { me } from "@/services/auth";
 
 const card = "rounded-[20px] border border-[#eef1f5] shadow-[0_2px_10px_rgba(15,23,42,0.03)]";
 const eyebrow = "text-[10px] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]";
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
 
 export default function UaDashboardPage() {
-  const { data: dashboard } = useQuery({
+  const { data: profile } = useQuery({ queryKey: ["ua", "profile"], queryFn: me });
+  const { data: overview } = useQuery({
     queryKey: ["ua", "dashboard"],
     queryFn: getUaDashboard,
   });
-  const { data: comments = [] } = useQuery({
-    queryKey: ["ua", "comments"],
-    queryFn: getUaComments,
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["ua", "reviews"],
+    queryFn: getUaReviews,
   });
   const { data: locations = [] } = useQuery({
     queryKey: ["ua", "locations"],
     queryFn: getUaLocations,
   });
 
-  if (!dashboard || locations.length === 0) {
+  if (!overview || locations.length === 0 || !profile) {
     return <PageLoader className="min-h-screen bg-[#f8fafc] py-0" />;
   }
 
+  const avgRating = locations.reduce((sum, l) => sum + l.rating, 0) / locations.length;
   const quietLocations = locations.filter((location) => location.crowd === "Low").length;
 
   const stats = [
     {
       label: "Total locations",
-      value: dashboard.locations,
+      value: overview.stats.locations,
       detail: "Across all faculties",
       icon: Building2,
       iconClass: "bg-[#fff7ed] text-[#f97316]",
@@ -41,19 +44,19 @@ export default function UaDashboardPage() {
     },
     {
       label: "Average rating",
-      value: dashboard.avgRating.toFixed(1),
+      value: avgRating.toFixed(1),
       detail: "Out of 5.0",
       icon: Star,
       iconClass: "bg-[#fffbeb] text-[#d97706]",
       href: "/university-admin/locations",
     },
     {
-      label: "Student comments",
-      value: dashboard.comments.toLocaleString("en-US"),
+      label: "Student reviews",
+      value: overview.stats.reviews.toLocaleString("en-US"),
       detail: "From student reviews",
       icon: MessageSquare,
       iconClass: "bg-[#eff6ff] text-[#2563eb]",
-      href: "/university-admin/comments",
+      href: "/university-admin/reviews",
     },
     {
       label: "Quiet spaces",
@@ -94,10 +97,10 @@ export default function UaDashboardPage() {
           <div className="flex items-center justify-between gap-[12px]">
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-[24px] font-bold leading-[29px] tracking-[-0.5px] text-white">Good morning</h1>
-              <p className="truncate text-[14px] leading-[20px] text-white/90">{dashboard.university}</p>
+              <p className="truncate text-[14px] leading-[20px] text-white/90">{profile.universityName ?? "SpotWise"}</p>
             </div>
-            <Link href="/university-admin/profile" aria-label="Open admin profile" className="flex size-[40px] shrink-0 items-center justify-center rounded-[20px] border-2 border-white bg-white text-[13px] font-bold text-[#f97316] transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]">
-              UA
+            <Link href="/university-admin/profile" aria-label="Open admin profile" className="flex size-[40px] shrink-0 items-center justify-center overflow-clip rounded-[20px] border-2 border-white bg-white text-[13px] font-bold text-[#f97316] transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]">
+              {profile.name.split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() || "UA"}
             </Link>
           </div>
         </div>
@@ -170,34 +173,34 @@ export default function UaDashboardPage() {
               <p className={eyebrow}>Feedback</p>
               <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Recent feedback</h2>
             </div>
-            <Link href="/university-admin/comments" className="flex min-h-8 items-center gap-0.5 rounded-lg px-1.5 text-[11px] font-semibold text-[#f97316] transition hover:bg-[#fff7ed] hover:text-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
+            <Link href="/university-admin/reviews" className="flex min-h-8 items-center gap-0.5 rounded-lg px-1.5 text-[11px] font-semibold text-[#f97316] transition hover:bg-[#fff7ed] hover:text-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
               View all
               <ChevronRight className="size-3.5" aria-hidden="true" />
             </Link>
           </div>
 
           <div className="mt-2 flex flex-col gap-3 px-5 pb-4">
-            {comments.length === 0 ? (
-              <div className="flex h-24 items-center justify-center text-[13px] text-[#94a3b8]">No comments yet</div>
+            {reviews.length === 0 ? (
+              <div className="flex h-24 items-center justify-center text-[13px] text-[#94a3b8]">No reviews yet</div>
             ) : (
-              comments.slice(0, 2).map((comment) => (
-                <article key={comment.id} className="rounded-2xl border border-[#eef1f5] bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
+              reviews.slice(0, 2).map((review) => (
+                <article key={review.id} className="rounded-2xl border border-[#eef1f5] bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
                   <div className="mb-2 flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f97316] text-white">
                       <User className="size-4" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-[14px] font-semibold text-[#0f172a] truncate min-w-0">{comment.author}</h3>
-                        <span className="text-[11px] text-[#94a3b8]">{formatShortTime(comment.createdAt)}</span>
+                        <h3 className="text-[14px] font-semibold text-[#0f172a] truncate min-w-0">{review.author}</h3>
+                        <span className="text-[11px] text-[#94a3b8]">{formatShortTime(review.createdAt)}</span>
                       </div>
-                      <p className="text-[12px] text-[#64748b] truncate">{comment.locationName}</p>
+                      <p className="text-[12px] text-[#64748b] truncate">{review.locationName}</p>
                     </div>
                   </div>
-                  <p className="text-[13px] leading-[19px] text-[#334155] line-clamp-2">&ldquo;{comment.text}&rdquo;</p>
+                  <p className="text-[13px] leading-[19px] text-[#334155] line-clamp-2">&ldquo;{review.text}&rdquo;</p>
                   <div className="mt-2 flex items-center gap-1.5">
                     <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                    <span className="text-[11px] font-semibold tabular-nums text-[#64748b]">{comment.rating.toFixed(1)}</span>
+                    <span className="text-[11px] font-semibold tabular-nums text-[#64748b]">{review.rating.toFixed(1)}</span>
                   </div>
                 </article>
               ))

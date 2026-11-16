@@ -5,25 +5,24 @@ import { ArrowLeft, MapPinned, Check, LayoutGrid, UserCheck, Clock, Images, Chev
 import { Button } from "@/components/ui/button";
 import { formatTimeLabel } from "@/components/ui/time-picker";
 import { useLocationPreviewStore } from "@/stores/location-preview-store";
-import { useUniversityAdminStore } from "@/stores/university-admin-store";
+import { createUaLocation, updateUaLocation } from "@/services/university-admin";
 import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function LocationPreviewPage() {
   const router = useRouter();
   const previewData = useLocationPreviewStore((state) => state.data);
   const clearPreview = useLocationPreviewStore((state) => state.clearData);
-  const addLocation = useUniversityAdminStore((state) => state.addLocation);
+  const queryClient = useQueryClient();
 
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const previewUrls = useMemo(() => (previewData ? previewData.imageItems.map((item) => item.url) : []), [previewData]);
 
   useEffect(() => {
     if (!previewData) {
       router.replace("/university-admin/locations/new");
-      return;
     }
-    setPreviewUrls(previewData.imageItems.map((item) => item.url));
   }, [previewData, router]);
 
   if (!previewData) {
@@ -62,56 +61,43 @@ export default function LocationPreviewPage() {
         compressed.push(item.url);
       }
     }
-    const mockImage = (await import("@/mocks/data/study-spots")).studySpotCatalog[
-      (name.trim().length + building.trim().length) % (await import("@/mocks/data/study-spots")).studySpotCatalog.length
-    ]?.imageUrls[0];
-    const imageUrls = compressed.length > 0 ? compressed : mockImage ? [mockImage] : [];
+    const imageUrls = compressed;
 
-    if (previewData!.isEditing && previewData!.locationId) {
-      const updateLocation = useUniversityAdminStore.getState().updateLocation;
-      updateLocation(previewData!.locationId, {
-        name: name.trim(),
-        building: building.trim(),
-        faculty: faculty?.trim() || undefined,
-        department: department?.trim() || undefined,
-        staffMonitored,
-        area: building.trim(),
-        hours,
-        status: "Active",
-        seats: "Unsure",
-        wifi: amenities.includes("Wi-Fi") ? "Medium" : "Weak",
-        crowd: "Medium",
-        noise: "Moderate",
-        description: description?.trim() || `A student study space in the ${building.trim()} building.`,
-        category: "Study space",
-        amenities,
-        imageUrls,
-      });
-      clearPreview();
-      toast.success("Location updated");
-      router.push(`/university-admin/locations/${previewData!.locationId}`);
-    } else {
-      addLocation({
-        name: name.trim(),
-        building: building.trim(),
-        faculty: faculty?.trim() || undefined,
-        department: department?.trim() || undefined,
-        staffMonitored,
-        area: building.trim(),
-        hours,
-        status: "Active",
-        seats: "Unsure",
-        wifi: amenities.includes("Wi-Fi") ? "Medium" : "Weak",
-        crowd: "Medium",
-        noise: "Moderate",
-        description: description?.trim() || `A student study space in the ${building.trim()} building.`,
-        category: "Study space",
-        amenities,
-        imageUrls,
-      });
-      clearPreview();
-      toast.success("Location created");
-      router.push("/university-admin/locations");
+    const values = {
+      name: name.trim(),
+      building: building.trim(),
+      faculty: faculty?.trim() || undefined,
+      department: department?.trim() || undefined,
+      staffMonitored,
+      address: building.trim(),
+      hours,
+      status: "Active" as const,
+      seats: "Unsure" as const,
+      wifi: (amenities.includes("Wi-Fi") ? "Medium" : "Weak") as "Medium" | "Weak",
+      crowd: "Medium" as const,
+      noise: "Moderate" as const,
+      description: description?.trim() || `A student study space in the ${building.trim()} building.`,
+      amenities,
+      imageUrls,
+    };
+
+    try {
+      if (previewData!.isEditing && previewData!.locationId) {
+        await updateUaLocation(previewData!.locationId, values);
+        clearPreview();
+        await queryClient.invalidateQueries({ queryKey: ["ua", "locations"] });
+        await queryClient.invalidateQueries({ queryKey: ["ua", "location", previewData!.locationId] });
+        toast.success("Location updated");
+        router.push(`/university-admin/locations/${previewData!.locationId}`);
+      } else {
+        await createUaLocation(values);
+        clearPreview();
+        await queryClient.invalidateQueries({ queryKey: ["ua", "locations"] });
+        toast.success("Location created");
+        router.push("/university-admin/locations");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save the location.");
     }
   }
 

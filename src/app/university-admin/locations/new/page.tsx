@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocationPreviewStore } from "@/stores/location-preview-store";
 import { ImagePlus, X, LayoutGrid, Check, Plus, TrendingUp, UserCheck, Clock, MapPinned, Eye, Images } from "lucide-react";
 import { ArrowLeft } from "lucide-react";
@@ -12,8 +13,8 @@ import { TimePicker, formatTimeLabel } from "@/components/ui/time-picker";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
-import { studySpotCatalog } from "@/mocks/data/study-spots";
-import { useUniversityAdminStore } from "@/stores/university-admin-store";
+
+import { createUaLocation } from "@/services/university-admin";
 
 const schema = z.object({
   name: z.string().min(2, "Enter a location name"),
@@ -45,9 +46,8 @@ export default function AddLocationPage() {
   const customAmenityTouchedRef = useRef(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [images, setImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const addLocation = useUniversityAdminStore((state) => state.addLocation);
   const setLocationPreview = useLocationPreviewStore((state) => state.setData);
+  const queryClient = useQueryClient();
   const [currentIdx, setCurrentIdx] = useState(0);
 
   // Opening hours state (24-hour "HH:mm", rendered as a 12-hour label)
@@ -106,15 +106,13 @@ export default function AddLocationPage() {
     }
   }, [customAmenityOpen]);
 
-  // Reset carousel index when previews change
+  // Rebuild object URLs when the file list changes; revoke the old ones on cleanup.
+  const previewUrls = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);
   useEffect(() => {
-    const urls = images.map((file) => URL.createObjectURL(file));
-    setPreviewUrls(urls);
-    setCurrentIdx(0);
     return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [images]);
+  }, [previewUrls]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -182,27 +180,32 @@ export default function AddLocationPage() {
         console.error("Image compression error", e);
       }
     }
-    const mockImage = studySpotCatalog[(name.trim().length + building.trim().length) % studySpotCatalog.length]?.imageUrls[0];
-    const imageUrls = compressed.length > 0 ? compressed : mockImage ? [mockImage] : [];
+    const imageUrls = compressed;
 
-    addLocation({
-      name: name.trim(),
-      building: building.trim(),
-      faculty: faculty.trim() || undefined,
-      department: department.trim() || undefined,
-      staffMonitored,
-      area: building.trim(),
-      hours: hoursString,
-      status: "Active",
-      seats: "Unsure",
-      wifi: wifiAvailable ? "Medium" : "Weak",
-      crowd: "Medium",
-      noise: "Moderate",
-      description: description.trim() || `A student study space in the ${building.trim()} building.`,
-      category: "Study space",
-      amenities,
-      imageUrls,
-    });
+    try {
+      await createUaLocation({
+        name: name.trim(),
+        building: building.trim(),
+        faculty: faculty.trim() || undefined,
+        department: department.trim() || undefined,
+        staffMonitored,
+        address: building.trim(),
+        hours: hoursString,
+        status: "Active",
+        seats: "Unsure",
+        wifi: wifiAvailable ? "Medium" : "Weak",
+        crowd: "Medium",
+        noise: "Moderate",
+        description: description.trim() || `A student study space in the ${building.trim()} building.`,
+        amenities,
+        imageUrls,
+      });
+      toast.success("Location added");
+      await queryClient.invalidateQueries({ queryKey: ["ua", "locations"] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to add the location.");
+      return;
+    }
 
     router.push("/university-admin/locations");
   }
@@ -216,12 +219,14 @@ export default function AddLocationPage() {
       toast.error(`You can upload up to ${MAX_IMAGES} images`);
     }
     setImages((prev) => [...prev, ...selected]);
+    setCurrentIdx(0);
     // Reset so picking the same file again still fires onChange.
     e.target.value = "";
   }
 
   function removeImage(idx: number) {
     setImages((prev) => prev.filter((_, i) => i !== idx));
+    setCurrentIdx(0);
   }
 
   function showPreviousImage() {

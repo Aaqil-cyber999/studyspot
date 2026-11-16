@@ -12,8 +12,10 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { useLocationPreviewStore } from "@/stores/location-preview-store";
-import { useUniversityAdminStore } from "@/stores/university-admin-store";
-import { studySpotCatalog } from "@/mocks/data/study-spots";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PageLoader } from "@/components/shared/page-loader";
+import { getUaLocation, updateUaLocation } from "@/services/university-admin";
+import type { AdminLocation } from "@/types/university-admin";
 
 const schema = z.object({
   name: z.string().min(2, "Enter a location name"),
@@ -44,23 +46,21 @@ interface ImageItem {
   file: File | null;
 }
 
-export default function EditLocationPage() {
+function EditLocationForm({ location }: { location: AdminLocation }) {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const location = useUniversityAdminStore((state) => state.locations.find((item) => item.id === params.id));
-  const updateLocation = useUniversityAdminStore((state) => state.updateLocation);
+  const queryClient = useQueryClient();
   const setLocationPreview = useLocationPreviewStore((state) => state.setData);
 
-  const [name, setName] = useState(location?.name ?? "");
-  const [building, setBuilding] = useState(location?.building ?? "");
-  const [faculty, setFaculty] = useState(location?.faculty ?? "");
-  const [description, setDescription] = useState(location?.description ?? "");
-  const [department, setDepartment] = useState(location?.department ?? "");
-  const [staffMonitored, setStaffMonitored] = useState(location?.staffMonitored ?? false);
-  const [amenities, setAmenities] = useState<string[]>(location?.amenities ?? [...DEFAULT_AMENITIES]);
+  const [name, setName] = useState(location.name ?? "");
+  const [building, setBuilding] = useState(location.building ?? "");
+  const [faculty, setFaculty] = useState(location.faculty ?? "");
+  const [description, setDescription] = useState(location.description ?? "");
+  const [department, setDepartment] = useState(location.department ?? "");
+  const [staffMonitored, setStaffMonitored] = useState(location.staffMonitored ?? false);
+  const [amenities, setAmenities] = useState<string[]>(location.amenities ?? [...DEFAULT_AMENITIES]);
   const [amenityOptions, setAmenityOptions] = useState<string[]>(() => {
     const base = [...AMENITY_OPTIONS];
-    const extra = (location?.amenities ?? []).filter((a) => !base.includes(a));
+    const extra = (location.amenities ?? []).filter((a) => !base.includes(a));
     return [...base, ...extra];
   });
   const [customAmenity, setCustomAmenity] = useState("");
@@ -70,7 +70,7 @@ export default function EditLocationPage() {
   const customAmenityTouchedRef = useRef(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [imageItems, setImageItems] = useState<ImageItem[]>(() => {
-    if (location?.imageUrls && location.imageUrls.length > 0) {
+    if (location.imageUrls && location.imageUrls.length > 0) {
       return location.imageUrls.map((url) => ({ url, file: null }));
     }
     return [];
@@ -111,11 +111,7 @@ export default function EditLocationPage() {
   const hoursString = isAlwaysOpen ? "24/7" : `${formatTimeLabel(openTime)} – ${formatTimeLabel(closeTime)}`;
   const imagesFull = imageItems.length >= MAX_IMAGES;
   const previewUrls = imageItems.map((item) => item.url);
-
-  // Reset carousel index when previews change
-  useEffect(() => {
-    setCurrentIdx(0);
-  }, [imageItems.length]);
+  const safeIdx = previewUrls.length > 0 ? Math.min(currentIdx, previewUrls.length - 1) : 0;
 
   function toggleAmenity(amenity: string) {
     setAmenities((prev) =>
@@ -229,20 +225,26 @@ export default function EditLocationPage() {
     }
     const imageUrls = compressed.length > 0 ? compressed : undefined;
 
-    updateLocation(location!.id, {
-      name: name.trim(),
-      building: building.trim(),
-      faculty: faculty.trim() || undefined,
-      department: department.trim() || undefined,
-      description: description.trim() || undefined,
-      staffMonitored,
-      area: building.trim(),
-      hours: hoursString,
-      amenities,
-      imageUrls,
-    });
-    toast.success("Location updated");
-    router.push(`/university-admin/locations/${location!.id}`);
+    try {
+      await updateUaLocation(location.id, {
+        name: name.trim(),
+        building: building.trim(),
+        faculty: faculty.trim() || undefined,
+        department: department.trim() || undefined,
+        description: description.trim() || undefined,
+        staffMonitored,
+        address: building.trim(),
+        hours: hoursString,
+        amenities,
+        imageUrls,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["ua", "locations"] });
+      await queryClient.invalidateQueries({ queryKey: ["ua", "location", location.id] });
+      toast.success("Location updated");
+      router.push(`/university-admin/locations/${location.id}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to update the location.");
+    }
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -255,11 +257,13 @@ export default function EditLocationPage() {
     }
     const newItems = selected.map((file) => ({ url: URL.createObjectURL(file), file }));
     setImageItems((prev) => [...prev, ...newItems]);
+    setCurrentIdx(0);
     e.target.value = "";
   }
 
   function removeImage(idx: number) {
     setImageItems((prev) => prev.filter((_, i) => i !== idx));
+    setCurrentIdx(0);
   }
 
   function showPreviousImage() {
@@ -268,14 +272,6 @@ export default function EditLocationPage() {
 
   function showNextImage() {
     setCurrentIdx((idx) => (idx + 1) % previewUrls.length);
-  }
-
-  if (!location) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#E2E8F0] px-6 text-center">
-        <p className="text-sm text-slate-500">This location could not be found.</p>
-      </div>
-    );
   }
 
   return (
@@ -450,8 +446,8 @@ export default function EditLocationPage() {
             </button>
             {previewUrls.length > 0 && (
               <div className="relative w-full overflow-hidden rounded-[12px] bg-[#f8fafc]">
-                <img src={previewUrls[Math.min(currentIdx, previewUrls.length - 1)]} alt={`Preview ${Math.min(currentIdx, previewUrls.length - 1) + 1} of ${previewUrls.length}`} className="h-[200px] w-full object-cover" />
-                <button type="button" onClick={() => removeImage(currentIdx)} aria-label="Remove this image" className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-white/90 shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]">
+                <img src={previewUrls[safeIdx]} alt={`Preview ${safeIdx + 1} of ${previewUrls.length}`} className="h-[200px] w-full object-cover" />
+                <button type="button" onClick={() => removeImage(safeIdx)} aria-label="Remove this image" className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-white/90 shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]">
                   <X size={14} className="text-[#f97316]" />
                 </button>
                 {previewUrls.length > 1 && (
@@ -463,7 +459,7 @@ export default function EditLocationPage() {
                       <ChevronRight size={18} />
                     </button>
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white">
-                      {currentIdx + 1} / {previewUrls.length}
+                      {safeIdx + 1} / {previewUrls.length}
                     </span>
                   </>
                 )}
@@ -497,7 +493,7 @@ export default function EditLocationPage() {
               peakStart,
               peakEnd,
               isEditing: true,
-              locationId: location!.id,
+              locationId: location.id,
             });
             router.push("/university-admin/locations/preview");
           }} variant="default" className="flex-1 px-[16px] py-[20px] text-[14px] font-medium shadow-[0px_6px_16px_rgba(249,115,22,0.25)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-100">
@@ -512,4 +508,26 @@ export default function EditLocationPage() {
       </form>
     </div>
   );
+}
+export default function EditLocationPage() {
+  const params = useParams<{ id: string }>();
+  const { data: location, isPending, isError } = useQuery({
+    queryKey: ["ua", "location", params.id],
+    queryFn: () => getUaLocation(params.id),
+    retry: 1,
+  });
+
+  if (isPending) {
+    return <PageLoader className="min-h-screen bg-[#E2E8F0] py-0" />;
+  }
+
+  if (isError || !location) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#E2E8F0] px-6 text-center">
+        <p className="text-sm text-slate-500">This location could not be found.</p>
+      </div>
+    );
+  }
+
+  return <EditLocationForm location={location} />;
 }

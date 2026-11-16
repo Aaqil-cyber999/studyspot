@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 import { Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import { login, logout } from "@/services/auth";
 
 
 
@@ -33,13 +34,14 @@ function CampusIllustration() {
 
 export default function UniversityAdminLoginPage() {
   const router = useRouter();
-  const setRole = useAuthStore((s) => s.setRole);
+  const setSession = useAuthStore((s) => s.setSession);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("Enter your admin credentials");
+  const [signingIn, setSigningIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = schema.safeParse({ email, password });
     if (!result.success) {
@@ -48,10 +50,26 @@ export default function UniversityAdminLoginPage() {
       toast.error(msg);
       return;
     }
+    setSigningIn(true);
     setMessage("Signing in...");
-    setRole("university-admin");
-    toast.success("Welcome back, University Admin!");
-    router.push("/university-admin/dashboard");
+    try {
+      const user = await login(result.data.email, result.data.password);
+      if (user.role !== "university-admin") {
+        await logout();
+        setMessage("This account is not a university admin.");
+        toast.error("This account is not a university admin.");
+        return;
+      }
+      setSession("university-admin", user.name);
+      toast.success(`Welcome back, ${user.name.split(" ").slice(-1)[0] || "Admin"}!`);
+      router.push("/university-admin/dashboard");
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Unable to sign in.";
+      setMessage(msg);
+      toast.error(msg);
+    } finally {
+      setSigningIn(false);
+    }
   }
 
   return (
@@ -127,8 +145,8 @@ export default function UniversityAdminLoginPage() {
               </div>
             </div>
 
-            <button type="submit" className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
-              <span>Sign in</span>
+            <button type="submit" disabled={signingIn} className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c] disabled:cursor-not-allowed disabled:opacity-70">
+              <span>{signingIn ? "Signing in…" : "Sign in"}</span>
               <img src={asset("dcf95")} alt="" className="block size-[18px]" />
             </button>
             <div className="mt-4 text-center text-sm text-[#334155]">

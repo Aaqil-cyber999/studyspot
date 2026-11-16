@@ -4,60 +4,65 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, GraduationCap, UserPlus } from "lucide-react";
+import { GraduationCap, Loader2, UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAuthStore } from "@/stores/auth-store";
-import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { api, ApiError } from "@/services/api";
 
 const asset = (name: string) => `/assets/${name}.svg`;
 
 const TITLES = ["Mr", "Mrs", "Ms", "Miss", "Dr", "Prof"];
 
 const schema = z.object({
-  name: z.string().min(1, "Enter your name"),
-  university: z.string().min(1, "Enter your university"),
-  email: z.string().email(),
-  password: z.string().min(4, "Enter a password"),
+  name: z.string().min(2, "Enter your name"),
+  university: z.string().min(2, "Enter your university"),
+  email: z.string().email("Enter a valid email address"),
 });
 
 export default function UniversityAdminRegisterPage() {
   const router = useRouter();
-  const setRole = useAuthStore((s) => s.setRole);
 
   const [title, setTitle] = useState("Mr");
   const [name, setName] = useState("");
   const [university, setUniversity] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [note, setNote] = useState("");
-  const [message, setMessage] = useState("Enter your details");
-  const [showPassword, setShowPassword] = useState(false);
 
+  const [submitting, setSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = schema.safeParse({ name, university, email, password });
+    const result = schema.safeParse({ name, university, email });
     if (!result.success) {
       const msg = result.error.issues[0]?.message ?? "Invalid input";
-      setMessage(msg);
       toast.error(msg);
       return;
     }
-    setMessage("Submitting request...");
-    // Mock registration — the request lands in the super-admin queue,
-    // exactly as this form captures it (Title, Name, University, Email, Note).
-    // The password is never stored.
-    useSuperAdminStore.getState().submitRequest({
-      title,
-      name,
-      university,
-      email,
-      note: note.trim() || undefined,
-    });
 
-    setShowSuccessModal(true);
+    setSubmitting(true);
+
+    // The request lands in the super-admin queue, exactly as this form
+    // captures it (Title, Name, University, Email, Note).
+    // The password is never stored.
+    try {
+      await api.post("/registration-requests", {
+        title,
+        name: name.trim(),
+        university: university.trim(),
+        email: email.trim(),
+        note: note.trim() || undefined,
+      });
+      setShowSuccessModal(true);
+    } catch (error) {
+      const msg =
+        error instanceof ApiError
+          ? error.message
+          : "Unable to submit the request. Please try again.";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleModalClose() {
@@ -79,7 +84,6 @@ export default function UniversityAdminRegisterPage() {
               <div className="flex w-[76px] flex-none flex-col gap-0">
                 <Select value={title} onValueChange={(value) => {
                   setTitle(String(value));
-                  setMessage("Enter your details");
                 }} name="title">
                   <SelectLabel className="mb-[10px] ml-[7px] block cursor-pointer text-[13px] font-medium leading-normal text-[#0f172a]" style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}>
                     Title
@@ -112,7 +116,6 @@ export default function UniversityAdminRegisterPage() {
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
-                      setMessage("Enter your details");
                     }}
                     className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-light leading-normal text-[#334155] outline-none"
                     style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}
@@ -138,7 +141,6 @@ export default function UniversityAdminRegisterPage() {
                   value={university}
                   onChange={(e) => {
                     setUniversity(e.target.value);
-                    setMessage("Enter your details");
                   }}
                   className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-light leading-normal text-[#334155] outline-none"
                   style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}
@@ -164,7 +166,6 @@ export default function UniversityAdminRegisterPage() {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    setMessage("Enter your details");
                   }}
                   className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-light leading-normal text-[#334155] outline-none"
                   style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}
@@ -172,40 +173,7 @@ export default function UniversityAdminRegisterPage() {
               </div>
             </div>
 
-            {/* Password */}
-            <div className="flex flex-col gap-0">
-              <label htmlFor="admin-password" className="mb-[10px] ml-[7px] block text-[13px] font-medium leading-normal text-[#0f172a]" style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}>
-                Password
-              </label>
-              <div className="flex h-[58px] items-center gap-[12px] rounded-[14px] border border-[#fed7aa] p-[10px_14px]">
-                <span className="grid size-[36px] flex-none place-items-center rounded-[10px] bg-[#feedd2]">
-                  {/* Use the same lock icon as the login page */}
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="#f97316" strokeWidth="1.5" />
-                    <circle cx="12" cy="16" r="1" stroke="#f97316" strokeWidth="1.5" />
-                    <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="#f97316" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-                <input
-                  id="admin-password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setMessage("Enter your details");
-                  }}
-                  className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-light leading-normal text-[#334155] outline-none"
-                  style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}
-                />
-                {password.length > 0 && (
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="flex items-center justify-center text-gray-500" aria-label={showPassword ? "Hide password" : "Show password"}>
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                )}
-              </div>
-            </div>
+
 
             {/* Note */}
             <div className="flex flex-col gap-0">
@@ -220,17 +188,21 @@ export default function UniversityAdminRegisterPage() {
                 value={note}
                 onChange={(e) => {
                   setNote(e.target.value);
-                  setMessage("Enter your details");
                 }}
                 className="w-full resize-none rounded-[14px] border border-[#fed7aa] bg-white p-[10px_14px] text-[15px] font-light leading-normal text-[#334155] outline-none placeholder:text-[#94a3b8]"
                 style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}
               />
             </div>
 
+            {/* How sign-in works */}
+            <p className="-mt-1 ml-[7px] text-[12px] leading-5 text-[#64748b]">
+              No password needed here. Once your request is approved, a temporary password is issued for you to sign in.
+            </p>
+
             {/* Submit */}
-            <button type="submit" className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
-              <UserPlus size={18} className="block size-[18px] text-white" />
-              <span>Register</span>
+            <button type="submit" disabled={submitting} className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-[16px] border border-[#f97316] bg-[#f97316] px-[16px] py-[16px] text-[15px] font-medium leading-normal text-white transition-all duration-140 hover:bg-[#ea580c] hover:shadow-[0_6px_16px_rgba(194,65,12,0.2)] active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:shadow-[0_0_0_3px_#ffffff,0_0_0_5px_#c2410c]">
+              {submitting ? <Loader2 size={18} className="block size-[18px] animate-spin text-white" aria-hidden="true" /> : <UserPlus size={18} className="block size-[18px] text-white" />}
+              <span>{submitting ? "Submitting…" : "Register"}</span>
             </button>
 
             {/* Link to login */}
@@ -251,7 +223,7 @@ export default function UniversityAdminRegisterPage() {
           <DialogTitle className="mb-4">Request submitted</DialogTitle>
           <DialogDescription>Once verified, you can log in to the platform.</DialogDescription>
           <DialogClose>
-            <button className="mt-4 w-full rounded-[12px] bg-[#f97316] px-4 py-2 text-white" onClick={handleModalClose}>
+            <button className="mt-4 min-h-10 w-full rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2" onClick={handleModalClose}>
               OK
             </button>
           </DialogClose>
