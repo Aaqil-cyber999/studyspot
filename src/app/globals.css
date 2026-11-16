@@ -695,6 +695,11 @@ body {
   background-color: #ddd;
 }
 
+/* Outer margins of the centered student column (and any full-width gaps): matches the dark frame when the dark theme is on. */
+body[data-admin-theme="dark"] {
+  background-color: #020617;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

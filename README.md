@@ -1,70 +1,69 @@
-# SpotWise 📍
+# SpotWise
 
 > **Focus starts with the right place.**
 
-SpotWise is a frontend-only study-space discovery application for students and university teams. Students can discover, compare, save, and review study locations, while University Admins and Super Admins can explore mock management dashboards.
+SpotWise is a study-space discovery application for students and university teams. Students can discover, compare, save, and review study locations, while University Admins and Super Admins manage locations, reviews and registration requests.
 
-The interface is built from the SpotWise Figma design and currently uses local mock data. It is intended for UI development, interaction testing, and product demonstrations—not production authentication or live campus availability.
+The frontend is a Next.js app backed by an Express + PostgreSQL backend. All screens derive their data from the database — there is no mock data in the frontend (see `AGENTS.md` for per-feature details).
 
-## ✨ Product Highlights
+## Product Highlights
 
-### 🎓 Student experience
+### Student experience
 
 - Welcome screen with role selection
-- University selection with searchable university cards
+- University selection with searchable, DB-backed university cards (active universities only, with live location counts)
 - Student onboarding form with selected-university state
 - Discover page with:
-  - 20 catalog-driven study spots
-  - Search by name, category, area, and description
+  - All seeded DB locations, searched client-side
+  - Search by name, building, faculty, amenity, and description
   - Amenity and status filter chips
   - Result counts and empty states
-  - Spot-specific local images
   - Ratings, review counts, opening hours, amenities, and last-updated metadata
 - Spot detail pages with:
   - Location information and image gallery
-  - Current status for seats, Wi-Fi, and crowd level
+  - Current status for seats, Wi-Fi, crowd level, and noise
   - Progressive status indicators
-  - Seeded mock reviews
+  - Reviews and ratings backed by the API
   - Add Review modal with required comments and ratings
   - Save, share, and report actions
-- Saved places page synchronized with Discover and detail-page bookmarks
+- Saved places page synchronized with Discover and detail-page bookmarks via `/api/saved`
 - Profile page with:
-  - Editable name and location
-  - Mock profile-photo upload and removal
-  - Study-style, noise-level, and study-type preferences
-  - Reversible amenity selection
+  - Editable name and location, persisted via `/api/users/me`
+  - Profile-photo upload and removal, persisted via `/api/users/me/profile-image`
+  - Study-style, noise-level, and study-type preferences persisted to the DB
+  - Reversible amenity selection persisted to the DB
   - Sign-out confirmation dialog
 
-### 🏫 University Admin experience
+### University Admin experience
 
-- Mock sign-in flow with university-admin credentials
-- Login page includes a back-to-welcome navigation option for returning to the first page
-- Dashboard summary cards
-- Location listing, detail, add, and edit screens
-- Comment moderation actions
-- Profile editing
-- Option management screen for controlling student-facing filter and choice lists
+- Sign-in against the Express API with university-admin credentials
+- Dashboard with live stats (locations, average rating, reviews, quiet spaces)
+- Location listing, detail, add, edit, and deactivate screens (scoped to your university)
+- Review moderation (hide/show)
+- Profile editing with photo upload
+- Option management screen for controlling student-facing report choice lists
 
-### 🛡️ Super Admin experience
+### Super Admin experience
 
-- Platform dashboard
+- Platform dashboard (universities, admins, pending requests, locations, reviews)
 - University management
 - University-admin management
-- Registration-request review flow
-- Platform-wide locations and comments
+- Registration-request review flow (approve issues a one-time temporary password)
+- Platform-wide locations and reviews
 - Profile and confirmation screens
 
-## 🧭 Routes
+## Routes
 
 ### Public and onboarding routes
 
 | Route | Purpose |
 |---|---|
 | `/` | Welcome and role selection |
-| `/student/login` | Student mock login |
+| `/student/login` | Student OTP login |
 | `/student/verify` | OTP verification screen |
 | `/student/select-university` | Search and select a university |
 | `/student/info` | Complete student onboarding details |
+| `/university-admin/register` | Public university-admin registration request |
 
 ### Student routes
 
@@ -74,7 +73,7 @@ The interface is built from the SpotWise Figma design and currently uses local m
 | `/student/results/[id]` | Spot details, status, reviews, and actions |
 | `/student/saved` | Saved study places |
 | `/student/profile` | Profile, preferences, amenities, and sign out |
-| `/student/rate` | Report a spot’s current status |
+| `/student/rate` | Report a spot's current status |
 | `/student/review` | Review a pending status report |
 | `/student/result` | Status-report confirmation |
 
@@ -82,13 +81,14 @@ The interface is built from the SpotWise Figma design and currently uses local m
 
 | Route | Purpose |
 |---|---|
-| `/university-admin/login` | Mock admin login |
+| `/university-admin/login` | Admin login |
 | `/university-admin/dashboard` | University overview |
 | `/university-admin/locations` | Manage university locations |
 | `/university-admin/locations/new` | Add a location |
 | `/university-admin/locations/[id]` | View location details |
 | `/university-admin/locations/[id]/edit` | Edit a location |
-| `/university-admin/comments` | Moderate comments |
+| `/university-admin/reviews` | Moderate reviews |
+| `/university-admin/settings/options` | Manage student-facing report choice lists |
 | `/university-admin/profile` | Admin profile |
 
 ### Super Admin routes
@@ -98,65 +98,16 @@ The interface is built from the SpotWise Figma design and currently uses local m
 | `/super-admin/dashboard` | Platform overview |
 | `/super-admin/universities` | Manage universities |
 | `/super-admin/admins` | Manage university admins |
+| `/super-admin/admins/[id]` | University-admin detail |
 | `/super-admin/requests` | Review registration requests |
 | `/super-admin/requests/[id]` | View request details |
 | `/super-admin/locations` | Platform-wide locations |
-| `/super-admin/comments` | Platform-wide comment moderation |
+| `/super-admin/locations/[id]` | Location detail and review moderation |
+| `/super-admin/reviews` | Platform-wide review moderation |
 | `/super-admin/profile` | Super Admin profile |
-| `/super-admin/confirmation` | Confirmation state |
+| `/super-admin/confirmation` | Approval/rejection confirmation state |
 
-## 📊 Mock Status Model
-
-Every study spot has a combination of the following status values:
-
-- **Seats available:** `Yes`, `No`, `Unsure`
-- **Wi-Fi strength:** `Strong`, `Medium`, `Weak`
-- **Crowd level:** `Low`, `Medium`, `High`
-
-The detail-page status bars are filled progressively from these values. Each catalog entry also includes a varied rating, review count, amenities, hours, description, images, source URL, and last-updated timestamp.
-
-## 🔍 Discover Filtering
-
-Discover filtering is client-side and combines search with one selected filter chip:
-
-- Search matches the spot name, category, area, or description.
-- **Quiet** matches quiet or silent study spaces.
-- **Seats available** matches spots whose seat status is `Yes`.
-- Amenity filters match normalized amenity names.
-- Clicking the active chip clears the filter.
-- No chip is selected by default.
-- The filter row is keyboard accessible and horizontally scrollable on narrow screens.
-
-## 💬 Reviews and Notifications
-
-- Spot reviews are seeded from mock catalog data.
-- Submitted reviews are stored in memory by spot slug.
-- Review comments are mandatory and whitespace-only comments are rejected.
-- Ratings begin unselected and must be chosen before submission.
-- Successful actions close the Add Review modal when appropriate.
-- Toast notifications provide feedback for saves, reviews, profile changes, reports, and validation results.
-- Only one toast is visible at a time; a newer notification replaces older ones.
-
-## 🧠 State and Data
-
-The app uses lightweight client-side state:
-
-- `useSavedStore` — saved spot slugs shared across Discover, Saved, and detail pages
-- `useProfileStore` — profile fields, photo, preferences, and amenities
-- `useReviewStore` — submitted reviews grouped by spot slug
-- `useReportStore` — current-status report draft
-- `useOnboardingStore` — selected university during onboarding
-- `useAuthStore` — mock selected role/auth flow
-
-The canonical study-space catalog lives in:
-
-```text
-src/mocks/data/study-spots.ts
-```
-
-Detail-page data is derived from that catalog so Discover cards, Saved cards, and spot detail pages stay consistent.
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Next.js 16** — App Router and route-based page structure
 - **React 19** — UI components and client interactions
@@ -164,24 +115,39 @@ Detail-page data is derived from that catalog so Discover cards, Saved cards, an
 - **Tailwind CSS 4** — utility-first styling
 - **shadcn/ui and Base UI** — reusable accessible primitives
 - **Lucide React** — interface icons
-- **Zustand** — shared client state
-- **TanStack Query** — mock service/query patterns
+- **Zustand** — shared client state (auth session, profile cache, report draft, onboarding)
+- **TanStack Query** — server-state fetching and cache invalidation
 - **Zod** — form validation
 - **react-hot-toast** — action feedback
+- **Express + Drizzle + PostgreSQL** — backend API (`server/`)
 - **Geologica and Inter** — interface typography
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Requirements
 
-- Node.js compatible with the project’s Next.js 16 setup
+- Node.js compatible with the project's Next.js 16 setup
 - npm
+- PostgreSQL (for the backend)
 
 ### Install dependencies
 
 ```bash
 npm install
+cd server && npm install
 ```
+
+### Backend (Express + PostgreSQL + Drizzle)
+
+```bash
+cd server
+npm run db:create   # creates the `studyspot` database (once)
+npm run db:migrate  # applies migrations from drizzle/
+npm run db:seed     # seeds universities, admins, locations, reviews, requests, OTPs
+npm run dev         # API on http://localhost:4000 (all routes under /api/*)
+```
+
+Seeded credentials: `superadmin@spotwise.lk` / `admin123`, `amal.perera@uom.lk` / `admin123`, student `mohamed.25@uom.lk` (sign in via the email OTP screen — in development the API returns `devCode` in the response, shown as a toast since no email provider is configured yet). The frontend expects the backend at `http://localhost:4000/api` (set `NEXT_PUBLIC_API_URL` in `.env.local` to override).
 
 ### Start the development server
 
@@ -189,7 +155,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in a browser.
+Open [http://localhost:3001](http://localhost:3001) in a browser. The backend must be running for authenticated routes.
 
 ### Run a production build locally
 
@@ -198,15 +164,16 @@ npm run build
 npm run start
 ```
 
-## ✅ Validation Commands
+## Validation Commands
 
 | Command | Description |
 |---|---|
 | `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript without emitting files |
+| `npx tsc --noEmit` | Run TypeScript without emitting files |
 | `npm run build` | Create a production build |
+| `cd server && npx tsc --noEmit` | Backend typecheck |
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```text
 src/
@@ -219,56 +186,46 @@ src/
 │   ├── shared/                  # Shared application components
 │   └── ui/                      # Reusable UI primitives
 ├── features/
-│   └── student/                 # Student components, schemas, and types
-├── mocks/data/                  # Catalogs and seeded mock data
-├── services/                    # Mock service abstractions
+│   ├── student/                 # Student components, schemas, and types
+│   └── university-admin/        # University Admin components
+├── hooks/                       # Shared hooks (e.g. use-saved-places)
+├── lib/                         # Utilities and shared helpers
+├── services/                    # Typed API clients (student, university-admin, super-admin)
 ├── stores/                      # Zustand stores
 └── types/                       # Shared TypeScript types
 
 public/assets/                   # Local Figma exports and image assets
 docs/                            # Research, specifications, and plans
+server/                          # Express + Drizzle + PostgreSQL backend
 ```
 
-## 🎨 Design System
+## Design System
 
 The primary visual language follows the SpotWise Figma file:
 
 - Primary orange: `#f97316`
-- Page background: `#fbfbfc`
+- Content background: `#E2E8F0`
 - Card border: `#e2e8f0`
 - Primary text: `#0f172a`
 - Secondary text: `#334155`
 - Muted text: `#64748b`
-- Inactive chips: `#dddddd`
 - Filled rating stars: `#f59e0b`
 - Font: Geologica for product UI, Inter where required for form body text
 
 Design source: [SpotWise UI in Figma](https://www.figma.com/design/epLSve0mD6JRLEuoHnSFZ3/SpotWise-UI)
 
-## ⚠️ Scope and Limitations
+## Scope and Limitations
 
-This repository intentionally contains a frontend-only mock implementation:
-
-- No backend API
-- No database
-- No Supabase, Drizzle, or server persistence
-- No real authentication or authorization
-- No live campus occupancy or Wi-Fi data
-- Profile photos, saved spots, preferences, reviews, and reports reset when the page is reloaded
+- No email provider yet — OTP delivery is simulated in development (`devCode` returned by the API and shown in the UI)
+- Registration approval issues a one-time temporary password shown to the approver; no email delivery of credentials yet
+- No live campus occupancy or Wi-Fi sensors — "current status" is the latest student report, cached inline on each location
+- Photos are stored as data URLs in the database (no object storage)
 - External integrations and production secrets are not required
 
-## 📌 Development Notes
+## Project Status
 
-- Server Components are preferred; client components are used only for interactive state.
-- Keep shared UI in `src/components/` and role-specific UI in `src/features/`.
-- Add new study spots to the central catalog rather than duplicating data in individual pages.
-- Use local assets from `public/assets/` for predictable image rendering.
-- Preserve accessible labels, keyboard interaction, focus indicators, and semantic controls when extending the UI.
-
-## 🔒 Project Status
-
-SpotWise is a private project and is currently focused on frontend prototyping and visual validation.
+SpotWise is a private project focused on the SpotWise product for Sri Lankan university campuses.
 
 ---
 
-Made for better study spaces. 🧡
+Made for better study spaces.

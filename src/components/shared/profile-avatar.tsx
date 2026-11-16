@@ -43,7 +43,7 @@ export function ProfileAvatar({
         <img alt="" className="size-full object-cover" src={imageUrl} />
       ) : (
         <p aria-hidden="true" className={cn("font-semibold text-white", textClassName)}>
-          {getInitials(name)}
+          {getInitials(name) || "?"}
         </p>
       )}
     </div>

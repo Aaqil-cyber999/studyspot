@@ -7,16 +7,19 @@ import { useThemeStore } from "@/stores/theme-store";
 interface SettingsCardProps {
   notificationsTitle?: string;
   notificationsDescription?: string;
+  /** Hide the notification tile entirely (used on the student profile). */
+  showNotifications?: boolean;
 }
 
 /**
  * Shared Settings card used by the university-admin and student profile tabs:
  * one Appearance row (light/dark toggle, wired to the shared theme store) and
- * one notification row (in-memory mock).
+ * one notification row (in-memory mock), which can be hidden.
  */
 export function SettingsCard({
   notificationsTitle = "Admin notifications",
   notificationsDescription = "Updates about reports and comments",
+  showNotifications = true,
 }: SettingsCardProps) {
   const isDark = useThemeStore((state) => state.isDark);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
@@ -46,24 +49,26 @@ export function SettingsCard({
             {isDark ? "Light" : "Dark"}
           </button>
         </PreferenceRow>
-        <PreferenceRow
-          icon={<Bell className="size-4" />}
-          title={notificationsTitle}
-          description={notificationsDescription}
-        >
-          <button
-            type="button"
-            role="switch"
-            aria-checked={notifications}
-            aria-label={notificationsTitle}
-            onClick={() => setNotifications((value) => !value)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${notifications ? "bg-orange-500" : "bg-slate-300"}`}
+        {showNotifications ? (
+          <PreferenceRow
+            icon={<Bell className="size-4" />}
+            title={notificationsTitle}
+            description={notificationsDescription}
           >
-            <span
-              className={`student-keep-light absolute top-1 size-4 rounded-full bg-white transition ${notifications ? "left-6" : "left-1"}`}
-            />
-          </button>
-        </PreferenceRow>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={notifications}
+              aria-label={notificationsTitle}
+              onClick={() => setNotifications((value) => !value)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${notifications ? "bg-orange-500" : "bg-slate-300"}`}
+            >
+              <span
+                className={`student-keep-light absolute top-1 size-4 rounded-full bg-white transition ${notifications ? "left-6" : "left-1"}`}
+              />
+            </button>
+          </PreferenceRow>
+        ) : null}
       </div>
     </section>
   );
