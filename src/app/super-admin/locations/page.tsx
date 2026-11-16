@@ -1,53 +1,176 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { Star } from "lucide-react";
-import { getSaLocations } from "@/services/super-admin";
+import { MapPin, Search, Star, MessageSquare, ShieldCheck } from "lucide-react";
+import toast from "react-hot-toast";
+import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { saLocationDetails } from "@/mocks/data/sa-location-details";
+
+type StatusFilter = "All" | "Active" | "Inactive";
 
 export default function SaLocationsPage() {
-  const { data: locations = [] } = useQuery({
-    queryKey: ["sa", "locations"],
-    queryFn: getSaLocations,
-  });
+  const locations = useSuperAdminStore((state) => state.locations);
+  const toggleLocationStatus = useSuperAdminStore((state) => state.toggleLocationStatus);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredLocations = useMemo(
+    () =>
+      locations.filter((location) => {
+        const detail = saLocationDetails[location.id];
+        const matchesQuery =
+          !normalizedQuery ||
+          `${location.name} ${location.university} ${detail?.building ?? ""}`.toLowerCase().includes(normalizedQuery);
+        const matchesStatus = statusFilter === "All" || location.status === statusFilter;
+        return matchesQuery && matchesStatus;
+      }),
+    [locations, normalizedQuery, statusFilter],
+  );
+
+  const activeCount = locations.filter((location) => location.status === "Active").length;
+
+  function toggleStatus(id: string, name: string, status: string) {
+    toggleLocationStatus(id);
+    toast.success(status === "Active" ? `${name} deactivated` : `${name} activated`);
+  }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
-      <header className="px-6 pb-4 pt-[16px]">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Locations</h1>
-            <p className="mt-1 text-xs text-[#64748b]">{locations.length} locations</p>
-          </div>
-        </div>
+    <div className="flex min-h-screen flex-col bg-[#E2E8F0] px-4 sm:px-6">
+      <header className="pb-4 pt-[16px]">
+        <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Locations</h1>
+        <p className="mt-1 text-xs text-[#64748b]">
+          {locations.length} locations · {activeCount} active
+        </p>
       </header>
 
-      <div className="pb-4">
-        <div className="space-y-[12px]">
-          {locations.length === 0 ? (
-            <div className="rounded-[20px] border border-[#e2e8f0] bg-white p-16 text-center">
-              <p className="text-sm font-medium text-[#0f172a]">No locations yet</p>
-              <p className="mt-1 text-[13px] text-[#64748b]">Study spaces added by universities appear here.</p>
-            </div>
-          ) : (
-            locations.map((l) => (
-              <div key={l.id} className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
-                <Link href={`/super-admin/locations/${l.id}`} className="block">
-                  <div className="flex items-center justify-between p-[16px]">
-                    <div>
-                      <p className="text-[16px] font-semibold text-[#0f172a]">{l.name}</p>
-                      <p className="mt-1 text-[13px] text-[#64748b]">{l.university}</p>
-                    </div>
-                    <div className="flex items-center gap-2 text-[12px] text-[#64748b]">
-                      <Star className="size-3 text-[#f59e0b]" aria-hidden="true" />
-                      <span>{l.rating}</span>
+      <div>
+        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+          <Search className="size-[18px] shrink-0 text-slate-400" aria-hidden="true" />
+          <span className="sr-only">Search locations</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by name, university or building"
+            className="min-w-0 flex-1 bg-white text-sm outline-none placeholder:text-slate-400"
+          />
+        </label>
+
+        <div className="mt-3 flex gap-2 pb-1" role="group" aria-label="Filter locations by status">
+          {(["All", "Active", "Inactive"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={statusFilter === option}
+              onClick={() => setStatusFilter(option)}
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316] ${
+                statusFilter === option
+                  ? "bg-orange-500 text-white"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-[#fafafa]"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col pb-4 pt-3">
+        {filteredLocations.length === 0 ? (
+          <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+            <span className="flex size-16 items-center justify-center rounded-full bg-[#ffdbca] text-[#f97316]">
+              <MapPin className="size-7" aria-hidden="true" />
+            </span>
+            <p className="mt-4 text-sm font-medium text-[#0f172a]">No locations found</p>
+            <p className="mt-1 text-[13px] text-[#64748b]">
+              {normalizedQuery ? "Try a different name or clear the search." : `No ${statusFilter.toLowerCase()} locations.`}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-[12px]">
+            {filteredLocations.map((location) => {
+              const detail = saLocationDetails[location.id];
+              const open = detail?.hours.isOpen ?? true;
+
+              return (
+              <div
+                key={location.id}
+                className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]"
+              >
+                <div className="flex items-stretch gap-4 p-[14px]">
+                  {detail ? (
+                    <Link
+                      href={`/super-admin/locations/${location.id}`}
+                      aria-label={`View ${location.name}`}
+                      className="shrink-0 self-center rounded-[16px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={detail.image}
+                        alt=""
+                        className="size-20 rounded-[16px] object-cover sm:size-24"
+                      />
+                    </Link>
+                  ) : null}
+                  <div className="flex min-w-0 flex-1 flex-col justify-center">
+                    <Link
+                      href={`/super-admin/locations/${location.id}`}
+                      className="min-w-0 rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
+                    >
+                      <p className="truncate text-[16px] font-semibold leading-5 text-[#0f172a]">{location.name}</p>
+                      <p className="mt-1 flex items-center gap-1.5 text-[12px] leading-4 text-[#64748b]">
+                        <MapPin className="size-3.5 shrink-0 text-[#f97316]" aria-hidden="true" />
+                        <span className="min-w-0 truncate">
+                          {location.university}
+                          {detail ? <> · <span className="text-[#94a3b8]">{detail.building}</span></> : null}
+                        </span>
+                      </p>
+                    </Link>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] leading-4 text-[#64748b]">
+                      <span className="flex items-center gap-1" aria-label={`Rating ${location.rating.toFixed(1)} out of 5`}>
+                        <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
+                        <span className="font-semibold tabular-nums text-[#0f172a]">{location.rating.toFixed(1)}</span>
+                      </span>
+                      <span className="flex items-center gap-1" aria-label={`${location.reviews} reviews`}>
+                        <MessageSquare className="size-3.5 text-[#94a3b8]" aria-hidden="true" />
+                        <span className="tabular-nums">{location.reviews} reviews</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className={`size-2 rounded-full ${open ? "bg-[#10b981]" : "bg-[#ef4444]"}`} aria-hidden="true" />
+                        <span className={open ? "text-[#077857]" : "text-[#b91c1c]"}>{open ? "Open now" : "Closed"}</span>
+                      </span>
+                      {detail?.staffMonitored ? (
+                        <span className="flex items-center gap-1.5 text-[#15803d]">
+                          <ShieldCheck className="size-3.5" aria-hidden="true" />
+                          Staffed
+                        </span>
+                      ) : null}
                     </div>
                   </div>
-                </Link>
+                  <div className="flex shrink-0 flex-col items-end justify-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${
+                        location.status === "Active" ? "bg-[#f0fdf4] text-[#15803d]" : "bg-[#f1f5f9] text-[#475569]"
+                      }`}
+                    >
+                      <span className={`size-2 rounded-full ${location.status === "Active" ? "bg-[#15803d]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
+                      {location.status}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleStatus(location.id, location.name, location.status)}
+                      className="rounded-full border border-[#e2e8f0] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#334155] transition hover:border-[#fed7aa] hover:text-[#c2410c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
+                    >
+                      {location.status === "Active" ? "Deactivate" : "Activate"}
+                    </button>
+                  </div>
+                </div>
               </div>
-            ))
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

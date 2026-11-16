@@ -30,7 +30,7 @@ export interface University {
   name: string;
   admin?: string;
   locations: number;
-  status: "Active" | "Pending";
+  status: "Active" | "Pending" | "Inactive";
 }
 
 export interface UniversityAdmin {
@@ -41,12 +41,16 @@ export interface UniversityAdmin {
   status: "Active" | "Inactive";
 }
 
+// Mirrors the university-admin registration form (/university-admin/register):
+// Title, Name, University, Email, optional Note. The password the applicant
+// submits is never exposed — it isn't stored on the request.
 export interface RegistrationRequest {
   id: string;
+  title: string;
+  name: string;
   university: string;
-  applicant: string;
   email: string;
+  note?: string;
   submittedAt: string;
   status: "Pending" | "Approved" | "Rejected";
-  details?: string;
 }

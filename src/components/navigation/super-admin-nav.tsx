@@ -13,7 +13,7 @@ const navItems = [
   { href: "/super-admin/admins", label: "Admins", icon: Users },
   { href: "/super-admin/requests", label: "Requests", icon: Inbox },
   { href: "/super-admin/locations", label: "Locations", icon: MapPin },
-  { href: "/super-admin/comments", label: "Comments", icon: MessageSquare },
+  { href: "/super-admin/reviews", label: "Reviews", icon: MessageSquare },
   { href: "/super-admin/profile", label: "Profile", icon: User },
 ];
 
@@ -81,12 +81,12 @@ export function SuperAdminNav() {
           </div>
 
           {profileMenuOpen && (
-            <div ref={profileMenuRef} className="absolute right-0 w-[200px] bottom-full mb-2 p-3 bg-[#000000] border border-[#334155] rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-[60]">
+            <div ref={profileMenuRef} className="absolute left-3 right-3 bottom-full mb-2 p-3 bg-[#000000] border border-[#334155] rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-[60]">
               <div className="px-3 pb-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Account</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Account</p>
                 <p className="text-sm text-[#d1d5db] mb-3">Signed in as Super Admin</p>
               </div>
-              <Link href="/super-admin/login" onClick={handleSignOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#f97316] hover:bg-[#111827] transition w-full justify-center">
+              <Link href="/super-admin/login" onClick={handleSignOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#111827] text-sm font-medium text-[#f97316] hover:bg-[#1f2937] transition w-full justify-center">
                 <LogOut className="size-4" aria-hidden="true" />
                 Sign out
               </Link>
@@ -141,12 +141,12 @@ export function SuperAdminNav() {
             </div>
 
             {profileMenuOpen && (
-              <div className="absolute right-0 w-[200px] bottom-full mb-1 p-3 bg-[#000000] border border-[#334155] rounded-xl shadow-[0_10px_32px_rgba(0,0,0,0.4)] z-50">
+              <div className="absolute left-3 right-3 bottom-full mb-1 p-3 bg-[#000000] border border-[#334155] rounded-xl shadow-[0_10px_32px_rgba(0,0,0,0.4)] z-50">
                 <div className="px-3 pb-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Account</p>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Account</p>
                   <p className="text-sm text-[#d1d5db] mb-3">Signed in as Super Admin</p>
                 </div>
-                <Link href="/super-admin/login" onClick={handleSignOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#f97316] hover:bg-[#111827] transition w-full justify-center">
+                <Link href="/super-admin/login" onClick={handleSignOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#111827] text-sm font-medium text-[#f97316] hover:bg-[#1f2937] transition w-full justify-center">
                   <LogOut className="size-4" aria-hidden="true" />
                   Sign out
                 </Link>

@@ -1,38 +1,38 @@
-import {
-  saDashboard,
-  saComments,
-  saLocations,
-  saProfile,
-  registrationRequests,
-  universities,
-  universityAdmins,
-} from "@/mocks/data/super-admin";
+import { saProfile } from "@/mocks/data/super-admin";
+import { useSuperAdminStore } from "@/stores/super-admin-store";
 
 const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getSaDashboard() {
   await delay();
-  return saDashboard;
+  const { universities, admins, requests, locations } = useSuperAdminStore.getState();
+
+  return {
+    universities: universities.length,
+    admins: admins.length,
+    requests: requests.filter((request) => request.status === "Pending").length,
+    locations: locations.length,
+  };
 }
 
 export async function getUniversities() {
   await delay();
-  return universities;
+  return useSuperAdminStore.getState().universities;
 }
 
 export async function getUniversityAdmins() {
   await delay();
-  return universityAdmins;
+  return useSuperAdminStore.getState().admins;
 }
 
 export async function getRegistrationRequests() {
   await delay();
-  return registrationRequests;
+  return useSuperAdminStore.getState().requests;
 }
 
 export async function getSaComments() {
   await delay();
-  return saComments;
+  return useSuperAdminStore.getState().comments;
 }
 
 export async function getSaProfile() {
@@ -42,5 +42,5 @@ export async function getSaProfile() {
 
 export async function getSaLocations() {
   await delay();
-  return saLocations;
+  return useSuperAdminStore.getState().locations;
 }

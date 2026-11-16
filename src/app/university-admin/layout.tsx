@@ -18,15 +18,22 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   const isLogin = pathname === "/university-admin/login";
   const isRegister = pathname === "/university-admin/register";
 
-  // Redirect unauthenticated users to login (except when on login page itself)
+  // Login and registration are public; everything else requires the university-admin role.
+  const isPublic = isLogin || isRegister;
+
   useEffect(() => {
-    if (hasHydrated && !isLogin && role !== "university-admin") {
+    if (hasHydrated && !isPublic && role !== "university-admin") {
       router.replace("/university-admin/login");
     }
-  }, [hasHydrated, role, router, isLogin]);
+  }, [hasHydrated, role, router, isPublic]);
 
-  // Wait until auth store is hydrated and role is correct
-  if (!hasHydrated || role !== "university-admin") {
+  // Wait until auth store is hydrated
+  if (!hasHydrated) {
+    return null;
+  }
+
+  // Hold the redirect above; render nothing until the role is correct
+  if (!isPublic && role !== "university-admin") {
     return null;
   }
 

@@ -2,53 +2,304 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, MapPin } from "lucide-react";
-import { getSaLocations } from "@/services/super-admin";
+import { useMemo, useState } from "react";
+import { ArrowLeft, Building2, Camera, ChevronRight, Clock, Eye, EyeOff, GraduationCap, Hash, MapPin, MessageSquare, ShieldCheck, ShieldOff, Star, User } from "lucide-react";
+import toast from "react-hot-toast";
+import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
+import { CurrentStatusSection } from "@/features/student/components/spot-detail/current-status-section";
+import { AmenitiesSection } from "@/features/student/components/spot-detail/amenities-section";
+import { OperatingHoursCard } from "@/features/student/components/spot-detail/operating-hours-card";
+import { useSuperAdminStore } from "@/stores/super-admin-store";
+import { saLocationDetails } from "@/mocks/data/sa-location-details";
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(-2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span className="flex items-center gap-0.5" aria-label={`${Math.round(rating)} out of 5 stars`}>
+      {[...Array(5)].map((_, index) => (
+        <Star key={index} className={`size-3 ${index < Math.round(rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#e2e8f0] text-[#e2e8f0]"}`} aria-hidden="true" />
+      ))}
+      <span className="ml-1.5 text-[10px] font-semibold tabular-nums text-[#64748b]">{rating.toFixed(1)}</span>
+    </span>
+  );
+}
+
+function OverviewRow({ icon: Icon, label, children }: { icon: typeof MapPin; label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 border-b border-slate-100 py-3 last:border-b-0">
+      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[#fff7ed] text-[#f97316]" aria-hidden="true">
+        <Icon className="size-4" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#94a3b8]">{label}</p>
+        <div className="mt-0.5 break-words text-[14px] leading-6 text-[#0f172a]">{children}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function SaLocationDetailsPage() {
   const params = useParams<{ id: string }>();
-  const { data: locations = [] } = useQuery({ queryKey: ["sa", "locations"], queryFn: getSaLocations });
-  const location = locations.find((l) => l.id === params.id);
+  const locations = useSuperAdminStore((state) => state.locations);
+  const allComments = useSuperAdminStore((state) => state.comments);
+  const toggleLocationStatus = useSuperAdminStore((state) => state.toggleLocationStatus);
+  const moderateComment = useSuperAdminStore((state) => state.moderateComment);
+  const [target, setTarget] = useState<{ id: string; name: string; status: string } | null>(null);
+  // Mirror the last opened target so the closing frame doesn't flash empty content.
+  const [shown, setShown] = useState(target);
+  const [hideTarget, setHideTarget] = useState<{ id: string; author: string } | null>(null);
+  // Mirror the last hide target for the same exit-frame reason.
+  const [shownHide, setShownHide] = useState(hideTarget);
 
-  if (!location) {
+  const location = locations.find((item) => item.id === params.id);
+  const detail = saLocationDetails[params.id];
+  const comments = useMemo(() => allComments.filter((item) => item.locationId === params.id), [allComments, params.id]);
+
+  if (!location || !detail) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fbfbfc] px-4 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#E2E8F0] px-4 text-center">
         <div>
           <p className="text-sm text-slate-500">This location could not be found.</p>
-          <Link href="/super-admin/locations" className="mt-3 inline-block text-sm font-semibold text-orange-600">Back to locations</Link>
+          <Link href="/super-admin/locations" className="mt-3 inline-block text-sm font-semibold text-orange-600">
+            Back to locations
+          </Link>
         </div>
       </div>
     );
   }
 
+  const currentLocation = location;
+  const active = currentLocation.status === "Active";
+
+  function openDialog(next: NonNullable<typeof target>) {
+    setTarget(next);
+    setShown(next);
+  }
+
+  function confirmStatusChange() {
+    if (!target) return;
+    toggleLocationStatus(target.id);
+    toast.success(target.status === "Active" ? `${target.name} deactivated` : `${target.name} activated`);
+    setTarget(null);
+  }
+
+  function confirmHideReview() {
+    if (!hideTarget) return;
+    moderateComment(hideTarget.id, "Hidden");
+    toast.success("Review hidden");
+    setHideTarget(null);
+  }
+
+  function openHideDialog(review: { id: string; author: string }) {
+    setHideTarget(review);
+    setShownHide(review);
+  }
+
+  function showReview(commentId: string) {
+    moderateComment(commentId, "Visible");
+    toast.success("Review shown");
+  }
+
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
-      <header className="px-6 flex items-center gap-3 pb-2 pt-0">
-        <Link
-          href="/super-admin/locations"
-          aria-label="Back to locations"
-          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
-        >
+    <div className="min-h-screen bg-[#E2E8F0] px-4 sm:px-6">
+      <header className="flex items-center gap-3 pb-2 pt-[16px]">
+        <Link href="/super-admin/locations" aria-label="Back to locations" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]">
           <ArrowLeft className="size-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-orange-600">Location details</p>
-          <h1 className="truncate text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">{location.name}</h1>
+          <h1 className="truncate text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">{currentLocation.name}</h1>
         </div>
+        <span className={`inline-flex shrink-0 items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${active ? "bg-[#f0fdf4] text-[#15803d]" : "bg-[#f1f5f9] text-[#475569]"}`}>
+          <span className={`size-2 rounded-full ${active ? "bg-[#15803d]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
+          {currentLocation.status}
+        </span>
       </header>
 
-      <div className="space-y-4 pb-4">
-        <section className="rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.04)] p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-[#0f172a]">University</p>
-              <p className="mt-1 text-sm text-[#64748b]">{location.university}</p>
+      <div className="grid grid-cols-1 items-start gap-5 pb-6 pt-2 xl:grid-cols-[minmax(0,1fr)_450px]">
+        {/* Main column */}
+        <div className="space-y-5">
+          {/* Hero + about */}
+          <section aria-labelledby="location-name" className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
+            <div className="relative w-full overflow-hidden bg-[#f8fafc]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={detail.image} alt={`Study space at ${currentLocation.name}`} className="h-52 w-full object-cover sm:h-64" />
+              <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white">
+                <Camera className="size-3.5" aria-hidden="true" />
+                {detail.photoCount} photos
+              </span>
             </div>
-            <MapPin className="size-4 text-orange-500" />
-          </div>
-        </section>
+            <div className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 id="location-name" className="text-[20px] font-bold leading-6 text-[#0f172a]">
+                    {currentLocation.name}
+                  </h2>
+                  <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-[#64748b]">
+                    <MapPin className="size-3.5 shrink-0 text-[#f97316]" aria-hidden="true" />
+                    <span className="min-w-0 truncate">
+                      {currentLocation.university} · {detail.building}
+                    </span>
+                  </p>
+                </div>
+                {detail.staffMonitored && (
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#f0fdf4] px-3 py-1.5 text-[11px] font-medium text-[#15803d]">
+                    <ShieldCheck className="size-3.5" aria-hidden="true" />
+                    Staff monitored
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 text-[14px] leading-6 text-[#334155]">{detail.description}</p>
+            </div>
+          </section>
+
+          {/* Operating hours */}
+          <OperatingHoursCard hours={detail.hours} />
+
+          {/* Live metrics */}
+          <CurrentStatusSection metrics={detail.metrics} lastUpdated={detail.lastUpdated} showReportButton={false} />
+
+          {/* Amenities */}
+          <AmenitiesSection amenities={detail.amenities} />
+
+          {/* Recent reviews for this location */}
+          <section aria-labelledby="location-reviews-heading" className="rounded-[20px] border border-[#e2e8f0] bg-white p-5 shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h2 id="location-reviews-heading" className="text-[16px] font-semibold text-[#0f172a]">
+                  Recent reviews
+                </h2>
+                <p className="mt-0.5 text-[12px] text-[#64748b]">Students&rsquo; reviews for this location</p>
+              </div>
+              <span className="shrink-0 rounded-full bg-[#fff7ed] px-3 py-1.5 text-[11px] font-semibold tabular-nums text-[#c2410c]">{currentLocation.reviews} total</span>
+            </div>
+
+            {comments.length === 0 ? (
+              <div className="flex flex-col items-center px-6 py-10 text-center">
+                <span className="flex size-14 items-center justify-center rounded-full bg-[#ffdbca] text-[#f97316]">
+                  <MessageSquare className="size-6" aria-hidden="true" />
+                </span>
+                <p className="mt-4 text-sm font-medium text-[#0f172a]">No reviews yet</p>
+                <p className="mt-1 text-[13px] text-[#64748b]">Reviews students leave for this location will appear here.</p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {comments.map((comment) => (
+                  <li key={comment.id} className={`py-4 first:pt-4 last:pb-1 ${comment.status === "Hidden" ? "opacity-70" : ""}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-[11px] font-bold text-white" aria-hidden="true">
+                        {initials(comment.author)}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-[13px] font-semibold text-[#0f172a]">{comment.author}</p>
+                          <span className="shrink-0 text-[11px] text-[#94a3b8]">{comment.createdAt}</span>
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-2">
+                          <Stars rating={comment.rating} />
+                          {comment.status === "Hidden" && <span className="rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#475569]">Hidden</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-700">&ldquo;{comment.text}&rdquo;</p>
+                    <div className="mt-3 flex items-center justify-end">
+                      <button type="button" onClick={() => (comment.status === "Visible" ? openHideDialog({ id: comment.id, author: comment.author }) : showReview(comment.id))} className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 ${comment.status === "Visible" ? "text-red-600 hover:bg-red-50" : "text-orange-600 hover:bg-orange-50"}`}>
+                        {comment.status === "Visible" ? (
+                          <>
+                            <EyeOff className="size-3.5" aria-hidden="true" /> Hide review
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="size-3.5" aria-hidden="true" /> Show review
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-5">
+          {/* Overview */}
+          <section aria-labelledby="location-overview-heading" className="rounded-[20px] border border-[#e2e8f0] bg-white p-5 shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
+            <h2 id="location-overview-heading" className="text-[15px] font-semibold text-[#0f172a]">
+              Overview
+            </h2>
+
+            <div className="mt-4 flex items-center gap-5">
+              <p className="text-[44px] font-bold leading-none tabular-nums text-[#0f172a]">{currentLocation.rating.toFixed(1)}</p>
+              <div className="min-w-0">
+                <span className="flex items-center gap-0.5" aria-label={`${Math.round(currentLocation.rating)} out of 5 stars`}>
+                  {[...Array(5)].map((_, index) => (
+                    <Star key={index} className={`size-5 ${index < Math.round(currentLocation.rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#e2e8f0] text-[#e2e8f0]"}`} aria-hidden="true" />
+                  ))}
+                </span>
+                <p className="mt-1.5 text-[12px] leading-4 text-[#64748b]">
+                  <span className="font-semibold tabular-nums text-[#0f172a]">{currentLocation.reviews}</span> student reviews
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 border-t border-slate-100 pt-1">
+              <OverviewRow icon={MapPin} label="University">
+                {currentLocation.university}
+              </OverviewRow>
+              <OverviewRow icon={Building2} label="Building">
+                {detail.building}
+              </OverviewRow>
+              <OverviewRow icon={Hash} label="Location ID">
+                <span className="font-mono text-[13px]">{currentLocation.id}</span>
+              </OverviewRow>
+              <OverviewRow icon={Clock} label="Last updated">
+                {detail.lastUpdated}
+              </OverviewRow>
+              <OverviewRow icon={User} label="Staff monitored">
+                {detail.staffMonitored ? "Yes — supervised during opening hours" : "No — self-managed space"}
+              </OverviewRow>
+            </div>
+          </section>
+
+          {/* Admin actions */}
+          <section aria-labelledby="location-actions-heading" className="rounded-[20px] border border-[#e2e8f0] bg-white p-5 shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
+            <h2 id="location-actions-heading" className="text-[15px] font-semibold text-[#0f172a]">
+              Admin actions
+            </h2>
+            <p className="mt-0.5 text-[12px] text-[#64748b]">Control how this location is shown to students</p>
+
+            <button type="button" onClick={() => openDialog({ id: currentLocation.id, name: currentLocation.name, status: currentLocation.status })} className={`mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${active ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c] hover:bg-[#fee2e2] focus-visible:ring-[#dc2626]" : "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7] focus-visible:ring-[#16a34a]"}`}>
+              {active ? <ShieldOff className="size-4" aria-hidden="true" /> : <ShieldCheck className="size-4" aria-hidden="true" />}
+              {active ? "Deactivate location" : "Activate location"}
+            </button>
+            <p className="mt-2 text-center text-[12px] leading-5 text-[#64748b]">{active ? "Deactivating hides this location from students' search results." : "Activating makes this location visible to students again."}</p>
+
+            <Link href="/super-admin/universities" className="mt-4 flex min-h-14 items-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-3 py-2.5 transition hover:bg-[#fafafa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[#fff7ed] text-[#f97316]" aria-hidden="true">
+                <GraduationCap className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-[#94a3b8]">View university</span>
+                <span className="mt-0.5 block truncate text-[13px] font-semibold text-[#0f172a]">{currentLocation.university}</span>
+              </span>
+              <ChevronRight className="size-4 shrink-0 text-[#94a3b8]" aria-hidden="true" />
+            </Link>
+          </section>
+        </div>
       </div>
+
+      <AdminConfirmDialog open={!!target} onOpenChange={(open) => !open && setTarget(null)} title={shown?.status === "Active" ? "Deactivate location" : "Activate location"} description={shown ? (shown.status === "Active" ? `Deactivate ${shown.name}? Students will no longer see this location in their search results.` : `Activate ${shown.name}? Students will be able to see and save this location again.`) : ""} confirmLabel={shown?.status === "Active" ? "Deactivate" : "Activate"} destructive={shown?.status === "Active"} onConfirm={confirmStatusChange} />
+      <AdminConfirmDialog open={!!hideTarget} onOpenChange={(open) => !open && setHideTarget(null)} title="Hide review" description={shownHide ? `Hide ${shownHide.author}'s review from students? Only super-admins will still see it, and you can show it again at any time.` : ""} confirmLabel="Hide review" destructive onConfirm={confirmHideReview} />
     </div>
   );
 }

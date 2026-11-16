@@ -12,8 +12,8 @@ export default function ConfirmationPage() {
   const approved = state === "approved";
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
-      <div className="flex flex-col items-center justify-center bg-[#fbfbfc] px-4 py-4 text-center">
+    <div className="min-h-screen bg-[#E2E8F0] px-4 sm:px-6">
+      <div className="flex flex-col items-center justify-center py-4 text-center">
         {approved ? (
           <CheckCircle2 className="size-16 text-[#15803d]" />
         ) : (

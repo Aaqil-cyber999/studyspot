@@ -24,7 +24,7 @@ const navItems = [
   { href: "/super-admin/admins", label: "University admins", icon: Users },
   { href: "/super-admin/requests", label: "Registration requests", icon: ClipboardList },
   { href: "/super-admin/locations", label: "Study locations", icon: MapPin },
-  { href: "/super-admin/comments", label: "Comments & ratings", icon: MessageSquare },
+  { href: "/super-admin/reviews", label: "Reviews", icon: MessageSquare },
 ];
 
 export function SuperAdminSidebar({ onClose }: { onClose?: () => void }) {

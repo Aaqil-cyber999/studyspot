@@ -22,7 +22,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   }, [hasHydrated, role, router, isLogin]);
 
   if (isLogin) {
-    return <div className="min-h-screen bg-[#fbfbfc]">{children}</div>;
+    return <div className="min-h-screen bg-[#E2E8F0]">{children}</div>;
   }
 
   if (!hasHydrated || role !== "super-admin") {
@@ -30,12 +30,10 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc] relative">
+    <div className="min-h-screen bg-[#E2E8F0] relative">
       <SuperAdminNav />
-      <main
-        className="px-6 pb-4 pt-0 lg:pl-[260px] lg:px-6 lg:pr-6 lg:overflow-y-auto min-h-screen"
-      >
-        {children}
+      <main className="lg:pl-[260px]">
+        <div className="mx-auto w-full max-w-7xl">{children}</div>
       </main>
     </div>
   );

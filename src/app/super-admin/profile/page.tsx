@@ -14,13 +14,12 @@ export default function SaProfilePage() {
   const [image, setImage] = useState<string | null>(null);
 
   if (!profile) {
-    return <PageLoader className="min-h-screen bg-[#fbfbfc] py-0" />;
+    return <PageLoader className="min-h-screen bg-[#E2E8F0] py-0" />;
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
-      <div className="mx-auto max-w-3xl">
-        <header className="px-6 pb-4 pt-[16px]">
+    <div className="min-h-screen bg-[#E2E8F0] px-4 sm:px-6">
+      <header className="pb-4 pt-[16px]">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h1 className="mt-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Profile</h1>
@@ -28,7 +27,7 @@ export default function SaProfilePage() {
           </div>
         </header>
 
-        <div className="space-y-4 px-6 pb-[90px]">
+        <div className="space-y-4 pb-[90px]">
           <section className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
             <div className="h-20 bg-gradient-to-br from-orange-300 via-orange-100 to-orange-50" />
             <div className="relative px-4 pb-4">
@@ -56,7 +55,6 @@ export default function SaProfilePage() {
             </div>
           </section>
         </div>
-      </div>
     </div>
   );
 }
