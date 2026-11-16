@@ -136,12 +136,108 @@
   background-color: #172235;
 }
 
+[data-admin-theme="dark"] .bg-\[\#E2E8F0\] {
+  background-color: #0b1120;
+}
+
+[data-admin-theme="dark"] .bg-\[\#fafafa\] {
+  background-color: #1e293b;
+}
+
 [data-admin-theme="dark"] .bg-slate-100 {
   background-color: #1e293b;
 }
 
+[data-admin-theme="dark"] .bg-\[\#f1f5f9\] {
+  background-color: #1e293b;
+}
+
+[data-admin-theme="dark"] .bg-slate-200 {
+  background-color: #334155;
+}
+
+[data-admin-theme="dark"] .text-slate-800 {
+  color: #f8fafc;
+}
+
 [data-admin-theme="dark"] .bg-orange-50 {
   background-color: #3a2416;
+}
+
+[data-admin-theme="dark"] .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, #7c3f1d, #3a2416, #1e293b);
+}
+
+[data-admin-theme="dark"] .bg-\[\#fff7ed\] {
+  background-color: #3a2416;
+}
+
+[data-admin-theme="dark"] .hover\:bg-\[\#fff7ed\]:hover {
+  background-color: #4a2a17;
+}
+
+[data-admin-theme="dark"] .hover\:text-\[\#ea580c\]:hover {
+  color: #fdba74;
+}
+
+[data-admin-theme="dark"] .bg-\[\#ddd\] {
+  background-color: #1e293b;
+}
+
+[data-admin-theme="dark"] .bg-\[\#ffdbca\] {
+  background-color: #4a2a17;
+}
+
+[data-admin-theme="dark"] .bg-\[\#d4d4d4\] {
+  background-color: #334155;
+}
+
+[data-admin-theme="dark"] .bg-\[\#f8fafc\] {
+  background-color: #0f172a;
+}
+
+[data-admin-theme="dark"] .bg-\[\#ffedd5\] {
+  background-color: #4a2a17;
+}
+
+[data-admin-theme="dark"] .border-\[\#fed7aa\] {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"].border-\[\#fed7aa\] {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"] .text-\[\#f97316\] {
+  color: #fb923c;
+}
+
+[data-admin-theme="dark"] .text-black {
+  color: #f8fafc;
+}
+
+[data-admin-theme="dark"] .text-\[\#334052\] {
+  color: #cbd5e1;
+}
+
+[data-admin-theme="dark"] .text-\[\#c2410c\] {
+  color: #fdba74;
+}
+
+[data-admin-theme="dark"] .text-\[\#dc2626\] {
+  color: #fca5a5;
+}
+
+[data-admin-theme="dark"] .bg-\[\#fed7aa\] {
+  background-color: #4a2a17;
+}
+
+[data-admin-theme="dark"] .bg-red-600 {
+  background-color: #dc2626;
+}
+
+[data-admin-theme="dark"] .text-white {
+  color: #ffffff;
 }
 
 [data-admin-theme="dark"] .bg-emerald-50 {
@@ -178,6 +274,10 @@
   color: #94a3b8;
 }
 
+[data-admin-theme="dark"] .text-\[\#94a3b8\] {
+  color: #94a3b8;
+}
+
 [data-admin-theme="dark"] .text-orange-700 {
   color: #fdba74;
 }
@@ -191,20 +291,76 @@
   color: #fda4af;
 }
 
+[data-admin-theme="dark"] .text-red-700 {
+  color: #fca5a5;
+}
+
+[data-admin-theme="dark"] .text-orange-600 {
+  color: #fb923c;
+}
+
 [data-admin-theme="dark"] .text-amber-500,
 [data-admin-theme="dark"] .text-amber-700 {
   color: #fcd34d;
 }
 
+[data-admin-theme="dark"] .fill-amber-500 {
+  fill: #fcd34d;
+}
+
 [data-admin-theme="dark"] .border-\[\#e2e8f0\],
 [data-admin-theme="dark"] .border-slate-200,
 [data-admin-theme="dark"] .border-slate-100,
-[data-admin-theme="dark"] .border-slate-300 {
+[data-admin-theme="dark"] .border-slate-300,
+[data-admin-theme="dark"] .border-\[\#eef1f5\] {
   border-color: #334155;
+}
+
+[data-admin-theme="dark"].border-\[\#e2e8f0\] {
+  border-color: #334155;
+}
+
+/* Portaled menu popup carries the theme attribute on itself (see menu.tsx). */
+[data-admin-theme="dark"].bg-\[\#ddd\] {
+  background-color: #111827;
+}
+
+[data-admin-theme="dark"] .data-\[highlighted\]\:bg-\[\#f5f5f7\][data-highlighted],
+[data-admin-theme="dark"] .data-\[checked\]\:bg-\[\#f5f5f7\][data-checked] {
+  background-color: #1e293b;
+}
+
+[data-admin-theme="dark"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #334155 !important;
+}
+
+[data-admin-theme="dark"] .divide-slate-100 > :first-child {
+  border-top: 0 !important;
+  border-top-width: 0 !important;
+}
+
+[data-admin-theme="dark"] .border-orange-200 {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"].border-orange-200 {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"] .border-\[\#fed7aa\] {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"].border-\[\#fed7aa\] {
+  border-color: #7c3f1d;
 }
 
 [data-admin-theme="dark"] .border-orange-100,
 [data-admin-theme="dark"] .border-orange-200 {
+  border-color: #7c3f1d;
+}
+
+[data-admin-theme="dark"].border-orange-200 {
   border-color: #7c3f1d;
 }
 
@@ -231,11 +387,174 @@
   box-shadow: 0 6px 20px rgb(0 0 0 / 0.28);
 }
 
+/* Student shell. Mirrors the admin dark palette but keeps the 412px frame
+   page/background split: shell #0b1120, cards #111827. */
+.student-shell {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+[data-admin-theme="dark"].student-shell {
+  color: #e2e8f0;
+  background: #0b1120;
+}
+
+[data-admin-theme="dark"].student-shell.bg-white {
+  background-color: #0b1120;
+}
+
+[data-admin-theme="dark"].student-shell .bg-\[\#fbfbfc\],
+[data-admin-theme="dark"].student-shell .bg-\[\#f8f9ff\] {
+  background-color: #0b1120;
+}
+
+[data-admin-theme="dark"].student-shell .bg-white {
+  background-color: #111827;
+}
+
+[data-admin-theme="dark"].student-shell .bg-\[\#f8fafc\] {
+  background-color: #172235;
+}
+
+[data-admin-theme="dark"].student-shell .bg-\[\#cbd5e1\],
+[data-admin-theme="dark"].student-shell .bg-\[\#e5eeff\],
+[data-admin-theme="dark"].student-shell .bg-\[\#f0f0f0\],
+[data-admin-theme="dark"].student-shell .bg-\[\#f5f5f7\],
+[data-admin-theme="dark"].student-shell .bg-\[\#f1f5f8\] {
+  background-color: #1e293b;
+}
+
+[data-admin-theme="dark"].student-shell .border-\[\#e5e5e5\],
+[data-admin-theme="dark"].student-shell .border-\[\#b9bec7\] {
+  border-color: #334155;
+}
+
+[data-admin-theme="dark"].student-shell .text-\[\#333\],
+[data-admin-theme="dark"].student-shell .text-\[\#515f74\] {
+  color: #cbd5e1;
+}
+
+[data-admin-theme="dark"].student-shell .text-\[\#9a3412\],
+[data-admin-theme="dark"].student-shell .text-\[\#341100\] {
+  color: #fdba74;
+}
+
+/* Keep photo-overlay / icon chips light so the Figma line-art SVGs stay legible. */
+[data-admin-theme="dark"] .student-keep-light {
+  background-color: #f8fafc;
+  border-color: #334155;
+}
+
+[data-admin-theme="dark"].student-shell .student-keep-light {
+  background-color: #f8fafc;
+  border-color: #334155;
+}
+
+/* Dark line-art icons sitting on dark surfaces flip to white. The unscoped
+   rule also covers portaled menus, which carry the theme attribute themselves. */
+[data-admin-theme="dark"] .student-invert,
+[data-admin-theme="dark"].student-shell .student-invert {
+  filter: brightness(0) invert(1);
+}
+
+/* Sticky spot-detail top bar uses a translucent white wash in Figma. */
+[data-admin-theme="dark"].student-shell .student-topbar {
+  background-color: rgba(11, 17, 32, 0.9);
+}
+
+/* Student-specific hardcoded tokens (not part of the admin palette table). */
+[data-admin-theme="dark"].student-shell .text-\[\#0b1c30\] {
+  color: #f8fafc;
+}
+
+/* Search input in student dark mode – bg-transparent is overridden so the
+   dark-mode input rule (#172235 bg, #475569 border, #f8fafc text, #94a3b8 placeholder) takes effect. */
+[data-admin-theme="dark"].student-shell input,
+[data-admin-theme="dark"].student-shell textarea,
+[data-admin-theme="dark"].student-shell select {
+  background-color: #172235 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+[data-admin-theme="dark"].student-shell input::placeholder,
+[data-admin-theme="dark"].student-shell textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-admin-theme="dark"].student-shell .text-\[\#DDDDDD\],
+[data-admin-theme="dark"].student-shell .text-\[\#d1d5db\] {
+  color: #475569;
+}
+
+/* Stat tiles ring color in dark mode – override bg-transparent Tailwind + light gray */
+[data-admin-theme="dark"].student-shell .ring-\[\#e2e8f0\] {
+  box-shadow: 0 0 0 1px #334155;
+}
+
+[data-admin-theme="dark"].student-shell .text-\[\#64748a\],
+[data-admin-theme="dark"].student-shell .text-\[\#989FA9\] {
+  color: #94a3b8;
+}
+
+[data-admin-theme="dark"].student-shell .text-\[\#9d4300\] {
+  color: #fdba74;
+}
+
+[data-admin-theme="dark"].student-shell .text-\[\#077857\] {
+  color: #6ee7b7;
+}
+
+[data-admin-theme="dark"].student-shell .bg-\[\#eff4ff\],
+[data-admin-theme="dark"].student-shell .bg-\[\#e2e8f0\] {
+  background-color: #1e293b;
+}
+
+[data-admin-theme="dark"].student-shell .bg-\[\#feedd2\] {
+  background-color: #3a2416;
+}
+
+[data-admin-theme="dark"].student-shell .bg-\[\#e0c0b1\],
+[data-admin-theme="dark"].student-shell .bg-\[\#cbd5de\] {
+  background-color: #475569;
+}
+
+[data-admin-theme="dark"].student-shell .border-\[\#b8c4d1\] {
+  border-color: #334155;
+}
+
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#d0d0d0\]:hover,
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#d4d4d4\]:hover,
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#d8d8d8\]:hover,
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#f5f5f5\]:hover,
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#f8fafc\]:hover {
+  background-color: #334155;
+}
+
+/* Keep the preference row dark while its dropdown is expanded. */
+[data-admin-theme="dark"].student-shell .data-\[popup-open\]\:bg-\[\#f8fafc\][data-popup-open] {
+  background-color: #334155;
+}
+
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#fed7aa\]:hover,
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#ffd0ba\]:hover,
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#fff7ed\]:hover {
+  background-color: #4a2a17;
+}
+
+[data-admin-theme="dark"].student-shell .hover\:bg-\[\#111827\]:hover {
+  background-color: #0b1120;
+}
+
+[data-admin-theme="dark"].student-shell .placeholder\:text-\[\#64748b\]::placeholder,
+[data-admin-theme="dark"].student-shell .placeholder\:text-\[\#737373\]::placeholder {
+  color: #94a3b8;
+}
+
 /* Admin-only visual system. Student routes do not render inside .admin-shell. */
 .admin-shell {
   min-height: 100dvh;
   color: #0f172a;
-  background: #f8fafc;
+  background: #E2E8F0;
 }
 
 .admin-shell .bg-slate-50,

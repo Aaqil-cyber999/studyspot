@@ -165,10 +165,51 @@ Lint, typecheck, build, test all routes/interactions, responsive, accessibility,
 - **`src/app/student/loading.tsx`**: student route fallback rendered inside the 412px frame (`min-h-[calc(100dvh-90px)]`, white background) so the bottom nav stays visible while a page loads.
 - The inline `Loading...` blocks on the student profile and the super-admin / university-admin dashboard and profile pages now render `PageLoader` instead, filling the page height so the indicator stays vertically centered.
 
+### University-Admin Locations Tab (`/university-admin/locations`)
+- **`src/app/university-admin/locations/page.tsx`**: search field (white `rounded-2xl` row) with **Active / Inactive** filter chips underneath — selected chip is `bg-orange-500 text-white`, the other is `border-slate-200 bg-white text-slate-600` (same visual language as the Reviews tab chips). `aria-pressed` reflects state and the list filters on `location.status`.
+- Tiles (80px photo, `rounded-[20px]`, `#e2e8f0` border) show name, building, and a 12px stat row: filled amber `Star` + rating (`tabular-nums`, semibold) and `MessageSquare` + `N reviews`, separated by `gap-4`, each with an `aria-label`.
+- Empty state is borderless and background-free, vertically/horizontally centered in the space below the chips (`min-h-[calc(100dvh-280px)]`), with a 64px `#ffdbca` circle holding an orange `MapPin`, "No active/inactive locations", and a helper line.
+
 ### All Gates Pass
 - `npm run build` — compiles successfully ✅
 - `npm run lint` — 0 errors ✅ (67 pre-existing warnings only)
 - `npx tsc --noEmit` — typecheck passes ✅
+
+## University-Admin Dark Mode (reuse this pattern)
+
+**Switch + wiring**
+- **`src/stores/university-admin-theme-store.ts`** holds `isDark` / `toggleTheme`; the toggle lives on `/university-admin/profile` (Sun/Moon).
+- **`src/app/university-admin/layout.tsx`** renders the shell with `className="admin-shell"` and `data-admin-theme={isDark ? "dark" : "light"}`. All theme CSS is in **`src/app/globals.css`** under `[data-admin-theme="dark"]`.
+
+**Two selector shapes (important)**
+- In-shell elements use a descendant: `[data-admin-theme="dark"] .bg-white { … }`.
+- Portaled surfaces (dialogs/menus render outside the shell) carry the attribute on themselves, so overrides must be self-targeting with **no space**: `[data-admin-theme="dark"].border-[#e2e8f0]`, `[data-admin-theme="dark"].border-orange-200`, `[data-admin-theme="dark"].border-[#fed7aa]`.
+- **`src/components/ui/dialog.tsx`** reads `useUniversityAdminThemeStore`, sets `data-admin-theme` plus dark classes directly on `DialogContent` / `DialogTitle` / `DialogDescription`, and darkens the backdrop.
+
+**Palette to reuse for new admin surfaces**
+
+| Light token | Dark value |
+|---|---|
+| page `bg-[#E2E8F0]` | `#0b1120` |
+| `bg-white` cards | `#111827` (`.admin-shell` scope) / `#0f172a` otherwise |
+| `#ddd`, `#fafafa`, `#f1f5f9`, `slate-100` | `#1e293b` |
+| `slate-200`, `#d4d4d4` | `#334155` |
+| borders `#e2e8f0`, `#eef1f5`, `slate-200/100/300` | `#334155` |
+| text `#0f172a`, `slate-800/900/950`, `black` | `#f8fafc` |
+| text `#334155`, `#475569`, `#64748b`, `slate-500/600` | `#cbd5e1` |
+| `#94a3b8`, `slate-400` | unchanged |
+| orange text `#f97316`, `orange-600` | `#fb923c`; `#c2410c`/`orange-700` → `#fdba74` |
+| soft orange `#fff7ed`, `#fed7aa`, `#ffedd5`, `#ffdbca`, `orange-50` | `#3a2416` (hover `#4a2a17`) |
+| orange borders (`#fed7aa`, `orange-100/200`) | `#7c3f1d` |
+| cover gradient (`bg-gradient-to-br`) | `linear-gradient(to bottom right, #7c3f1d, #3a2416, #1e293b)` |
+| inputs/textarea/select (base) | bg `#172235`, border `#475569`, text `#f8fafc`, placeholder `#94a3b8` |
+| `shadow-[0_4px_16px_rgba(0,0,0,…)]` | `0 6px 20px rgb(0 0 0 / 0.28)` |
+
+**Rules when adding UI**
+- Never hardcode a light background in an inline `style` for admin pages — inline styles don't theme; use Tailwind classes so a `[data-admin-theme="dark"]` override can reach them.
+- Any new hardcoded hex class (`bg-[#…]`, `text-[#…]`, `border-[#…]`) must ship with its `[data-admin-theme="dark"]` counterpart in `globals.css`.
+- Dividers/dots inside cards use `bg-[#f1f5f9]` so they flip to `#1e293b` automatically; avoid `bg-[#eef1f5]` dividers.
+- Preference rows use `border-t border-slate-100 first:border-t-0` (not `divide-y`) so the first row has no stray line in dark mode.
 
 ## Project Routes
 | Route | Page |

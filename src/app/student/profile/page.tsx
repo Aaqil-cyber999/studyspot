@@ -7,6 +7,7 @@ import { EditInfoDialog } from "@/features/student/components/profile/edit-info-
 import { AmenitiesCard } from "@/features/student/components/profile/amenities-card";
 import { PreferenceMenu } from "@/features/student/components/profile/preference-menu";
 import { ProfileAvatar } from "@/components/shared/profile-avatar";
+import { SettingsCard } from "@/components/shared/settings-card";
 import { SignOutDialog } from "@/features/student/components/profile/sign-out-dialog";
 import { getStudentProfile } from "@/services/student";
 import { useProfileStore } from "@/stores/profile-store";
@@ -44,7 +45,7 @@ export default function StudentProfilePage() {
   }
 
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden bg-[#fbfbfc] px-[24px] pt-[20px] pb-[90px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden bg-[#fbfbfc] px-[24px] pt-[20px] pb-[110px] flex flex-col gap-[20px]">
       <p className="text-[20px] font-bold leading-[25px] text-[#0f172a]">Profile</p>
 
       <div className="overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
@@ -83,7 +84,7 @@ export default function StudentProfilePage() {
 
       <div className="flex flex-col gap-[8px]">
         <div className="flex items-center gap-[8px]">
-          <img alt="" className="size-[16px] max-w-none" src="/assets/profile/6f0d0.svg" />
+          <img alt="" className="student-invert size-[16px] max-w-none" src="/assets/profile/6f0d0.svg" />
           <p className="text-[13px] font-medium text-[#64748b]">Study preferences</p>
         </div>
         <div className="flex flex-col overflow-clip rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
@@ -115,7 +116,7 @@ export default function StudentProfilePage() {
 
       <div className="flex flex-col gap-[8px]">
         <div className="flex items-center gap-[8px]">
-          <img alt="" className="size-[16px] max-w-none" src="/assets/profile/6885d.svg" />
+          <img alt="" className="student-invert size-[16px] max-w-none" src="/assets/profile/6885d.svg" />
           <p className="text-[13px] font-medium text-[#64748b]">Required amenities</p>
         </div>
         <AmenitiesCard
@@ -125,6 +126,11 @@ export default function StudentProfilePage() {
           onRemoveAmenity={removeAmenity}
         />
       </div>
+
+      <SettingsCard
+        notificationsTitle="Study notifications"
+        notificationsDescription="Updates about saved spots and reviews"
+      />
 
       <SignOutDialog />
     </div>

@@ -5,13 +5,13 @@ import { useState } from "react";
 import { useProfileStore } from "@/stores/profile-store";
 import { useReviewStore } from "@/stores/review-store";
 import { AddReviewDialog, type SubmittedReview } from "./add-review-dialog";
+import { ImageCarousel } from "@/components/shared/image-carousel";
 import { AmenitiesSection } from "./amenities-section";
 import { CurrentStatusSection } from "./current-status-section";
 import { OperatingHoursCard } from "./operating-hours-card";
 import { ReviewsSection } from "./reviews-section";
 import { SpotDetailTopBar } from "./spot-detail-top-bar";
 import { SpotHeading } from "./spot-heading";
-import { SpotHero } from "./spot-hero";
 
 const EMPTY_REVIEWS: SpotReview[] = [];
 
@@ -60,7 +60,14 @@ export function SpotDetailView({ spot }: { spot: SpotDetail }) {
       />
 
       <main className="flex flex-col gap-[15px] px-4 pb-4 pt-1">
-        <SpotHero hero={spot.hero} />
+        <ImageCarousel
+          previewUrls={spot.hero.image ? [spot.hero.image] : []}
+          currentIdx={0}
+          onRemove={() => {}}
+          onPrev={() => {}}
+          onNext={() => {}}
+          showRemoveButton={false}
+        />
         <SpotHeading spot={spot} />
         <OperatingHoursCard hours={spot.hours} />
         <CurrentStatusSection metrics={spot.metrics} lastUpdated={spot.lastUpdated} />

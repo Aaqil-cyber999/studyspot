@@ -153,7 +153,7 @@ export default function StudentHomePage() {
               <p className="text-[14px] leading-[20px] text-white/90">Find your next study spot</p>
             </div>
             <Link href="/student/profile" aria-label="Open your profile" className="relative flex size-[40px] shrink-0 items-center justify-center overflow-clip rounded-[20px] border-2 border-solid border-white">
-              <ProfileAvatar name={profileName} imageUrl={profileImage} className="size-full rounded-[20px] bg-white" textClassName="text-[13px] text-[#f97316]" />
+              <ProfileAvatar name={profileName} imageUrl={profileImage} className="student-keep-light size-full rounded-[20px] bg-white" textClassName="text-[13px] text-[#f97316]" />
             </Link>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function StudentHomePage() {
                       <img alt="" className="size-[14px] max-w-none" src={a("30f3b.svg")} />
                       <p className="text-[13px] font-medium text-[#0f172a]">{spot.rating.toFixed(1)} · {spot.reviews} reviews</p>
                       <p className="text-[13px] text-[#64748b]">·</p>
-                      <img alt="" className="size-[14px] max-w-none" src={a("9abac.svg")} />
+                      <img alt="" className="size-[14px] max-w-none student-invert" src={a("9abac.svg")} />
                       <p className="truncate text-[13px] text-[#334155]">{spot.hours}</p>
                     </div>
                     <div className="flex flex-wrap gap-[8px]">

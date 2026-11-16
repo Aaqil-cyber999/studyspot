@@ -30,7 +30,7 @@ export default function UaLocationDetailsPage() {
 
   if (!location) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fbfbfc] px-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#E2E8F0] px-6 text-center">
         <div>
           <p className="text-sm text-slate-500">This location could not be found.</p>
           <Link href="/university-admin/locations" className="mt-3 inline-block text-sm font-semibold text-orange-600">
@@ -110,8 +110,8 @@ export default function UaLocationDetailsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fbfbfc]">
-      <header className="sticky top-0 z-20 flex items-center gap-3 bg-[#fbfbfc] px-6 pb-4 pt-[16px]">
+    <main className="min-h-screen bg-[#E2E8F0]">
+      <header className="sticky top-0 z-20 flex items-center gap-3 bg-[#E2E8F0] px-6 pb-4 pt-[16px]">
         <Link href="/university-admin/locations" aria-label="Back to locations" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500">
           <ArrowLeft className="size-5" />
         </Link>

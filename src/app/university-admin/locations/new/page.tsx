@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLocationPreviewStore } from "@/stores/location-preview-store";
-import { ArrowLeft, ImagePlus, Images, MapPinned, ChevronLeft, ChevronRight, X, Clock, TrendingUp, LayoutGrid, Check, Plus, UserCheck, Eye } from "lucide-react";
+import { ImagePlus, X, LayoutGrid, Check, Plus, TrendingUp, UserCheck, Clock, MapPinned, Eye, Images } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { ImageCarousel } from "@/components/shared/image-carousel";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { TimePicker, formatTimeLabel } from "@/components/ui/time-picker";
@@ -22,18 +24,7 @@ type OpenTimeMode = "always" | "custom";
 
 const MAX_IMAGES = 5;
 
-const AMENITY_OPTIONS = [
-  "Wi-Fi",
-  "Power outlets",
-  "Computers",
-  "Printer",
-  "Cafeteria",
-  "Parking",
-  "Elevator",
-  "Accessible seating",
-  "Quiet zone",
-  "Group tables",
-];
+const AMENITY_OPTIONS = ["Wi-Fi", "Power outlets", "Computers", "Printer", "Cafeteria", "Parking", "Elevator", "Accessible seating", "Quiet zone", "Group tables"];
 
 const DEFAULT_AMENITIES = ["Wi-Fi", "Power outlets"];
 
@@ -78,17 +69,13 @@ export default function AddLocationPage() {
   const wifiAvailable = amenities.includes("Wi-Fi");
 
   function toggleAmenity(amenity: string) {
-    setAmenities((prev) =>
-      prev.includes(amenity) ? prev.filter((item) => item !== amenity) : [...prev, amenity],
-    );
+    setAmenities((prev) => (prev.includes(amenity) ? prev.filter((item) => item !== amenity) : [...prev, amenity]));
   }
 
   function addCustomAmenity() {
     const value = customAmenity.trim().replace(/\s+/g, " ");
     if (!value) return;
-    const existing = amenityOptions.find(
-      (item) => item.toLowerCase() === value.toLowerCase(),
-    );
+    const existing = amenityOptions.find((item) => item.toLowerCase() === value.toLowerCase());
     const amenity = existing ?? value;
     if (!existing) {
       setAmenityOptions((prev) => [...prev, value]);
@@ -246,7 +233,7 @@ export default function AddLocationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
+    <div className="min-h-screen bg-[#E2E8F0]">
       <div className="flex items-center gap-3 px-[24px] pb-[16px] pt-[16px]">
         <button onClick={() => router.back()} className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white">
           <ArrowLeft className="size-5 text-[#0f172a]" />
@@ -256,49 +243,34 @@ export default function AddLocationPage() {
       <form onSubmit={submit} className="px-[24px]">
         <div className="space-y-[12px] rounded-[20px] border border-[#e2e8f0] bg-white p-[20px] shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
           <div>
-            <label className="mb-2 block text-[13px] font-medium text-[#334155]">Location name <span className="text-red-500">*</span></label>
+            <label className="mb-2 block text-[13px] font-medium text-[#334155]">
+              Location name <span className="text-red-500">*</span>
+            </label>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Central Library Study Zone" className="w-full rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8]" />
           </div>
           <div>
-            <label className="mb-2 block text-[13px] font-medium text-[#334155]">Building <span className="text-red-500">*</span></label>
+            <label className="mb-2 block text-[13px] font-medium text-[#334155]">
+              Building <span className="text-red-500">*</span>
+            </label>
             <input value={building} onChange={(e) => setBuilding(e.target.value)} placeholder="e.g., Library Building" className="w-full rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8]" />
           </div>
           <div>
             <label htmlFor="faculty" className="mb-2 block text-[13px] font-medium text-[#334155]">
               Faculty <span className="font-normal text-[#94a3b8]">(optional)</span>
             </label>
-            <input
-              id="faculty"
-              value={faculty}
-              onChange={(e) => setFaculty(e.target.value)}
-              placeholder="e.g., Faculty of Information Technology"
-              className="w-full rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40"
-            />
+            <input id="faculty" value={faculty} onChange={(e) => setFaculty(e.target.value)} placeholder="e.g., Faculty of Information Technology" className="w-full rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40" />
           </div>
           <div>
             <label htmlFor="department" className="mb-2 block text-[13px] font-medium text-[#334155]">
               Department <span className="font-normal text-[#94a3b8]">(optional)</span>
             </label>
-            <input
-              id="department"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              placeholder="e.g., Computer Science"
-              className="w-full rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40"
-            />
+            <input id="department" value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="e.g., Computer Science" className="w-full rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40" />
           </div>
           <div>
             <label htmlFor="description" className="mb-2 block text-[13px] font-medium text-[#334155]">
               Description <span className="font-normal text-[#94a3b8]">(optional)</span>
             </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g., A quiet study space with natural lighting and comfortable seating"
-              rows={3}
-              className="w-full resize-none rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40"
-            />
+            <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., A quiet study space with natural lighting and comfortable seating" rows={3} className="w-full resize-none rounded-[14px] border border-[#e2e8f0] px-[16px] py-[12px] text-[14px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40" />
           </div>
 
           {/* Staff monitored */}
@@ -309,18 +281,16 @@ export default function AddLocationPage() {
                 Staff monitored
               </span>
             </div>
-            <Switch
-              aria-labelledby="staff-monitored-label"
-              checked={staffMonitored}
-              onCheckedChange={setStaffMonitored}
-            />
+            <Switch aria-labelledby="staff-monitored-label" checked={staffMonitored} onCheckedChange={setStaffMonitored} />
           </div>
 
           {/* Opening hours */}
           <div className="rounded-[14px] border border-[#e2e8f0] p-[14px] space-y-[12px]">
             <div className="flex items-center gap-2 mb-1">
               <Clock size={16} className="text-[#0f172a]" />
-              <span className="text-[13px] font-medium text-[#334155]">Opening hours <span className="text-red-500">*</span></span>
+              <span className="text-[13px] font-medium text-[#334155]">
+                Opening hours <span className="text-red-500">*</span>
+              </span>
             </div>
 
             {/* Always open toggle */}
@@ -402,31 +372,23 @@ export default function AddLocationPage() {
             </div>
 
             <div role="group" aria-label="Amenities" className="flex flex-wrap gap-[8px]">
-              {[...amenityOptions].sort((a, b) => {
-                const aSelected = amenities.includes(a);
-                const bSelected = amenities.includes(b);
-                if (aSelected && !bSelected) return -1;
-                if (!aSelected && bSelected) return 1;
-                return 0;
-              }).map((amenity) => {
-                const selected = amenities.includes(amenity);
-                return (
-                  <button
-                    key={amenity}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => toggleAmenity(amenity)}
-                    className={`flex items-center gap-[6px] rounded-full border px-[12px] py-[6px] text-[12px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] ${
-                      selected
-                        ? "border-[#fa8c16] bg-[#fa8c16] text-white"
-                        : "border-[#e2e8f0] bg-white text-[#334155] hover:bg-[#f8fafc]"
-                    }`}
-                  >
-                    {selected && <Check size={12} className="text-white" />}
-                    {amenity}
-                  </button>
-                );
-              })}
+              {[...amenityOptions]
+                .sort((a, b) => {
+                  const aSelected = amenities.includes(a);
+                  const bSelected = amenities.includes(b);
+                  if (aSelected && !bSelected) return -1;
+                  if (!aSelected && bSelected) return 1;
+                  return 0;
+                })
+                .map((amenity) => {
+                  const selected = amenities.includes(amenity);
+                  return (
+                    <button key={amenity} type="button" aria-pressed={selected} onClick={() => toggleAmenity(amenity)} className={`flex items-center gap-[6px] rounded-full border px-[12px] py-[6px] text-[12px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] ${selected ? "border-[#fa8c16] bg-[#fa8c16] text-white" : "border-[#e2e8f0] bg-white text-[#334155] hover:bg-[#f8fafc]"}`}>
+                      {selected && <Check size={12} className="text-white" />}
+                      {amenity}
+                    </button>
+                  );
+                })}
             </div>
 
             {customAmenityOpen ? (
@@ -449,34 +411,15 @@ export default function AddLocationPage() {
                   aria-label="Custom amenity name"
                   className="min-w-0 flex-1 rounded-[12px] border border-[#e2e8f0] bg-white px-[12px] py-[7px] text-[13px] text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/40"
                 />
-                <button
-                  type="button"
-                  onClick={addCustomAmenity}
-                  disabled={!customAmenity.trim()}
-                  className={`shrink-0 rounded-[12px] px-[12px] py-[7px] text-[12px] font-medium text-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] ${
-                    customAmenity.trim()
-                      ? "bg-[#f97316] hover:bg-[#ea580c]"
-                      : "cursor-not-allowed bg-[#f97316]/50"
-                  }`}
-                >
+                <button type="button" onClick={addCustomAmenity} disabled={!customAmenity.trim()} className={`shrink-0 rounded-[12px] px-[12px] py-[7px] text-[12px] font-medium text-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] ${customAmenity.trim() ? "bg-[#f97316] hover:bg-[#ea580c]" : "cursor-not-allowed bg-[#f97316]/50"}`}>
                   Add
                 </button>
-                <button
-                  type="button"
-                  onClick={cancelCustomAmenity}
-                  aria-label="Cancel adding a custom amenity"
-                  className="flex size-[30px] shrink-0 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-[#334155] outline-none hover:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-[#f97316]"
-                >
+                <button type="button" onClick={cancelCustomAmenity} aria-label="Cancel adding a custom amenity" className="flex size-[30px] shrink-0 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-[#334155] outline-none hover:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-[#f97316]">
                   <X size={14} />
                 </button>
               </div>
             ) : (
-              <button
-                ref={customAmenityTriggerRef}
-                type="button"
-                onClick={() => setCustomAmenityOpen(true)}
-                className="flex w-full items-center justify-center gap-[6px] rounded-[12px] border border-dashed border-[#e2e8f0] bg-white py-[8px] text-[12px] font-medium text-[#f97316] outline-none transition-colors hover:border-[#f97316] hover:bg-[#fff7ed] focus-visible:ring-2 focus-visible:ring-[#f97316]"
-              >
+              <button ref={customAmenityTriggerRef} type="button" onClick={() => setCustomAmenityOpen(true)} className="flex w-full items-center justify-center gap-[6px] rounded-[12px] border border-dashed border-[#e2e8f0] bg-white py-[8px] text-[12px] font-medium text-[#f97316] outline-none transition-colors hover:border-[#f97316] hover:bg-[#fff7ed] focus-visible:ring-2 focus-visible:ring-[#f97316]">
                 <Plus size={14} />
                 Add a custom amenity
               </button>
@@ -487,65 +430,20 @@ export default function AddLocationPage() {
           <div className="space-y-[12px] rounded-[14px] border border-[#e2e8f0] p-[14px]">
             <label htmlFor="image-input" className="flex items-center gap-2">
               <Images size={16} className="text-[#0f172a]" />
-              <span className="text-[13px] font-medium text-[#334155]">Images <span className="text-red-500">*</span></span>
+              <span className="text-[13px] font-medium text-[#334155]">
+                Images <span className="text-red-500">*</span>
+              </span>
               <span className="text-[12px] text-[#94a3b8]">
                 {images.length}/{MAX_IMAGES} · JPG/PNG
               </span>
             </label>
             <input id="image-input" type="file" accept="image/jpeg,image/png" multiple onChange={handleImageChange} className="hidden" />
-            <button
-              type="button"
-              onClick={() => document.getElementById("image-input")?.click()}
-              disabled={imagesFull}
-              className={`flex items-center gap-2 rounded-[16px] bg-[#fa8c16] px-4 py-2 text-[13px] font-medium text-white transition-colors ${imagesFull ? "cursor-not-allowed opacity-50" : "hover:bg-[#f97316]"}`}
-            >
+            <button type="button" onClick={() => document.getElementById("image-input")?.click()} disabled={imagesFull} className={`flex items-center gap-2 rounded-[16px] bg-[#fa8c16] px-4 py-2 text-[13px] font-medium text-white transition-colors ${imagesFull ? "cursor-not-allowed opacity-50" : "hover:bg-[#f97316]"}`}>
               <ImagePlus size={18} className="text-white" />
               Upload images
             </button>
 
-            {previewUrls.length > 0 && (
-              <div className="relative w-full overflow-hidden rounded-[12px] bg-[#f8fafc]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={previewUrls[Math.min(currentIdx, previewUrls.length - 1)]}
-                  alt={`Preview ${Math.min(currentIdx, previewUrls.length - 1) + 1} of ${previewUrls.length}`}
-                  className="h-[200px] w-full object-cover"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => removeImage(currentIdx)}
-                  aria-label="Remove this image"
-                  className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-white/90 shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
-                >
-                  <X size={14} className="text-[#f97316]" />
-                </button>
-
-                {previewUrls.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={showPreviousImage}
-                      aria-label="Previous image"
-                      className="absolute top-1/2 left-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#0f172a] shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
-                    >
-                      <ChevronLeft size={18} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={showNextImage}
-                      aria-label="Next image"
-                      className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#0f172a] shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
-                    >
-                      <ChevronRight size={18} />
-                    </button>
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white">
-                      {currentIdx + 1} / {previewUrls.length}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
+            <ImageCarousel previewUrls={previewUrls} currentIdx={currentIdx} onRemove={removeImage} onPrev={showPreviousImage} onNext={showNextImage} showRemoveButton={true} />
           </div>
         </div>
 
@@ -579,17 +477,12 @@ export default function AddLocationPage() {
               router.push("/university-admin/locations/preview");
             }}
             variant="default"
-            className="flex-1 px-[16px] py-[20px] text-[14px] font-medium shadow-[0px_6px_16px_rgba(249,115,22,0.25)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-100"
-          >
+            className="flex-1 px-[16px] py-[20px] text-[14px] font-medium shadow-[0px_6px_16px_rgba(249,115,22,0.25)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-100">
             <Eye size={18} className="text-white mr-2" />
             <span>Preview</span>
           </Button>
 
-          <Button
-            type="submit"
-            variant="default"
-            className="flex-1 px-[16px] py-[20px] text-[14px] font-medium shadow-[0px_6px_16px_rgba(249,115,22,0.25)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-100"
-          >
+          <Button type="submit" variant="default" className="flex-1 px-[16px] py-[20px] text-[14px] font-medium shadow-[0px_6px_16px_rgba(249,115,22,0.25)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-100">
             <MapPinned className="size-[18px] text-white" />
             <span>Create location</span>
           </Button>

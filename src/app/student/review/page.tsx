@@ -16,7 +16,7 @@ export default function ReviewSubmissionPage() {
             onClick={() => router.back()}
             className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] border border-[#e2e8f0] bg-[#ddd]"
           >
-            <img alt="" className="size-[18px] max-w-none" src="/assets/review/87c6d.svg" />
+            <img alt="" className="student-invert size-[18px] max-w-none" src="/assets/review/87c6d.svg" />
           </button>
           <div className="flex flex-1 flex-col gap-[4px]">
             <p className="text-[18px] font-semibold leading-[24px] text-[#0f172a]">Review your report</p>

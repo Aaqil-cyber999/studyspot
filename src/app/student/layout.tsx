@@ -2,11 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import { StudentBottomNav } from "@/components/navigation/student-bottom-nav";
+import { useThemeStore } from "@/stores/theme-store";
 
 export const dynamic = "force-dynamic";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isDark = useThemeStore((state) => state.isDark);
   const hideNav =
     pathname === "/student/login" ||
     pathname === "/student/info" ||
@@ -24,7 +26,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   return (
     <div
-      className={`mx-auto min-h-screen w-full max-w-[412px] bg-white ${
+      data-admin-theme={isDark ? "dark" : "light"}
+      className={`student-shell mx-auto min-h-screen w-full max-w-[412px] bg-white ${
         needsNavClearance ? "pb-[90px]" : ""
       }`}
     >

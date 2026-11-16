@@ -73,7 +73,7 @@ export default function AdminOptionsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fbfbfc]">
+    <main className="min-h-screen bg-[#E2E8F0]">
       <header className="flex items-center gap-3 px-6 pb-4 pt-[16px]">
         <button type="button" onClick={() => router.back()} aria-label="Back to profile" className="flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500">
           <ArrowLeft className="size-4" />

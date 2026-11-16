@@ -29,7 +29,7 @@ export function SignOutDialog() {
         }
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="" className="size-[16px] max-w-none" src="/assets/profile/a7c4a.svg" />
+        <img alt="" className="student-invert size-[16px] max-w-none" src="/assets/profile/a7c4a.svg" />
         Sign out
       </DialogTrigger>
 

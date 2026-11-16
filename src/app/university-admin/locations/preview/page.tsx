@@ -160,9 +160,9 @@ export default function LocationPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
+    <div className="min-h-screen bg-[#E2E8F0]">
       {/* Header */}
-      <div className="sticky top-0 z-20 flex items-center gap-3 bg-[#fbfbfc] px-[24px] pb-[16px] pt-[16px]">
+      <div className="sticky top-0 z-20 flex items-center gap-3 bg-[#E2E8F0] px-[24px] pb-[16px] pt-[16px]">
         <button
           onClick={() => router.back()}
           className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white"

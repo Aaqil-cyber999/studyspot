@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/stores/theme-store";
 
 function Dialog(props: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -34,14 +35,17 @@ function DialogBackdrop({ className, ...props }: DialogPrimitive.Backdrop.Props)
 }
 
 function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.Props) {
+  const isDark = useThemeStore((state) => state.isDark);
   return (
     <DialogPortal>
-      <DialogBackdrop />
+      <DialogBackdrop className={isDark ? "bg-[#0f172a]/60" : undefined} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
+        data-admin-theme={isDark ? "dark" : "light"}
         aria-modal="true"
         className={cn(
           "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-[16px] bg-white text-sm text-[#0f172a] shadow-[0px_12px_32px_0px_rgba(0,0,0,0.18)] outline-none duration-150 data-open:animate-in data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          isDark && "bg-[#111827] text-[#f8fafc]",
           className,
         )}
         {...props}
@@ -53,20 +57,22 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.
 }
 
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+  const isDark = useThemeStore((state) => state.isDark);
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("font-heading text-base leading-tight font-semibold text-[#0f172a]", className)}
+      className={cn("font-heading text-base leading-tight font-semibold text-[#0f172a]", isDark && "text-[#f8fafc]", className)}
       {...props}
     />
   );
 }
 
 function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
+  const isDark = useThemeStore((state) => state.isDark);
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-sm text-[#64748b]", className)}
+      className={cn("text-sm text-[#64748b]", isDark && "text-[#cbd5e1]", className)}
       {...props}
     />
   );

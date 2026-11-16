@@ -37,7 +37,7 @@ export function SavedPlaceCard({ card, onRemove, buttonRef }: SavedPlaceCardProp
           ref={buttonRef}
           type="button"
           onClick={onRemove}
-          className="absolute left-[320px] top-[12px] flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
+          className="absolute left-[320px] top-[12px] flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white student-keep-light focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
           aria-label={`Remove ${card.name} from saved places`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,7 +67,7 @@ export function SavedPlaceCard({ card, onRemove, buttonRef }: SavedPlaceCardProp
               className="inline-flex items-center gap-[6px] rounded-full bg-[#f8fafc] px-[10px] py-[6px] text-[12px] font-medium leading-[16px] text-[#334155]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="size-[14px] max-w-none" src={amenity.icon} /> {amenity.label}
+              <img alt="" className="size-[14px] max-w-none student-invert" src={amenity.icon} /> {amenity.label}
             </span>
           ))}
         </div>

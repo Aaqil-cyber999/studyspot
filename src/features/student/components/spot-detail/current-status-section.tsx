@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Armchair, ClipboardPen, Clock, Users, Volume2, Wifi } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { LiveMetric, LiveMetricIcon } from "@/features/student/types/spot-detail";
 
 const metricIcon: Record<LiveMetricIcon, typeof Armchair> = {
@@ -68,8 +69,15 @@ export function CurrentStatusSection({ metrics, lastUpdated, showReportButton = 
                 {metric.segments.map((segment, index) => (
                   <span
                     key={segment.label}
-                    className="h-1.5 min-w-0 flex-1 rounded-full"
-                    style={{ backgroundColor: index < filledSegmentCount ? metric.iconColor : "#e2e8f0" }}
+                    className={cn(
+                      "h-1.5 min-w-0 flex-1 rounded-full",
+                      index >= filledSegmentCount && "bg-[#e2e8f0]",
+                    )}
+                    style={
+                      index < filledSegmentCount
+                        ? { backgroundColor: metric.iconColor }
+                        : undefined
+                    }
                   />
                 ))}
               </div>

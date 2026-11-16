@@ -272,14 +272,14 @@ export default function EditLocationPage() {
 
   if (!location) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fbfbfc] px-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#E2E8F0] px-6 text-center">
         <p className="text-sm text-slate-500">This location could not be found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc]">
+    <div className="min-h-screen bg-[#E2E8F0]">
       <div className="flex items-center gap-3 px-[24px] pb-[16px] pt-[16px]">
         <button onClick={() => router.back()} className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white">
           <ArrowLeft className="size-5 text-[#0f172a]" />

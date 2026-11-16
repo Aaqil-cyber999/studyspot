@@ -48,7 +48,7 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
           className="flex size-[36px] shrink-0 items-center justify-center rounded-[18px] border border-[#e2e8f0] bg-[#ddd] transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" className="size-[18px] max-w-none" src="/assets/rate/18c00.svg" />
+          <img alt="" className="student-invert size-[18px] max-w-none" src="/assets/rate/18c00.svg" />
         </button>
 
         <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
@@ -156,7 +156,7 @@ export function ReportStatusForm({ spotName }: ReportStatusFormProps) {
             className="flex h-[32px] w-full items-center justify-center gap-[8px] rounded-[10px] border border-[#e5e5e5] bg-white px-[10px] py-[6px] transition-colors hover:bg-[#f5f5f5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img alt="" className="size-[16px] max-w-none" src="/assets/rate/d3eff.svg" />
+            <img alt="" className="student-invert size-[16px] max-w-none" src="/assets/rate/d3eff.svg" />
             <span className="font-body text-[14px] font-medium leading-[20px] text-black">
               Cancel
             </span>

@@ -133,7 +133,7 @@ export function AmenitiesCard({
                   >
                     <span className="flex size-[16px] shrink-0 items-center justify-center">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img alt="" className="max-w-none" src={MENU_ICONS[amenity]} />
+                      <img alt="" className="student-invert max-w-none" src={MENU_ICONS[amenity]} />
                     </span>
                     <span>{amenity}</span>
                   </MenuItem>

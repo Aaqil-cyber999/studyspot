@@ -2,6 +2,7 @@
 
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/stores/theme-store";
 
 function Menu(props: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="menu" {...props} />;
@@ -33,6 +34,7 @@ function MenuContent({
   children,
   ...props
 }: MenuContentProps) {
+  const isDark = useThemeStore((state) => state.isDark);
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
@@ -45,6 +47,7 @@ function MenuContent({
       >
         <MenuPrimitive.Popup
           data-slot="menu-content"
+          data-admin-theme={isDark ? "dark" : "light"}
           className={cn(
             "flex flex-col gap-[2px] rounded-[12px] border border-[#e2e8f0] bg-[#ddd] p-[6px] shadow-[0px_8px_24px_0px_rgba(0,0,0,0.14)] outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className,

@@ -130,7 +130,7 @@ export function EditInfoDialog({
         }
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="" className="size-[16px] max-w-none" src="/assets/profile/3d68c.svg" />
+        <img alt="" className="student-invert size-[16px] max-w-none" src="/assets/profile/3d68c.svg" />
         <span className={triggerTextClassName}>{triggerLabel}</span>
       </DialogTrigger>
 

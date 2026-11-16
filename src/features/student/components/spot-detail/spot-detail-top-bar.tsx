@@ -39,16 +39,16 @@ export function SpotDetailTopBar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between bg-[rgba(248,249,255,0.9)] px-4 py-2 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] backdrop-blur-[6px]">
+    <header className="student-topbar sticky top-0 z-30 flex items-center justify-between bg-[rgba(248,249,255,0.9)] px-4 py-2 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] backdrop-blur-[6px]">
       <button type="button" onClick={() => router.back()} className={iconButton} aria-label="Go back">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="" className="h-[13.333px] w-[13.333px] max-w-none" src="/assets/detail/c667a.svg" />
+        <img alt="" className="student-invert h-[13.333px] w-[13.333px] max-w-none" src="/assets/detail/c667a.svg" />
       </button>
 
       <div className="flex items-center gap-1">
         <button type="button" onClick={share} className={iconButton} aria-label="Share this spot">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" className="h-[16.667px] w-[15px] max-w-none" src="/assets/detail/70707.svg" />
+          <img alt="" className="student-invert h-[16.667px] w-[15px] max-w-none" src="/assets/detail/70707.svg" />
         </button>
 
         <button
@@ -58,7 +58,7 @@ export function SpotDetailTopBar({
           aria-label="Add a review"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" className="h-[15.747px] w-[16.5px] max-w-none" src="/assets/detail/6fcc3.svg" />
+          <img alt="" className="student-invert h-[15.747px] w-[16.5px] max-w-none" src="/assets/detail/6fcc3.svg" />
         </button>
 
         <button
@@ -71,7 +71,7 @@ export function SpotDetailTopBar({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt=""
-            className={favoriteIcon}
+            className={saved ? favoriteIcon : `${favoriteIcon} student-invert`}
             src={
               saved
                 ? "/assets/saved/5cc8f.svg"
