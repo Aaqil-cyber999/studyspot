@@ -1,36 +1,32 @@
 import { Router } from "express";
-import { getAllReports, createReport } from "../db/queries.js";
+import { getLocationById, submitLiveStatus } from "../db/queries.js";
 import { validate } from "../middleware/validate.js";
-import { insertReportSchema } from "../db/schema.js";
+import { submitReportSchema } from "../db/schema.js";
 
 import { requireAuth, requireRole } from "../middleware/auth.js";
+import { asyncHandler } from "../lib/async-handler.js";
 import type { AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
-// GET /reports — admin view
-router.get(
-  "/",
-  requireAuth,
-  requireRole("super-admin", "university-admin"),
-  async (_req, res) => {
-    const reports = await getAllReports();
-    res.json(reports);
-  }
-);
-
-// POST /reports — students submit status reports
+// POST /reports — students submit a live status report; only the latest is kept on the location
 router.post(
   "/",
   requireAuth,
-  validate(insertReportSchema),
-  async (req: AuthRequest, res) => {
-    const r = await createReport({
-      ...req.body,
-      userId: req.user!.userId,
-    });
-    res.status(201).json(r);
-  }
+  requireRole("student"),
+  validate(submitReportSchema),
+  asyncHandler(async (req: AuthRequest, res) => {
+    const location = await getLocationById(req.body.locationId);
+    if (!location) {
+      return res.status(404).json({ error: "Location not found" });
+    }
+
+    const updated = await submitLiveStatus(req.body.locationId, req.user!.userId, req.body);
+    if (!updated) {
+      return res.status(404).json({ error: "Location not found" });
+    }
+    res.status(201).json(updated);
+  })
 );
 
 export default router;

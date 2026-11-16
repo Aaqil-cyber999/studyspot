@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../lib/jwt.js";
+import type { Request, Response, NextFunction } from "express";
+import { verifyToken, AUTH_COOKIE } from "../lib/jwt.js";
 
 export type AuthRequest = Request & {
   user?: { userId: string; email: string; role: string };
@@ -10,7 +10,7 @@ export function requireAuth(
   res: Response,
   next: NextFunction
 ): void | Response {
-  const token = req.cookies?.token;
+  const token = req.cookies?.[AUTH_COOKIE];
   if (!token) {
     return res.status(401).json({ error: "Not authenticated" });
   }
@@ -34,4 +34,13 @@ export function requireRole(...allowedRoles: string[]) {
     }
     next();
   };
+}
+
+/** Attaches req.user when a valid session cookie is present; never rejects. */
+export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction) {
+  const token = req.cookies?.[AUTH_COOKIE];
+  if (!token) return next();
+  const payload = verifyToken(token);
+  if (payload) req.user = payload;
+  next();
 }
