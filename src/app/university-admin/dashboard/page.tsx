@@ -2,14 +2,22 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Building2, ChevronRight, Clock3, MessageSquare, Search, Star, TrendingUp, User, Users } from "lucide-react";
+import { ArrowUpRight, Building2, ChevronRight, Clock3, MessageSquare, Eye, Star, TrendingUp, Users } from "lucide-react";
 import { PageLoader } from "@/components/shared/page-loader";
-import { getUaReviews, getUaDashboard, getUaLocations } from "@/services/university-admin";
+import { getUaReviews, getUaDashboard, getUaLocations, getUaTopLocations } from "@/services/university-admin";
+import { timeAgo } from "@/lib/time-ago";
 import { me } from "@/services/auth";
 
 const card = "rounded-[20px] border border-[#eef1f5] shadow-[0_2px_10px_rgba(15,23,42,0.03)]";
 const eyebrow = "text-[10px] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]";
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2";
+
+function initials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return Array.from(words[0]).slice(0, 2).join("").toUpperCase();
+  return `${Array.from(words[0])[0] ?? ""}${Array.from(words[words.length - 1])[0] ?? ""}`.toUpperCase();
+}
 
 export default function UaDashboardPage() {
   const { data: profile } = useQuery({ queryKey: ["ua", "profile"], queryFn: me });
@@ -24,6 +32,10 @@ export default function UaDashboardPage() {
   const { data: locations = [] } = useQuery({
     queryKey: ["ua", "locations"],
     queryFn: getUaLocations,
+  });
+  const { data: topSearches = [] } = useQuery({
+    queryKey: ["ua", "top-locations"],
+    queryFn: getUaTopLocations,
   });
 
   if (!overview || locations.length === 0 || !profile) {
@@ -44,7 +56,7 @@ export default function UaDashboardPage() {
     },
     {
       label: "Average rating",
-      value: avgRating.toFixed(1),
+      value: String(Math.round(avgRating)),
       detail: "Out of 5.0",
       icon: Star,
       iconClass: "bg-[#fffbeb] text-[#d97706]",
@@ -68,26 +80,8 @@ export default function UaDashboardPage() {
     },
   ];
 
-  // Top searches: sort locations by review count (popularity) then by rating
-  const topSearches = [...locations]
-    .sort((a, b) => {
-      if (b.reviews !== a.reviews) return b.reviews - a.reviews;
-      return b.rating - a.rating;
-    })
-    .slice(0, 5);
-
   function formatShortTime(time: string): string {
-    const match = time.match(/(\d+)\s*(day|days|week|weeks|hour|hours|minute|minutes|month|months)/i);
-    if (match) {
-      const num = match[1];
-      const unit = match[2].toLowerCase();
-      if (unit.startsWith("day")) return `${num}d`;
-      if (unit.startsWith("week")) return `${num}w`;
-      if (unit.startsWith("hour")) return `${num}h`;
-      if (unit.startsWith("minute")) return `${num}m`;
-      if (unit.startsWith("month")) return `${num}mo`;
-    }
-    return time.split(" ")[0] || time;
+    return timeAgo(time);
   }
 
   return (
@@ -96,11 +90,19 @@ export default function UaDashboardPage() {
         <div className="px-[24px] pt-[20px]">
           <div className="flex items-center justify-between gap-[12px]">
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-[24px] font-bold leading-[29px] tracking-[-0.5px] text-white">Good morning</h1>
+              <h1 className="truncate text-[24px] font-bold leading-[29px] tracking-[-0.5px] text-white" title={`Hi, ${profile.title ? `${profile.title} ${profile.name}` : profile.name}`}>
+                Hi, {profile.title ? `${profile.title} ${profile.name}` : profile.name}
+              </h1>
               <p className="truncate text-[14px] leading-[20px] text-white/90">{profile.universityName ?? "SpotWise"}</p>
             </div>
             <Link href="/university-admin/profile" aria-label="Open admin profile" className="flex size-[40px] shrink-0 items-center justify-center overflow-clip rounded-[20px] border-2 border-white bg-white text-[13px] font-bold text-[#f97316] transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316]">
-              {profile.name.split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() || "UA"}
+              {profile.name
+                .split(/\s+/)
+                .filter(Boolean)
+                .map((w) => w[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase() || "UA"}
             </Link>
           </div>
         </div>
@@ -151,12 +153,12 @@ export default function UaDashboardPage() {
                     <div className="flex shrink-0 items-center gap-3">
                       <div className="flex flex-col items-end">
                         <div className="flex items-center gap-1">
-                          <Search className="size-3 text-[#94a3b8]" aria-hidden="true" />
-                          <span className="text-[13px] font-bold tabular-nums text-[#0f172a]">{location.reviews}</span>
+                          <Eye className="size-3 text-[#94a3b8]" aria-hidden="true" />
+                          <span className="text-[13px] font-bold tabular-nums text-[#0f172a]">{location.totalViews}</span>
                         </div>
                         <div className="flex items-center gap-1 mt-0.5">
                           <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                          <span className="text-[10px] font-medium tabular-nums text-[#64748b]">{location.rating.toFixed(1)}</span>
+                          <span className="text-[10px] font-medium tabular-nums text-[#64748b]">{Math.round(location.rating)}</span>
                         </div>
                       </div>
                     </div>
@@ -170,8 +172,8 @@ export default function UaDashboardPage() {
         <section className={`${card} bg-white`}>
           <div className="flex items-center justify-between px-5 pt-5">
             <div>
-              <p className={eyebrow}>Feedback</p>
-              <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Recent feedback</h2>
+              <p className={eyebrow}>Reviews</p>
+              <h2 className="mt-1 text-[15px] font-semibold leading-[20px] tracking-[-0.2px] text-[#0f172a]">Recent reviews</h2>
             </div>
             <Link href="/university-admin/reviews" className="flex min-h-8 items-center gap-0.5 rounded-lg px-1.5 text-[11px] font-semibold text-[#f97316] transition hover:bg-[#fff7ed] hover:text-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2">
               View all
@@ -186,21 +188,25 @@ export default function UaDashboardPage() {
               reviews.slice(0, 2).map((review) => (
                 <article key={review.id} className="rounded-2xl border border-[#eef1f5] bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
                   <div className="mb-2 flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f97316] text-white">
-                      <User className="size-4" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
+                    {review.authorImg ? (
+                      <img src={review.authorImg} alt="" className="size-8 shrink-0 rounded-full object-cover bg-[#f1f5f9]" />
+                    ) : (
+                      <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#ffdbca] text-[11px] font-bold leading-4 text-[#9d4300]">
+                        {initials(review.author)}
+                      </span>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
                         <h3 className="text-[14px] font-semibold text-[#0f172a] truncate min-w-0">{review.author}</h3>
-                        <span className="text-[11px] text-[#94a3b8]">{formatShortTime(review.createdAt)}</span>
+                        <span className="shrink-0 text-[11px] text-[#94a3b8]">{formatShortTime(review.createdAt)}</span>
                       </div>
-                      <p className="text-[12px] text-[#64748b] truncate">{review.locationName}</p>
+                      <p className="text-[11px] leading-4 text-[#64748b] truncate">{review.locationName}</p>
                     </div>
                   </div>
                   <p className="text-[13px] leading-[19px] text-[#334155] line-clamp-2">&ldquo;{review.text}&rdquo;</p>
                   <div className="mt-2 flex items-center gap-1.5">
                     <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                    <span className="text-[11px] font-semibold tabular-nums text-[#64748b]">{review.rating.toFixed(1)}</span>
+                    <span className="text-[11px] font-semibold tabular-nums text-[#64748b]">{Math.round(review.rating)}</span>
                   </div>
                 </article>
               ))

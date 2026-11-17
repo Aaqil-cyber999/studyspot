@@ -72,7 +72,7 @@ export default function LocationPreviewPage() {
       address: building.trim(),
       hours,
       status: "Active" as const,
-      seats: "Unsure" as const,
+      seats: "Limited" as const,
       wifi: (amenities.includes("Wi-Fi") ? "Medium" : "Weak") as "Medium" | "Weak",
       crowd: "Medium" as const,
       noise: "Moderate" as const,

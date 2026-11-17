@@ -99,9 +99,9 @@ export default function UaLocationsPage() {
                     <h2 className="text-[16px] font-semibold leading-5 text-[#0f172a] line-clamp-2">{loc.name}</h2>
                     <p className="mt-[2px] text-[13px] leading-5 text-[#64748b]">{loc.building}</p>
                     <div className="mt-1.5 flex items-center gap-4 text-[12px] leading-4 text-[#64748b]">
-                      <span className="flex items-center gap-1" aria-label={`Rating ${loc.rating.toFixed(1)} out of 5`}>
+                      <span className="flex items-center gap-1" aria-label={`Rating ${Math.round(loc.rating)} out of 5`}>
                         <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                        <span className="font-semibold tabular-nums text-[#0f172a]">{loc.rating.toFixed(1)}</span>
+                        <span className="font-semibold tabular-nums text-[#0f172a]">{Math.round(loc.rating)}</span>
                       </span>
                       <span className="flex items-center gap-1" aria-label={`${loc.reviews} reviews`}>
                         <MessageSquare className="size-3.5 text-[#94a3b8]" aria-hidden="true" />

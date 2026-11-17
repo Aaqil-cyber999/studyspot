@@ -4,27 +4,37 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
 import toast from "react-hot-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ChevronLeft, ChevronRight, EyeOff, Pencil, Star, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { ArrowLeft, ChevronRight, EyeOff, MessageSquare, Pencil, Star, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageLoader } from "@/components/shared/page-loader";
-import {
-  getUaLocation,
-  getUaLocationReviews,
-  updateUaLocation,
-  deleteUaLocation,
-  moderateUaReview,
-} from "@/services/university-admin";
+import { ImageCarousel } from "@/components/shared/image-carousel";
+import { timeAgo } from "@/lib/time-ago";
+import { ShowMoreReviewsButton } from "@/components/shared/show-more-reviews-button";
+import { getUaLocation, getUaLocationReviews, updateUaLocation, deleteUaLocation, moderateUaReview } from "@/services/university-admin";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { CurrentStatusSection } from "@/features/student/components/spot-detail/current-status-section";
 import type { LiveMetric } from "@/features/student/types/spot-detail";
+
+const PAGE_SIZE = 10;
+
+function initials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return Array.from(words[0]).slice(0, 2).join("").toUpperCase();
+  return `${Array.from(words[0])[0] ?? ""}${Array.from(words[words.length - 1])[0] ?? ""}`.toUpperCase();
+}
 
 export default function UaLocationDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: location, isPending, isError } = useQuery({
+  const {
+    data: location,
+    isPending,
+    isError,
+  } = useQuery({
     queryKey: ["ua", "location", params.id],
     queryFn: () => getUaLocation(params.id),
     retry: 1,
@@ -46,6 +56,27 @@ export default function UaLocationDetailsPage() {
   const [statusToggleOpen, setStatusToggleOpen] = useState(false);
   const [commentToHide, setCommentToHide] = useState<string | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [visibleReviews, setVisibleReviews] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const shownReviews = useMemo(() => comments.slice(0, visibleReviews), [comments, visibleReviews]);
+  const hasMoreReviews = comments.length > visibleReviews;
+
+  // Infinite scroll: load the next batch of review tiles when the sentinel scrolls into view.
+  useEffect(() => {
+    if (!hasMoreReviews) return;
+    const element = sentinelRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisibleReviews((current) => Math.min(current + PAGE_SIZE, comments.length));
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasMoreReviews, comments.length]);
 
   if (isPending) {
     return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
@@ -70,7 +101,7 @@ export default function UaLocationDetailsPage() {
     {
       id: "seats",
       label: "Seats available",
-      value: location.seats === "Yes" ? "Available" : location.seats === "No" ? "Full" : "Unsure",
+      value: location.seats === "No" ? "Full" : location.seats,
       icon: "armchair",
       iconBackground: "rgba(16, 185, 129, 0.14)",
       iconColor: "#10b981",
@@ -160,44 +191,40 @@ export default function UaLocationDetailsPage() {
       <div className="space-y-4 px-6 pb-4">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
           {location.imageUrls && location.imageUrls.length > 0 ? (
-            <div className="relative w-full overflow-hidden bg-[#f8fafc]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={location.imageUrls[Math.min(currentIdx, location.imageUrls.length - 1)]} alt={`Photo ${Math.min(currentIdx, location.imageUrls.length - 1) + 1} of ${location.imageUrls.length}`} className="h-[200px] w-full object-cover" />
-
-              {location.imageUrls.length > 1 && (
-                <>
-                  <button type="button" onClick={() => setCurrentIdx((idx) => (idx - 1 + location.imageUrls!.length) % location.imageUrls!.length)} aria-label="Previous image" className="absolute top-1/2 left-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#0f172a] shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]">
-                    <ChevronLeft className="size-[18px]" />
-                  </button>
-                  <button type="button" onClick={() => setCurrentIdx((idx) => (idx + 1) % location.imageUrls!.length)} aria-label="Next image" className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#0f172a] shadow-sm hover:bg-white outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]">
-                    <ChevronRight className="size-[18px]" />
-                  </button>
-                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white">
-                    {currentIdx + 1} / {location.imageUrls.length}
-                  </span>
-                </>
-              )}
+            <div className="relative">
+              <ImageCarousel previewUrls={location.imageUrls} currentIdx={currentIdx} onPrev={() => setCurrentIdx((idx) => (idx - 1 + location.imageUrls!.length) % location.imageUrls!.length)} onNext={() => setCurrentIdx((idx) => (idx + 1) % location.imageUrls!.length)} onRemove={() => {}} showRemoveButton={false} />
+              <span className={`absolute left-3 top-3 z-10 rounded-full px-3 py-1 text-xs font-semibold shadow ${location.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"}`}>{location.status}</span>
             </div>
           ) : null}
           <div className="space-y-3 p-4">
-            <div className="flex items-center justify-between gap-2">
+            {location.imageUrls && location.imageUrls.length > 0 ? (
               <div>
                 <h2 className="text-lg font-bold text-slate-900">{location.name}</h2>
                 <p className="mt-1 text-sm text-slate-500">{location.building}</p>
               </div>
-              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${location.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"}`}>{location.status}</span>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">{location.name}</h2>
+                  <p className="mt-1 text-sm text-slate-500">{location.building}</p>
+                </div>
+                <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${location.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"}`}>{location.status}</span>
+              </div>
+            )}
             <p className="text-sm leading-5 text-slate-600">{location.description}</p>
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <Star className="size-3 text-amber-500" aria-hidden="true" />
-              <span className="font-semibold text-slate-700">{location.rating ? location.rating.toFixed(1) : "New"}</span>
+              <span className="font-semibold text-slate-700">{location.rating ? Math.round(location.rating) : "New"}</span>
               <span>·</span>
-              <span>{location.reviews} student reviews</span>
+              <span className="flex items-center gap-1">
+                <MessageSquare className="size-3 text-slate-400" aria-hidden="true" />
+                {location.reviews} student reviews
+              </span>
             </div>
           </div>
         </section>
 
-        <CurrentStatusSection metrics={studentMetrics} lastUpdated={(location.lastUpdated ?? "Reported recently").replace("Updated", "Reported")} showReportButton={false} />
+        <CurrentStatusSection metrics={studentMetrics} lastUpdated={(location.lastUpdated ?? "Reported recently").replace("Updated", "Reported")} showReportButton={false} reportComment={location.reportComment ?? null} lastReportedByName={location.lastReportedByName ?? null} lastReportedByFaculty={location.lastReportedByFaculty ?? null} />
 
         <section className="rounded-[20px] border border-[#e2e8f0] bg-white p-[20px] shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
           <div className="mb-4 flex items-center justify-between">
@@ -234,23 +261,52 @@ export default function UaLocationDetailsPage() {
               <h2 className="text-base font-bold text-slate-900">Recent student reviews</h2>
               <p className="mt-0.5 text-xs text-slate-400">{comments.length} reviews</p>
             </div>
-            {comments.map((comment) => (
+            {shownReviews.map((comment) => (
               <div key={comment.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="flex items-center gap-0.5 text-xs font-semibold text-amber-500" aria-label={`${Math.round(comment.rating)} out of 5 stars`}>
-                    {[...Array(5)].map((_, index) => (
-                      <Star key={index} className={`size-3 ${index < Math.round(comment.rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#e2e8f0] text-[#e2e8f0]"}`} aria-hidden="true" />
-                    ))}
-                  </p>
-                  <span className="text-[11px] text-slate-400">{comment.createdAt}</span>
+                <div className="flex items-center gap-3">
+                  {comment.authorImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={comment.authorImg} alt="" loading="lazy" decoding="async" className="size-9 shrink-0 rounded-full bg-[#f1f5f9] object-cover" />
+                  ) : (
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#ffdbca] text-[11px] font-bold text-[#9d4300]" aria-hidden="true">
+                      {initials(comment.author)}
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-[13px] font-semibold text-[#0f172a]">{comment.author}</p>
+                      <span className="shrink-0 text-[11px] text-slate-400">{timeAgo(comment.createdAt)}</span>
+                    </div>
+                    <p className="truncate text-[11px] leading-4 text-slate-500">{comment.authorFaculty ?? "Faculty not set"}</p>
+                  </div>
                 </div>
                 <p className="mt-2 text-sm text-slate-700">&ldquo;{comment.text}&rdquo;</p>
-                <button type="button" onClick={() => setCommentToHide(comment.id)} className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-red-600">
-                  <EyeOff className="h-3.5 w-3.5" /> Hide review
-                </button>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-1.5" aria-label={`${Math.round(comment.rating)} out of 5 stars`}>
+                    <Star className="size-4 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
+                    <span className="text-[13px] font-semibold tabular-nums text-[#0f172a]">{Math.round(comment.rating)}</span>
+                  </span>
+                  <button type="button" onClick={() => setCommentToHide(comment.id)} className="flex shrink-0 items-center gap-1.5 rounded-md px-1 py-1 text-xs font-semibold text-red-600 transition-colors hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2">
+                    <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> Hide review
+                  </button>
+                </div>
               </div>
             ))}
             {comments.length === 0 ? <div className="text-center text-sm text-slate-500">No reviews yet.</div> : null}
+            {hasMoreReviews ? (
+              <>
+                <div ref={sentinelRef} aria-hidden="true" className="h-1 w-full" />
+                <div className="flex flex-col items-center gap-1.5 pb-1">
+                  <ShowMoreReviewsButton
+                    remaining={comments.length - visibleReviews}
+                    onLoadMore={() => setVisibleReviews((current) => Math.min(current + PAGE_SIZE, comments.length))}
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    {shownReviews.length} of {comments.length} shown
+                  </p>
+                </div>
+              </>
+            ) : null}
           </div>
         </section>
       </div>
@@ -271,7 +327,7 @@ export default function UaLocationDetailsPage() {
         onOpenChange={(open) => {
           if (!open) setCommentToHide(null);
         }}
-        title="Hide this comment?"
+        title="Hide this review?"
         description="Students will no longer see this review, but it will remain available to Admins."
         confirmLabel="Hide review"
         onConfirm={() => {

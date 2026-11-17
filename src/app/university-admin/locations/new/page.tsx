@@ -192,7 +192,7 @@ export default function AddLocationPage() {
         address: building.trim(),
         hours: hoursString,
         status: "Active",
-        seats: "Unsure",
+        seats: "Limited",
         wifi: wifiAvailable ? "Medium" : "Weak",
         crowd: "Medium",
         noise: "Moderate",

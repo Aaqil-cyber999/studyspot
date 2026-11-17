@@ -1,14 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, Star, User, Eye, EyeOff } from "lucide-react";
+import { Search, Star, MapPin, Eye, EyeOff } from "lucide-react";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { PageLoader } from "@/components/shared/page-loader";
 import { getUaReviews, moderateUaReview } from "@/services/university-admin";
+import { timeAgo } from "@/lib/time-ago";
+import { ShowMoreReviewsButton } from "@/components/shared/show-more-reviews-button";
 import toast from "react-hot-toast";
 
 type FeedbackFilter = "All" | "Hidden";
+
+function initials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return Array.from(words[0]).slice(0, 2).join("").toUpperCase();
+  return `${Array.from(words[0])[0] ?? ""}${Array.from(words[words.length - 1])[0] ?? ""}`.toUpperCase();
+}
+
+const PAGE_SIZE = 10;
 
 export default function UaReviewsPage() {
   const queryClient = useQueryClient();
@@ -19,6 +30,8 @@ export default function UaReviewsPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FeedbackFilter>("All");
   const [reviewToHide, setReviewToHide] = useState<string | null>(null);
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
   const filteredReviews = useMemo(
@@ -29,6 +42,26 @@ export default function UaReviewsPage() {
       }),
     [reviews, filter, normalizedQuery],
   );
+
+  const shownReviews = useMemo(() => filteredReviews.slice(0, visible), [filteredReviews, visible]);
+  const hasMore = filteredReviews.length > visible;
+
+  // Infinite scroll: load the next batch when the sentinel scrolls into view.
+  useEffect(() => {
+    if (!hasMore) return;
+    const element = sentinelRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible((current) => Math.min(current + PAGE_SIZE, filteredReviews.length));
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasMore, filteredReviews.length]);
 
   async function setReviewStatus(id: string, status: "Visible" | "Hidden") {
     try {
@@ -50,11 +83,11 @@ export default function UaReviewsPage() {
         <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
           <Search className="size-[18px] text-slate-400" />
           <span className="sr-only">Search feedback</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by location or text" className="min-w-0 flex-1 bg-white text-sm outline-none placeholder:text-slate-400" />
+          <input value={query} onChange={(event) => { setQuery(event.target.value); setVisible(PAGE_SIZE); }} placeholder="Search by location or text" className="min-w-0 flex-1 bg-white text-sm outline-none placeholder:text-slate-400" />
         </label>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Feedback type">
           {(["All", "Hidden"] as const).map((item) => (
-            <button key={item} type="button" role="tab" aria-selected={filter === item} onClick={() => setFilter(item)} className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316] ${filter === item ? "bg-orange-500 text-white" : "border border-slate-200 bg-white text-slate-600"} `}>
+            <button key={item} type="button" role="tab" aria-selected={filter === item} onClick={() => { setFilter(item); setVisible(PAGE_SIZE); }} className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f97316] ${filter === item ? "bg-orange-500 text-white" : "border border-slate-200 bg-white text-slate-600"} `}>
               {item}
             </button>
           ))}
@@ -66,41 +99,50 @@ export default function UaReviewsPage() {
           <PageLoader className="min-h-[40vh]" />
         ) : (
           <div className="flex flex-col gap-4">
-            {filteredReviews.map((review) => (
-              <article
-                key={review.id}
-                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(0,0,0,0.04)]"
-              >
+            {shownReviews.map((review) => (
+              <article key={review.id} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
                 <div className="mb-3 flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f97316] text-white">
-                    <User className="size-4" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[15px] font-semibold text-[#0f172a] truncate min-w-0">{review.author}</h3>
-                      <span className="text-[12px] text-[#94a3b8]">{review.createdAt}</span>
+                  {review.authorImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={review.authorImg}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="size-9 shrink-0 rounded-full object-cover bg-[#f1f5f9]"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#ffdbca] text-[12px] font-bold leading-5 text-[#9d4300]"
+                    >
+                      {initials(review.author)}
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="min-w-0 truncate text-[15px] font-semibold text-[#0f172a]">{review.author}</h3>
+                      <span className="shrink-0 text-[11px] text-[#94a3b8]">{timeAgo(review.createdAt)}</span>
                     </div>
-                    <p className="text-[13px] text-[#64748b] truncate">{review.locationName}</p>
+                    <p className="truncate text-[12px] text-[#64748b]">{review.authorFaculty ?? "Faculty not set"}</p>
                   </div>
                 </div>
 
-                <p className="flex-1 text-[14px] leading-relaxed text-[#334155] mb-4">
-                  {review.text}
-                </p>
+                {/* Location as a map-pin chip that points at the spot */}
+                <div className="mb-2 inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-[#fed7aa] bg-[#fff7ed] py-1 pl-2 pr-2.5 text-[11px] font-semibold leading-4 text-[#c2410c]">
+                  <MapPin className="size-3 shrink-0 text-[#f97316]" aria-hidden="true" />
+                  <span className="min-w-0 truncate">{review.locationName}</span>
+                </div>
+
+                <p className="flex-1 text-[14px] leading-relaxed text-[#334155] mb-1">{review.text}</p>
 
                 <div className="flex items-center justify-between border-t border-slate-100 pt-4">
                   <div className="flex items-center gap-1.5">
                     <Star className="size-4 fill-amber-500 text-amber-500" />
-                    <span className="text-[14px] font-semibold text-[#0f172a]">{review.rating.toFixed(1)}</span>
+                    <span className="text-[14px] font-semibold text-[#0f172a]">{Math.round(review.rating)}</span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => review.status === "Visible" ? setReviewToHide(review.id) : setReviewStatus(review.id, "Visible")}
-                    className={`flex items-center gap-1.5 text-[13px] font-semibold transition-colors ${
-                      review.status === "Visible" ? "text-red-600 hover:text-red-700" : "text-orange-600 hover:text-orange-700"
-                    }`}
-                  >
+                  <button type="button" onClick={() => (review.status === "Visible" ? setReviewToHide(review.id) : setReviewStatus(review.id, "Visible"))} className={`flex items-center gap-1.5 text-[13px] font-semibold transition-colors ${review.status === "Visible" ? "text-red-600 hover:text-red-700" : "text-orange-600 hover:text-orange-700"}`}>
                     {review.status === "Visible" ? (
                       <>
                         <EyeOff className="size-3.5" /> Hide
@@ -114,6 +156,18 @@ export default function UaReviewsPage() {
                 </div>
               </article>
             ))}
+            {hasMore ? (
+              <>
+                <div ref={sentinelRef} aria-hidden="true" className="h-1 w-full" />
+                <div className="flex flex-col items-center gap-1.5 pb-2">
+                  <ShowMoreReviewsButton
+                    remaining={filteredReviews.length - visible}
+                    onLoadMore={() => setVisible((current) => Math.min(current + PAGE_SIZE, filteredReviews.length))}
+                  />
+                  <p className="text-[11px] text-slate-400">{shownReviews.length} of {filteredReviews.length} shown</p>
+                </div>
+              </>
+            ) : null}
           </div>
         )}
       </div>
