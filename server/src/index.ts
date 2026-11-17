@@ -1,6 +1,8 @@
 import express from "express";
+import type { Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import locationRoutes from "./routes/locations.js";
@@ -33,6 +35,10 @@ app.use(
 // Profile photos travel as base64 data URLs, so the body limit is generous.
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+
+// Log every request with the path only (no query strings, tokens or bodies).
+morgan.token<Request, Response>("path", (req) => req.path);
+app.use(morgan<Request, Response>(":method :path :status :response-time ms"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
