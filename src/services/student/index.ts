@@ -13,11 +13,14 @@ export interface ApiLocation {
   address: string;
   hours: string | null;
   status: "Active" | "Inactive";
-  seats: "Yes" | "Limited" | "No" | "Unsure" | null;
+  seats: "Yes" | "Limited" | "No" | null;
   wifi: "Strong" | "Medium" | "Weak" | null;
   crowd: "Low" | "Medium" | "High" | null;
   noise: "Quiet" | "Moderate" | "Loud" | null;
+  reportComment: string | null;
   lastReportedBy: string | null;
+  lastReportedByName: string | null;
+  lastReportedByFaculty?: string | null;
   lastReportedAt: string | null;
   description: string | null;
   amenities: string[];
@@ -74,7 +77,7 @@ function toStudentSpot(location: ApiLocation) {
     amenities: location.amenities,
     imageUrls: location.imageUrls,
     status: location.status,
-    seats: location.seats ?? "Unsure",
+    seats: location.seats ?? "Limited",
     wifi: location.wifi ?? "Weak",
     crowd: location.crowd ?? "Medium",
     noise: location.noise ?? "Moderate",
@@ -93,9 +96,12 @@ function toSpotDetail(location: ApiLocation, reviews: Array<{ id: string; author
     rating: toRating(location.rating),
     reviewCount: location.reviews,
     staffMonitored: location.staffMonitored,
-    hero: { image, alt: `Students studying at ${location.name}`, photoCount: location.imageUrls.length || 1 },
+    hero: { image, alt: `Students studying at ${location.name}`, photoCount: location.imageUrls.length || 1, images: location.imageUrls.length ? location.imageUrls : [image] },
     hours: toOperatingHours(location.hours),
     lastUpdated: relative(location.lastUpdated) ?? "Recently updated",
+    reportComment: location.reportComment ?? null,
+    lastReportedByName: location.lastReportedByName ?? (location.lastReportedBy ? "A student" : null),
+    lastReportedByFaculty: location.lastReportedByFaculty ?? null,
     metrics: toMetrics(location),
     amenities: toSpotAmenities(location.amenities),
     reviews: {
@@ -155,7 +161,7 @@ function toMetrics(location: ApiLocation): LiveMetric[] {
     {
       id: "seats",
       label: "Seats available",
-      value: location.seats === "Yes" ? "Available" : location.seats === "Limited" ? "Limited" : location.seats === "No" ? "Full" : "Unsure",
+      value: location.seats === "Yes" ? "Available" : location.seats === "Limited" ? "Limited" : location.seats === "No" ? "Full" : "Limited",
       icon: "armchair",
       iconBackground: "rgba(16, 185, 129, 0.14)",
       iconColor: "#10b981",
@@ -227,31 +233,33 @@ function toOperatingHours(hours: string | null): OperatingHours {
   return { isOpen: true, openLabel: "Open now", closesLabel: hours ?? "Hours vary", peakLabel: "Peak 6–8 PM", segments, labels };
 }
 
-const AMENITY_ICON_MAP: Record<string, { icon: string; width: number; height: number; detail: string }> = {
-  "Wi-Fi": { icon: "/assets/detail/165b6.svg", width: 11.667, height: 15, detail: "Campus network access" },
-  "Power outlets": { icon: "/assets/detail/c6e1e.svg", width: 18.333, height: 18.333, detail: "Available at desks" },
-  Computers: { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667, detail: "Workstations available" },
-  "Silent zones": { icon: "/assets/detail/f5477.svg", width: 15, height: 15, detail: "Quiet policy in place" },
-  "Quiet zones": { icon: "/assets/detail/f5477.svg", width: 15, height: 15, detail: "Quiet policy in place" },
-  "Group work": { icon: "/assets/detail/1f4f4.svg", width: 20, height: 39, detail: "Collaborative tables" },
-  "Individual carrels": { icon: "/assets/detail/e70fe.svg", width: 16.667, height: 15, detail: "Individual quiet desks" },
-  "Reading desks": { icon: "/assets/detail/e70fe.svg", width: 16.667, height: 15, detail: "Reading desks" },
-  "Group study": { icon: "/assets/detail/1f4f4.svg", width: 20, height: 39, detail: "Group discussion rooms" },
-  "Print station": { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667, detail: "Printing available" },
-  Printing: { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667, detail: "Printing available" },
-  Cafeteria: { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667, detail: "Food and drinks nearby" },
-  "Power outlet": { icon: "/assets/detail/c6e1e.svg", width: 18.333, height: 18.333, detail: "Available at desks" },
+const AMENITY_ICON_MAP: Record<string, { icon: string; width: number; height: number }> = {
+  "Wi-Fi": { icon: "/assets/detail/165b6.svg", width: 11.667, height: 15 },
+  "Power outlets": { icon: "/assets/detail/c6e1e.svg", width: 18.333, height: 18.333 },
+  Computers: { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667 },
+  "Silent zones": { icon: "/assets/detail/f5477.svg", width: 15, height: 15 },
+  "Quiet zones": { icon: "/assets/detail/f5477.svg", width: 15, height: 15 },
+  "Group work": { icon: "/assets/detail/1f4f4.svg", width: 20, height: 39 },
+  "Individual carrels": { icon: "/assets/detail/e70fe.svg", width: 16.667, height: 15 },
+  "Reading desks": { icon: "/assets/detail/e70fe.svg", width: 16.667, height: 15 },
+  "Group study": { icon: "/assets/detail/1f4f4.svg", width: 20, height: 39 },
+  "Print station": { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667 },
+  Printing: { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667 },
+  Cafeteria: { icon: "/assets/detail/4dc4b.svg", width: 13.333, height: 16.667 },
+  "Power outlet": { icon: "/assets/detail/c6e1e.svg", width: 18.333, height: 18.333 },
 };
+
+// Amenity with no dedicated Figma icon — use a general check-circle glyph.
+const GENERAL_AMENITY_ICON = { icon: "/assets/detail/general-amenity.svg", width: 16, height: 16 };
 
 function toSpotAmenities(labels: string[]): SpotAmenity[] {
   return labels.slice(0, 8).map((label) => {
     const meta = AMENITY_ICON_MAP[label];
     return {
       label,
-      detail: meta?.detail ?? "On-site amenity",
-      icon: meta?.icon ?? "/assets/detail/e70fe.svg",
-      iconWidth: meta?.width ?? 16.667,
-      iconHeight: meta?.height ?? 15,
+      icon: meta?.icon ?? GENERAL_AMENITY_ICON.icon,
+      iconWidth: meta?.width ?? GENERAL_AMENITY_ICON.width,
+      iconHeight: meta?.height ?? GENERAL_AMENITY_ICON.height,
     };
   });
 }
