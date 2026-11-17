@@ -44,3 +44,11 @@ next-env.d.ts
 # agent skills
 /.agents
 build.log
+
+# compiled backend output
+server/dist/
+
+# local scratch screenshots (kept out of the repo)
+/*.png
+/*.jpeg
+/*.jpg

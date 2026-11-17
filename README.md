@@ -2,230 +2,321 @@
 
 > **Focus starts with the right place.**
 
-SpotWise is a study-space discovery application for students and university teams. Students can discover, compare, save, and review study locations, while University Admins and Super Admins manage locations, reviews and registration requests.
+SpotWise is a study-space discovery platform for Sri Lankan university campuses. Students discover, compare, save, review and report study locations. University admins manage their university's locations and moderate student feedback. Super admins run the whole platform: universities, admins, registration requests, platform-wide locations and reviews.
 
-The frontend is a Next.js app backed by an Express + PostgreSQL backend. All screens derive their data from the database — there is no mock data in the frontend (see `AGENTS.md` for per-feature details).
+The system has **three role-based portals** sharing one Next.js frontend and one Express + PostgreSQL backend. There is no mock data — every screen reads live from the database.
 
-## Product Highlights
+## Portals at a glance
+
+| Portal | Role | Purpose |
+|---|---|---|
+| `/student/*` | Student | Discover spots, save them, review them, report their live status |
+| `/university-admin/*` | University admin | Manage own university's locations, moderate its reviews, configure its profile |
+| `/super-admin/*` | Super admin | Platform oversight: universities, admins, registration approvals, platform-wide data |
 
 ### Student experience
-
 - Welcome screen with role selection
-- University selection with searchable, DB-backed university cards (active universities only, with live location counts)
-- Student onboarding form with selected-university state
-- Discover page with:
-  - All seeded DB locations, searched client-side
-  - Search by name, building, faculty, amenity, and description
-  - Amenity and status filter chips
-  - Result counts and empty states
-  - Ratings, review counts, opening hours, amenities, and last-updated metadata
-- Spot detail pages with:
-  - Location information and image gallery
-  - Current status for seats, Wi-Fi, crowd level, and noise
-  - Progressive status indicators
-  - Reviews and ratings backed by the API
-  - Add Review modal with required comments and ratings
-  - Save, share, and report actions
-- Saved places page synchronized with Discover and detail-page bookmarks via `/api/saved`
-- Profile page with:
-  - Editable name and location, persisted via `/api/users/me`
-  - Profile-photo upload and removal, persisted via `/api/users/me/profile-image`
-  - Study-style, noise-level, and study-type preferences persisted to the DB
-  - Reversible amenity selection persisted to the DB
-  - Sign-out confirmation dialog
+- Email-OTP sign in (no password). In development the API returns a `devCode` which the app surfaces via a toast; no email provider yet.
+- Onboarding: pick a university, fill in your name & details
+- Discover: search + filter (price, amenities, noise) over the school's own spots — all data DB-backed, including ratings/review counts and last-updated hints
+- Spot detail: gallery with a sliding carousel (auto-advance), live current-status (seats / Wi-Fi / crowd / noise) from the latest student report, amenities, reviews with pagination ("Show more reviews" button, infinite scroll, native `loading="lazy"` avatars), save/bookmark, report a status with a comment
+- Saved places, profile (name/photo, study preferences, amenities), sign in/out
 
 ### University Admin experience
-
-- Sign-in against the Express API with university-admin credentials
-- Dashboard with live stats (locations, average rating, reviews, quiet spaces)
-- Location listing, detail, add, edit, and deactivate screens (scoped to your university)
-- Review moderation (hide/show)
-- Profile editing with photo upload
-- Option management screen for controlling student-facing report choice lists
+- Password sign in
+- Dashboard with live stats: locations, average rating, reviews, quiet spaces, **most searched study spaces** (real `total_views` counter incremented on each student spot-detail open, ties broken by review count), top recent reviews with avatars
+- Locations CRUD (photo gallery, hours, amenities, staff monitoring, deactivate/delete), scoped to the admin's own university
+- Reviews moderation, scoped to the admin's own university, with lazy-loading
+- Profile editing with photo and title
+- Report options screen (**read-only** — student-facing option labels are owned by super admins)
 
 ### Super Admin experience
-
-- Platform dashboard (universities, admins, pending requests, locations, reviews)
-- University management
-- University-admin management
-- Registration-request review flow (approve issues a one-time temporary password)
-- Platform-wide locations and reviews
-- Profile and confirmation screens
+- Platform dashboard: totals, pending approvals, recent reviews
+- Universities CRUD: create universities (name + enabled/disabled), activate/deactivate
+- Admins: manage university-admin accounts
+- Registration requests: review/approve/reject; approving provisions university + admin account and returns a one-time temporary password
+- Locations & reviews platform-wide moderation
+- Profile: photo, profile photo upload, super-admin specific overview
 
 ## Routes
 
-### Public and onboarding routes
+### Public and onboarding
 
 | Route | Purpose |
 |---|---|
 | `/` | Welcome and role selection |
 | `/student/login` | Student OTP login |
-| `/student/verify` | OTP verification screen |
+| `/student/verify` | OTP verification |
 | `/student/select-university` | Search and select a university |
-| `/student/info` | Complete student onboarding details |
+| `/student/info` | Complete onboarding details (first-time login) |
 | `/university-admin/register` | Public university-admin registration request |
+| `/university-admin/login` | Admin sign-in |
+| `/super-admin/login` | Super admin sign-in |
 
 ### Student routes
 
 | Route | Purpose |
 |---|---|
 | `/student/home` | Discover study spaces |
-| `/student/results/[id]` | Spot details, status, reviews, and actions |
-| `/student/saved` | Saved study places |
-| `/student/profile` | Profile, preferences, amenities, and sign out |
+| `/student/results/[id]` | Spot detail: gallery, status, reviews, actions |
+| `/student/saved` | Saved spots |
+| `/student/profile` | Profile, preferences, amenities, sign out |
 | `/student/rate` | Report a spot's current status |
 | `/student/review` | Review a pending status report |
 | `/student/result` | Status-report confirmation |
+| `/student/info` | Onboarding details |
 
 ### University Admin routes
 
 | Route | Purpose |
 |---|---|
-| `/university-admin/login` | Admin login |
-| `/university-admin/dashboard` | University overview |
-| `/university-admin/locations` | Manage university locations |
+| `/university-admin/dashboard` | University overview + top searches |
+| `/university-admin/locations` | List own university's locations |
 | `/university-admin/locations/new` | Add a location |
-| `/university-admin/locations/[id]` | View location details |
+| `/university-admin/locations/[id]` | View location (hero, status, reviews) |
 | `/university-admin/locations/[id]/edit` | Edit a location |
-| `/university-admin/reviews` | Moderate reviews |
-| `/university-admin/settings/options` | Manage student-facing report choice lists |
-| `/university-admin/profile` | Admin profile |
+| `/university-admin/locations/preview` | Registration flow preview (used by `new`) |
+| `/university-admin/reviews` | Moderate reviews (own university only) |
+| `/university-admin/settings/options` | Student report form options (read-only) |
+| `/university-admin/profile` | Profile + photo + theme toggle |
 
 ### Super Admin routes
 
 | Route | Purpose |
 |---|---|
 | `/super-admin/dashboard` | Platform overview |
-| `/super-admin/universities` | Manage universities |
-| `/super-admin/admins` | Manage university admins |
-| `/super-admin/admins/[id]` | University-admin detail |
-| `/super-admin/requests` | Review registration requests |
-| `/super-admin/requests/[id]` | View request details |
+| `/super-admin/universities` | Universities CRUD (create/activate/deactivate + create flow) |
+| `/super-admin/admins` | University-admin accounts |
+| `/super-admin/admins/[id]` | Admin detail |
+| `/super-admin/requests` | Registration requests (approve/reject) |
+| `/super-admin/requests/[id]` | Request detail |
 | `/super-admin/locations` | Platform-wide locations |
-| `/super-admin/locations/[id]` | Location detail and review moderation |
-| `/super-admin/reviews` | Platform-wide review moderation |
-| `/super-admin/profile` | Super Admin profile |
-| `/super-admin/confirmation` | Approval/rejection confirmation state |
+| `/super-admin/locations/[id]` | Location detail (hero carousel, status, reviews moderation) |
+| `/super-admin/reviews` | Platform-wide moderation |
+| `/super-admin/profile` | Profile + theme toggle |
+| `/super-admin/confirmation` | Approval/rejection confirmation page |
 
-## Tech Stack
+## Architecture
 
-- **Next.js 16** — App Router and route-based page structure
-- **React 19** — UI components and client interactions
-- **TypeScript** — type-safe application code
-- **Tailwind CSS 4** — utility-first styling
-- **shadcn/ui and Base UI** — reusable accessible primitives
-- **Lucide React** — interface icons
-- **Zustand** — shared client state (auth session, profile cache, report draft, onboarding)
-- **TanStack Query** — server-state fetching and cache invalidation
-- **Zod** — form validation
-- **react-hot-toast** — action feedback
-- **Express + Drizzle + PostgreSQL** — backend API (`server/`)
-- **Geologica and Inter** — interface typography
-
-## Getting Started
-
-### Requirements
-
-- Node.js compatible with the project's Next.js 16 setup
-- npm
-- PostgreSQL (for the backend)
-
-### Install dependencies
-
-```bash
-npm install
-cd server && npm install
+```
+.
+├── src/                         # Next.js App Router
+│   ├── app/                     # Routes
+│   ├── components/
+│   │   ├── navigation/          # Role navigation
+│   │   ├── shared/              # Cross-role components
+│   │   └── ui/                  # shadcn/ui primitives
+│   ├── features/                # Feature-scoped components/schemas/types
+│   ├── hooks/                   # Shared hooks
+│   ├── lib/                     # Utilities (e.g. timeAgo)
+│   ├── services/                # Typed API clients (per role)
+│   ├── stores/                  # Zustand stores
+│   └── types/                   # Shared TypeScript types
+├── public/assets/               # Static assets (Figma exports)
+└── server/                      # Express + Drizzle + PostgreSQL API
 ```
 
-### Backend (Express + PostgreSQL + Drizzle)
+**Request lifecycle**
+1. UI calls a typed client in `src/services/*` with TanStack Query
+2. Express route (zod-validated) with optional-auth/required-auth middleware runs
+3. Drizzle ORM queries PostgreSQL; successful responses are shaped by role
+4. TanStack Query cache keeps the UI consistent; invalidations on writes refresh dependent views
+
+**Security boundary**
+- `src/proxy.ts` (Next 16 proxy) routes unauthenticated users to the correct portal's login.
+- Every `/api/*` route enforces its own auth + role middleware. The proxy is UX only — the backend is the security boundary.
+- University-admins are scoped to their own university on every read/write (locations, reviews, dashboard stats, report visibility). Cross-university writes are forbidden (403).
+- Super admins bypass university scoping (platform-wide).
+- Report-options writes (student survey labels) are super-admin only.
+- `PUT /users/me` refuses role changes to `universityId` for admins (scope comes from that column).
+- Unique-form handling: duplicate creates return 409 (`A record with this value already exists`).
+- OTP verification refuses existing non-student accounts; approval of requests whose email collides with an existing account returns 409.
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Styling | Tailwind CSS 4, shadcn/ui + Base UI |
+| Client state | Zustand |
+| Server state | TanStack Query |
+| Validation | Zod |
+| Toasts | react-hot-toast |
+| Backend | Node.js + Express 4 |
+| ORM | Drizzle ORM |
+| DB | PostgreSQL |
+| Auth | JWT httpOnly cookie (sameSite=lax), 7-day expiry |
+| Fonts | Geologica (UI), Inter (form body where required) |
+
+## Prerequisites
+
+| Tool | Minimum |
+|---|---|
+| Node.js | 20.x or later (project uses Node 24) |
+| npm | 10.x or later |
+| PostgreSQL | 14 or later (local instance or Docker) |
+| OS | Windows / macOS / Linux |
+
+## Setup guide
+
+### 1. Clone and install
+
+```bash
+git clone <repo-url>
+cd studyspot
+
+# Frontend dependencies
+npm install
+
+# Backend dependencies
+cd server
+npm install
+```
+
+### 2. PostgreSQL
+
+Start a PostgreSQL instance and make sure you can connect with a superuser (local dev default is `postgres`).
+
+If you use Docker:
+
+```bash
+docker run --name studyspot-pg -e POSTGRES_PASSWORD=1234 -p 5432:5432 -d postgres:16
+```
+
+### 3. Backend environment
+
+```bash
+cp server/.env.example server/.env
+```
+
+Edit `server/.env` with your values:
+
+```dotenv
+DATABASE_URL=postgresql://postgres:1234@localhost:5432/studyspot
+PORT=4000
+JWT_SECRET=<generate-a-long-random-string>
+JWT_EXPIRES_IN=7d
+COOKIE_DOMAIN=localhost
+COOKIE_SECURE=false
+FRONTEND_URL=http://localhost:3001
+```
+
+- For production, use a real `JWT_SECRET`, set `COOKIE_SECURE=true`, and restrict `FRONTEND_URL` to your deployed origin.
+- The seed script requires that the database exists and is empty (see step 4).
+
+### 4. Create, migrate, and seed the database
 
 ```bash
 cd server
-npm run db:create   # creates the `studyspot` database (once)
-npm run db:migrate  # applies migrations from drizzle/
-npm run db:seed     # seeds universities, admins, locations, reviews, requests, OTPs
-npm run dev         # API on http://localhost:4000 (all routes under /api/*)
+npm run db:migrate   # applies migrations from server/drizzle/
+npm run db:seed      # seeds universities, admins, locations, ~2,990 reviews, OTP rows, etc.
 ```
 
-Seeded credentials: `superadmin@spotwise.lk` / `admin123`, `amal.perera@uom.lk` / `admin123`, student `mohamed.25@uom.lk` (sign in via the email OTP screen — in development the API returns `devCode` in the response, shown as a toast since no email provider is configured yet). The frontend expects the backend at `http://localhost:4000/api` (set `NEXT_PUBLIC_API_URL` in `.env.local` to override).
+`npm run db:seed` is destructive — it drops and recreates data in the configured database. **Never run it against production.**
 
-### Start the development server
+### 5. Frontend environment
 
+Create `.env.local` at the repository root:
+
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+```
+
+### 6. Run the app
+
+Terminal 1 (API):
+```bash
+cd server
+npm run dev
+```
+
+Terminal 2 (frontend):
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in a browser. The backend must be running for authenticated routes.
+Open http://localhost:3001. The backend must be up for authenticated routes.
 
-### Run a production build locally
+### Seeded accounts
+
+| Role | Email | Password / OTP |
+|---|---|---|
+| Super admin | `superadmin@spotwise.lk` | `admin123` |
+| University admin – Moratuwa | `amal.perera@uom.lk` | `admin123` |
+| University admin – Colombo | `kavindi.silva@cmb.ac.lk` | `admin123` |
+| University admin – Peradeniya | `ruwan.fernando@pdn.ac.lk` | `admin123` |
+| University admin – Ruhuna | `saman.rathnayake@ruh.ac.lk` | `admin123` |
+| University admin – Jayewardenepura (Inactive) | `dilani.jayasuriya@sjp.ac.lk` | `admin123` |
+| Student | `mohamed.25@uom.lk` | OTP — in dev the API returns a `devCode` in the request response, surfaced as a toast |
+
+Registration requests live in the super-admin queue:
+- `dulani.fernando@rjt.ac.lk` — Pending (Rajarata)
+- `thilina.wek@kel.ac.lk` — Pending (Kelaniya)
+- `s.peris@sra.ac.lk` — Rejected
+- `j.kaduwela@rjt.ac.lk` — Approved (Sabaragamuwa)
+
+To get a fresh dev code for the student account, trigger the OTP request endpoint:
 
 ```bash
-npm run build
-npm run start
+curl -X POST http://localhost:4000/api/auth/otp/request \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"mohamed.25@uom.lk"}'
 ```
 
-## Validation Commands
+The response JSON contains `devCode`. The student login screen will show it as a toast automatically.
+
+## Validation commands
 
 | Command | Description |
 |---|---|
 | `npm run lint` | Run ESLint |
-| `npx tsc --noEmit` | Run TypeScript without emitting files |
-| `npm run build` | Create a production build |
+| `npm run typecheck` | TypeScript check (no emit) |
+| `npm run build` | Production build |
 | `cd server && npx tsc --noEmit` | Backend typecheck |
 
-## Project Structure
+## Common tasks
 
-```text
-src/
-├── app/                         # Next.js App Router routes
-│   ├── student/                 # Student onboarding and product flows
-│   ├── university-admin/        # University Admin screens
-│   └── super-admin/             # Super Admin screens
-├── components/
-│   ├── navigation/              # Role navigation
-│   ├── shared/                  # Shared application components
-│   └── ui/                      # Reusable UI primitives
-├── features/
-│   ├── student/                 # Student components, schemas, and types
-│   └── university-admin/        # University Admin components
-├── hooks/                       # Shared hooks (e.g. use-saved-places)
-├── lib/                         # Utilities and shared helpers
-├── services/                    # Typed API clients (student, university-admin, super-admin)
-├── stores/                      # Zustand stores
-└── types/                       # Shared TypeScript types
+### Add or change a report-options value
+Edit `server/drizzle/seed.ts` (required for fresh databases) or use the API:
+- `GET /api/report-options` (public)
+- Mutations are super-admin only (`POST`/`PUT`/`DELETE`, and `POST /:id/move` to reorder).
 
-public/assets/                   # Local Figma exports and image assets
-docs/                            # Research, specifications, and plans
-server/                          # Express + Drizzle + PostgreSQL backend
+### Re-seed a local database
+```bash
+cd server
+npm run db:migrate
+npm run db:seed
 ```
 
-## Design System
+### Add a new migration
+After changing `server/src/db/schema.ts`:
+```bash
+cd server
+npx drizzle-kit generate   # writes a new file into server/drizzle/
+npm run db:migrate
+```
 
-The primary visual language follows the SpotWise Figma file:
+## Design system
 
-- Primary orange: `#f97316`
-- Content background: `#E2E8F0`
-- Card border: `#e2e8f0`
-- Primary text: `#0f172a`
-- Secondary text: `#334155`
-- Muted text: `#64748b`
-- Filled rating stars: `#f59e0b`
-- Font: Geologica for product UI, Inter where required for form body text
+- Primary orange `#f97316`
+- Content background `#E2E8F0` (light) / `#0b1120` (dark)
+- Card border `#e2e8f0` / `#334155` (dark)
+- Text: `#0f172a` (primary), `#334155` / `#64748b` (secondary), `#94a3b8` (muted)
+- Fonts: Geologica (product UI), Inter (form body where required)
+- Ratings are shown as integers (\*\*no 3.8-style fractional stars — round to nearest int\*\*)
+- Dark theme: toggled per user, persisted in `localStorage` (`spotwise-theme`) and applied via `data-admin-theme="dark"` on `<body>` + shell elements; all overrides live in `src/app/globals.css`
 
-Design source: [SpotWise UI in Figma](https://www.figma.com/design/epLSve0mD6JRLEuoHnSFZ3/SpotWise-UI)
+Figma source: [SpotWise UI](https://www.figma.com/design/epLSve0mD6JRLEuoHnSFZ3/SpotWise-UI)
 
-## Scope and Limitations
+## Known limitations
 
-- No email provider yet — OTP delivery is simulated in development (`devCode` returned by the API and shown in the UI)
-- Registration approval issues a one-time temporary password shown to the approver; no email delivery of credentials yet
-- No live campus occupancy or Wi-Fi sensors — "current status" is the latest student report, cached inline on each location
-- Photos are stored as data URLs in the database (no object storage)
-- External integrations and production secrets are not required
+- OTP delivery is in-memory and dev-only — no production email provider yet
+- Registration approvals return a temporary password to the approver (no email delivery yet)
+- Location "current status" is cached inline on the row and reflects the latest student report only
+- Reviews and profile photos are stored as inline rows/data URLs (no object storage)
+- `total_views` counts spot detail opens (no deduplication, not per-day — adequate for phase-1 popularity ordering)
+- The student onboarding preserves selection for subsequent sign-ins on the same device (localStorage), not yet for cross-device sign-ins
 
-## Project Status
+## Scope, licensing and privacy
 
-SpotWise is a private project focused on the SpotWise product for Sri Lankan university campuses.
-
----
-
-Made for better study spaces.
+SpotWise is a private project. Do not share or redistribute without permission. Photos and avatars are seed/example assets; real user uploads are not intended for public redistribution.
