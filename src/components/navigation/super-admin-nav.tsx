@@ -32,6 +32,16 @@ export function SuperAdminNav() {
     }
   }, [role, router]);
 
+  // Escape closes the mobile drawer
+  useEffect(() => {
+    if (!drawerOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setDrawerOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [drawerOpen]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileMenuOpen && profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
@@ -97,21 +107,37 @@ export function SuperAdminNav() {
 
       {/* Mobile top bar with hamburger */}
       <header className="lg:hidden border-b border-[#334155] bg-[#000000] px-4 py-3 fixed top-0 left-0 right-0 z-30">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-full bg-[#f97316] text-white font-bold text-xs">SA</div>
-            <h1 className="text-[16px] font-semibold tracking-[-0.3px] text-white">Super Admin</h1>
-          </div>
-          <button type="button" onClick={() => setDrawerOpen(true)} aria-label="Open menu" className="flex size-9 items-center justify-center rounded-lg text-white hover:bg-[#111827] transition">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => setDrawerOpen(true)} aria-label="Open menu" className="flex size-9 shrink-0 items-center justify-center rounded-lg text-white hover:bg-[#111827] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500">
             <Menu className="size-5" aria-hidden="true" />
           </button>
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-white font-bold text-xs">SA</div>
+            <h1 className="truncate text-[16px] font-semibold tracking-[-0.3px] text-white">Super Admin</h1>
+          </div>
         </div>
       </header>
 
-      {drawerOpen && <div className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} aria-hidden="true" />}
+      {/* Backdrop — always mounted, fades in/out */}
+      <div
+        aria-hidden="true"
+        onClick={() => setDrawerOpen(false)}
+        className={`lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
 
-      {drawerOpen && (
-        <aside className="lg:hidden fixed inset-y-0 left-0 z-50 w-[280px] bg-[#000000] border-r border-[#334155] shadow-[0_10px_30px_rgba(0,0,0,0.12)]" aria-label="Navigation drawer">
+      {/* Drawer — always mounted, slides in/out from the left */}
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation drawer"
+        aria-hidden={!drawerOpen}
+        inert={!drawerOpen}
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-[#334155] bg-[#000000] shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0.24,1)] motion-reduce:transition-none ${
+          drawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
           <div className="flex items-center gap-3 px-4 py-4 border-b border-[#334155] bg-[#000000]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/assets/welcome/logo.png" alt="SpotWise" className="h-6 w-auto" />
@@ -131,7 +157,7 @@ export function SuperAdminNav() {
             })}
           </nav>
 
-          <div className="mt-auto border-t border-[#334155] pt-3 px-3 pb-4 relative">
+          <div className="mt-auto border-t border-[#334155] pt-3 px-3 pb-1 relative">
             <div className="flex items-center gap-3 px-3 py-3 mb-2 cursor-pointer hover:bg-[#111827] rounded-xl transition" onClick={() => setProfileMenuOpen((prev) => !prev)}>
               <div className="flex size-8 items-center justify-center rounded-full bg-[#f97316] text-white font-bold text-xs">SA</div>
               <div>
@@ -153,8 +179,7 @@ export function SuperAdminNav() {
               </div>
             )}
           </div>
-        </aside>
-      )}
+      </aside>
     </>
   );
 }

@@ -32,7 +32,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-[#E2E8F0] relative">
       <SuperAdminNav />
-      <main className="lg:pl-[260px]">
+      <main className="lg:pl-[260px] pt-[56px] lg:pt-0">
         <div className="mx-auto w-full max-w-7xl">{children}</div>
       </main>
     </div>

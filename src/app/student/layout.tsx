@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { StudentBottomNav } from "@/components/navigation/student-bottom-nav";
 import { useThemeStore } from "@/stores/theme-store";
 import { useAuthStore } from "@/stores/auth-store";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +30,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     return <div className="min-h-screen bg-[#E2E8F0]">{children}</div>;
   }
 
+  // Full reload: the shell renders nothing while the persisted session
+  // hydrates, which looks like a white blank screen. Show a neutral
+  // loading state instead until hydration settles.
   if (!hasHydrated || role !== "student") {
-    return null;
+    return <PageLoader className="min-h-screen bg-[#E2E8F0]" />;
   }
 
   const hideNav =

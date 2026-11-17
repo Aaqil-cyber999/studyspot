@@ -32,7 +32,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${geologica.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      {/* data-admin-theme is stamped onto <body> client-side from the persisted
+          theme store (see stores/theme-store.ts), so the server render can never
+          match it — suppressHydrationWarning is intentional. */}
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <QueryProvider>
           <AuthStoreHydrator />
           {children}
