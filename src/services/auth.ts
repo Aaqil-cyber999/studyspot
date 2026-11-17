@@ -29,7 +29,7 @@ export async function login(email: string, password: string): Promise<ApiUser> {
   return res.user;
 }
 
-export async function updateProfile(values: Partial<{ name: string; address: string | null; universityId: string | null }>): Promise<ApiUser> {
+export async function updateProfile(values: Partial<{ name: string; address: string | null; universityId: string | null; title: string | null }>): Promise<ApiUser> {
   const res = await api.put<{ user: ApiUser }>("/users/me", values);
   return res.user;
 }

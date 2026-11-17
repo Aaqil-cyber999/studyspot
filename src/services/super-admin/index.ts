@@ -18,6 +18,8 @@ export interface ApiReview {
   locationName: string;
   studentId: string;
   authorName: string;
+  authorFaculty?: string | null;
+  authorImg?: string | null;
   rating: number;
   text: string;
   status: "Visible" | "Hidden";
@@ -54,6 +56,13 @@ export interface ApiSaUniversity {
 
 export async function getSaUniversities(): Promise<ApiSaUniversity[]> {
   return api.get<ApiSaUniversity[]>("/universities");
+}
+
+export async function createSaUniversity(input: {
+  name: string;
+  status: "Active" | "Inactive";
+}): Promise<ApiSaUniversity> {
+  return api.post<ApiSaUniversity>("/universities", input);
 }
 
 export async function setSaUniversityStatus(
@@ -112,8 +121,11 @@ export interface ApiSaReview {
   id: string;
   locationId: string;
   locationName: string;
+  universityName?: string | null;
   studentId: string;
   authorName: string;
+  authorFaculty?: string | null;
+  authorImg?: string | null;
   rating: number;
   text: string;
   status: "Visible" | "Hidden";
@@ -152,12 +164,15 @@ export interface ApiSaLocation {
   hours: string | null;
   status: "Active" | "Inactive";
   staffMonitored: boolean;
-  seats: "Yes" | "Limited" | "No" | "Unsure" | null;
+  seats: "Yes" | "Limited" | "No" | null;
   wifi: "Strong" | "Medium" | "Weak" | null;
   crowd: "Low" | "Medium" | "High" | null;
   noise: "Quiet" | "Moderate" | "Loud" | null;
   lastReportedBy: string | null;
+  lastReportedByName?: string | null;
+  lastReportedByFaculty?: string | null;
   lastReportedAt: string | null;
+  reportComment?: string | null;
   description: string | null;
   amenities: string[];
   imageUrls: string[];

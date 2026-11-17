@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ShowMoreReviewsButton } from "@/components/shared/show-more-reviews-button";
+import { timeAgo } from "@/lib/time-ago";
+import { ImageCarousel } from "@/components/shared/image-carousel";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Building2, Camera, ChevronRight, Clock, Eye, EyeOff, GraduationCap, Hash, MapPin, MessageSquare, ShieldCheck, ShieldOff, Star, User } from "lucide-react";
+import { ArrowLeft, Building2, ChevronRight, Clock, Eye, EyeOff, GraduationCap, Hash, MapPin, MessageSquare, ShieldCheck, ShieldOff, Star, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { CurrentStatusSection } from "@/features/student/components/spot-detail/current-status-section";
@@ -14,6 +17,8 @@ import { PageLoader } from "@/components/shared/page-loader";
 import { getSaLocationById, getSaLocations, getSaLocationReviews, moderateSaReview, setSaLocationStatus } from "@/services/super-admin";
 import type { LiveMetric, OperatingHours, SpotAmenity } from "@/features/student/types/spot-detail";
 
+const PAGE_SIZE = 10;
+
 function initials(name: string) {
   return name
     .split(" ")
@@ -22,17 +27,6 @@ function initials(name: string) {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
-}
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <span className="flex items-center gap-0.5" aria-label={`${Math.round(rating)} out of 5 stars`}>
-      {[...Array(5)].map((_, index) => (
-        <Star key={index} className={`size-3 ${index < Math.round(rating) ? "fill-[#f59e0b] text-[#f59e0b]" : "fill-[#e2e8f0] text-[#e2e8f0]"}`} aria-hidden="true" />
-      ))}
-      <span className="ml-1.5 text-[10px] font-semibold tabular-nums text-[#64748b]">{rating.toFixed(1)}</span>
-    </span>
-  );
 }
 
 function OverviewRow({ icon: Icon, label, children }: { icon: typeof MapPin; label: string; children: React.ReactNode }) {
@@ -65,7 +59,7 @@ function metricsFor(seats: string, wifi: string, crowd: string, noise: string): 
     {
       id: "seats",
       label: "Seats available",
-      value: seats === "Yes" ? "Available" : seats === "Limited" ? "Limited" : seats === "No" ? "Full" : "Unsure",
+      value: seats === "Yes" ? "Available" : seats === "Limited" ? "Limited" : seats === "No" ? "Full" : "Limited",
       icon: "armchair",
       iconBackground: "rgba(16, 185, 129, 0.14)",
       iconColor: "#10b981",
@@ -117,11 +111,10 @@ function metricsFor(seats: string, wifi: string, crowd: string, noise: string): 
   ];
 }
 
-const SEAT_MAP: Record<string, "Available" | "Limited" | "Full" | "Unsure"> = {
+const SEAT_MAP: Record<string, "Available" | "Limited" | "Full"> = {
   Yes: "Available",
   Limited: "Limited",
   No: "Full",
-  Unsure: "Unsure",
 };
 
 const AMENITY_ICON: Record<string, { icon: string; width: number; height: number }> = {
@@ -187,6 +180,28 @@ export default function SaLocationDetailsPage() {
   const [shown, setShown] = useState(target);
   const [hideTarget, setHideTarget] = useState<{ id: string; author: string } | null>(null);
   const [shownHide, setShownHide] = useState(hideTarget);
+  const [heroIdx, setHeroIdx] = useState(0);
+  const [visibleReviews, setVisibleReviews] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const shownReviews = useMemo(() => reviews.slice(0, visibleReviews), [reviews, visibleReviews]);
+  const hasMoreReviews = reviews.length > visibleReviews;
+
+  // Infinite scroll: load the next review batch when the sentinel scrolls into view.
+  useEffect(() => {
+    if (!hasMoreReviews) return;
+    const element = sentinelRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisibleReviews((current) => Math.min(current + PAGE_SIZE, reviews.length));
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasMoreReviews, reviews.length]);
 
   function openDialog(next: NonNullable<typeof target>) {
     setTarget(next);
@@ -246,7 +261,7 @@ export default function SaLocationDetailsPage() {
 
   const active = location.status === "Active";
   const metrics = metricsFor(
-    SEAT_MAP[location.seats ?? "Unsure"] ?? "Unsure",
+    SEAT_MAP[location.seats ?? "Limited"] ?? "Limited",
     location.wifi ?? "Weak",
     location.crowd ?? "Medium",
     location.noise ?? "Moderate",
@@ -285,10 +300,12 @@ export default function SaLocationDetailsPage() {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">{location.name}</h1>
         </div>
-        <span className={`inline-flex shrink-0 items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${active ? "bg-[#f0fdf4] text-[#15803d]" : "bg-[#f1f5f9] text-[#475569]"}`}>
-          <span className={`size-2 rounded-full ${active ? "bg-[#15803d]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
-          {location.status}
-        </span>
+        {location.imageUrls.length === 0 ? (
+          <span className={`inline-flex shrink-0 items-center gap-[6px] rounded-full px-3 py-1.5 text-[11px] font-medium ${active ? "bg-[#f0fdf4] text-[#15803d]" : "bg-[#f1f5f9] text-[#475569]"}`}>
+            <span className={`size-2 rounded-full ${active ? "bg-[#15803d]" : "bg-[#94a3b8]"}`} aria-hidden="true" />
+            {location.status}
+          </span>
+        ) : null}
       </header>
 
       <div className="grid grid-cols-1 items-start gap-5 pb-6 pt-2 xl:grid-cols-[minmax(0,1fr)_450px]">
@@ -297,14 +314,18 @@ export default function SaLocationDetailsPage() {
           {/* Hero + about */}
           <section aria-labelledby="location-name" className="overflow-hidden rounded-[20px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
             <div className="relative w-full overflow-hidden bg-[#f8fafc]">
-              {location.imageUrls[0] ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={location.imageUrls[0]} alt={`Study space at ${location.name}`} className="h-52 w-full object-cover sm:h-64" />
+              {location.imageUrls.length > 0 ? (
+                <ImageCarousel
+                  previewUrls={location.imageUrls}
+                  currentIdx={heroIdx}
+                  onPrev={() => setHeroIdx((i) => (i - 1 + location.imageUrls.length) % location.imageUrls.length)}
+                  onNext={() => setHeroIdx((i) => (i + 1) % location.imageUrls.length)}
+                  onRemove={() => {}}
+                  showRemoveButton={false}
+                  squareBottomCorners
+                />
               ) : null}
-              <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white">
-                <Camera className="size-3.5" aria-hidden="true" />
-                {location.imageUrls.length} photos
-              </span>
+              <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-[11px] font-semibold shadow ${active ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"}`}>{location.status}</span>
             </div>
             <div className="p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -336,7 +357,14 @@ export default function SaLocationDetailsPage() {
           <OperatingHoursCard hours={fallbackHours} />
 
           {/* Live metrics */}
-          <CurrentStatusSection metrics={metrics} lastUpdated={relativeTime(location.lastUpdated)} showReportButton={false} />
+          <CurrentStatusSection
+            metrics={metrics}
+            lastUpdated={relativeTime(location.lastUpdated)}
+            showReportButton={false}
+            reportComment={location.reportComment ?? null}
+            lastReportedByName={location.lastReportedByName ?? null}
+            lastReportedByFaculty={location.lastReportedByFaculty ?? null}
+          />
 
           {/* Amenities */}
           {location.amenities.length > 0 && <AmenitiesSection amenities={amenitiesFromLabels(location.amenities)} />}
@@ -360,26 +388,48 @@ export default function SaLocationDetailsPage() {
                 <p className="mt-1 text-[13px] text-[#64748b]">Reviews students leave for this location will appear here.</p>
               </div>
             ) : (
-              <ul className="divide-y divide-slate-100">
-                {reviews.map((review) => (
-                  <li key={review.id} className={`py-4 first:pt-4 last:pb-1 ${review.status === "Hidden" ? "opacity-70" : ""}`}>
+              <ul className="space-y-3">
+                {shownReviews.map((review) => (
+                  <li
+                    key={review.id}
+                    className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.04)] ${
+                      review.status === "Hidden" ? "border-dashed opacity-60" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-[11px] font-bold text-white" aria-hidden="true">
-                        {initials(review.authorName ?? "?")}
-                      </span>
+                      {review.authorImg ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          loading="lazy"
+                          decoding="async"
+                          src={review.authorImg}
+                          alt=""
+                          className="size-9 shrink-0 rounded-full bg-[#f1f5f9] object-cover"
+                        />
+                      ) : (
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#ffdbca] text-[11px] font-bold text-[#9d4300]" aria-hidden="true">
+                          {initials(review.authorName ?? "?")}
+                        </span>
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
                           <p className="truncate text-[13px] font-semibold text-[#0f172a]">{review.authorName}</p>
-                          <span className="shrink-0 text-[11px] text-[#94a3b8]">{relativeTime(review.createdAt)}</span>
+                          <span className="shrink-0 text-[11px] text-[#94a3b8]">{timeAgo(review.createdAt)}</span>
                         </div>
-                        <div className="mt-0.5 flex items-center gap-2">
-                          <Stars rating={review.rating} />
-                          {review.status === "Hidden" && <span className="rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#475569]">Hidden</span>}
-                        </div>
+                        <p className="truncate text-[11px] leading-4 text-slate-500">
+                          {review.authorFaculty ?? "Faculty not set"}
+                          {review.status === "Hidden" ? (
+                            <span className="ml-2 rounded-full bg-[#f1f5f9] px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-[0.06em] text-[#475569]">Hidden</span>
+                          ) : null}
+                        </p>
                       </div>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-slate-700">&ldquo;{review.text}&rdquo;</p>
-                    <div className="mt-3 flex items-center justify-end">
+                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                      <span className="flex items-center gap-1.5" aria-label={`${Math.round(review.rating)} out of 5 stars`}>
+                        <Star className="size-4 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
+                        <span className="text-[13px] font-semibold tabular-nums text-[#0f172a]">{Math.round(review.rating)}</span>
+                      </span>
                       <button type="button" onClick={() => (review.status === "Visible" ? openHideDialog({ id: review.id, author: review.authorName ?? "This student" }) : showReview(review.id))} className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 ${review.status === "Visible" ? "text-red-600 hover:bg-red-50" : "text-orange-600 hover:bg-orange-50"}`}>
                         {review.status === "Visible" ? (
                           <><EyeOff className="size-3.5" aria-hidden="true" /> Hide review</>
@@ -392,6 +442,18 @@ export default function SaLocationDetailsPage() {
                 ))}
               </ul>
             )}
+            {hasMoreReviews ? (
+              <>
+                <div ref={sentinelRef} aria-hidden="true" className="h-1 w-full" />
+                <div className="flex flex-col items-center gap-1.5 pb-2 pt-3">
+                  <ShowMoreReviewsButton
+                    remaining={reviews.length - visibleReviews}
+                    onLoadMore={() => setVisibleReviews((current) => Math.min(current + PAGE_SIZE, reviews.length))}
+                  />
+                  <p className="text-[11px] text-slate-400">{shownReviews.length} of {reviews.length} shown</p>
+                </div>
+              </>
+            ) : null}
           </section>
         </div>
 
@@ -402,7 +464,7 @@ export default function SaLocationDetailsPage() {
             <h2 id="location-overview-heading" className="text-[15px] font-semibold text-[#0f172a]">Overview</h2>
 
             <div className="mt-4 flex items-center gap-5">
-              <p className="text-[44px] font-bold leading-none tabular-nums text-[#0f172a]">{location.rating.toFixed(1)}</p>
+              <p className="text-[44px] font-bold leading-none tabular-nums text-[#0f172a]">{Math.round(location.rating)}</p>
               <div className="min-w-0">
                 <span className="flex items-center gap-0.5" aria-label={`${Math.round(location.rating)} out of 5 stars`}>
                   {[...Array(5)].map((_, index) => (

@@ -24,7 +24,7 @@ export function SignOutDialog() {
         render={
           <button
             type="button"
-            className="flex h-[39px] w-full cursor-pointer items-center justify-center gap-[6px] rounded-[10px] border border-[#e5e5e5] bg-white px-[10px] py-[6px] text-[14px] leading-[20px] font-medium text-black transition-colors hover:bg-[#d4d4d4] focus-visible:ring-2 focus-visible:ring-[#f97316]/60 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="flex h-[39px] w-full cursor-pointer items-center justify-center gap-[6px] rounded-[10px] border border-slate-300 bg-slate-300 px-[10px] py-[6px] text-[14px] leading-[20px] font-medium text-black transition-colors hover:bg-slate-400 focus-visible:ring-2 focus-visible:ring-[#f97316]/60 focus-visible:ring-offset-2 focus-visible:outline-none"
           />
         }
       >
@@ -86,7 +86,7 @@ export function SignOutDialog() {
           <DialogClose
             onClick={() => {
               toast.success("Signed out");
-              router.push("/student/login");
+              router.push("/");
             }}
             render={
               <Button

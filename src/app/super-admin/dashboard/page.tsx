@@ -112,9 +112,9 @@ export default function SaDashboardPage() {
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-1 text-[11px] font-medium text-[#64748b]">
                           <Star className="size-3.5 shrink-0 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                          <span className="tabular-nums font-semibold text-[#0f172a]">{review.rating.toFixed(1)}</span>
+                          <span className="tabular-nums font-semibold text-[#0f172a]">{Math.round(review.rating)}</span>
                           <span className="mx-1">·</span>
-                          <span className="truncate">{review.locationName}</span>
+                          <span className="min-w-0 truncate">{review.locationName}</span>
                         </div>
                         <span className="shrink-0 text-[11px] text-[#94a3b8]">{formatRelative(review.createdAt)}</span>
                       </div>

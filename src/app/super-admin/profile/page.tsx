@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageLoader } from "@/components/shared/page-loader";
-import { me, updateProfile, updateProfileImage } from "@/services/auth";
+import { me, logout, updateProfile, updateProfileImage } from "@/services/auth";
 import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { Mail } from "lucide-react";
 import { EditProfileDialog } from "@/features/university-admin/components/edit-profile-dialog";
+import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function SaProfilePage() {
   const queryClient = useQueryClient();
@@ -15,6 +18,9 @@ export default function SaProfilePage() {
   // Local overrides set by saveProfile; cleared values fall back to the server profile.
   const [savedName, setSavedName] = useState<string | null>(null);
   const [savedImage, setSavedImage] = useState<string | null>(null);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const router = useRouter();
+  const signOut = useAuthStore((state) => state.signOut);
 
   if (!profile) {
     return <PageLoader className="min-h-screen bg-[#E2E8F0] py-0" />;
@@ -24,6 +30,17 @@ export default function SaProfilePage() {
   const displayImage = savedImage ?? profile.profileImg;
   const currentName = profile.name;
   const currentImage = profile.profileImg;
+
+  async function confirmSignOut() {
+    try {
+      await logout();
+    } catch {
+      // Sign the user out locally even if the session could not be revoked.
+    }
+    signOut();
+    toast.success("You have been logged out");
+    router.replace("/");
+  }
 
   async function saveProfile({ name: nextName, image: nextImage }: { name: string; image: string | null }) {
     setSavedName(nextName);
@@ -74,7 +91,15 @@ export default function SaProfilePage() {
             </div>
           </div>
         </section>
+
+        <button type="button" onClick={() => setLogoutOpen(true)} className="flex h-[39px] w-full cursor-pointer items-center justify-center gap-[6px] rounded-[10px] border border-slate-300 bg-slate-300 px-[10px] py-[6px] text-[14px] leading-[20px] font-medium text-black transition-colors hover:bg-slate-400 focus-visible:ring-2 focus-visible:ring-[#f97316]/60 focus-visible:ring-offset-2 focus-visible:outline-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" className="student-invert size-[16px] max-w-none" src="/assets/profile/a7c4a.svg" />
+          Log out
+        </button>
       </div>
+
+      <AdminConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} title="Log out of the Super Admin portal?" description="You will need to sign in again to manage the platform." confirmLabel="Log out" onConfirm={confirmSignOut} />
     </div>
   );
 }

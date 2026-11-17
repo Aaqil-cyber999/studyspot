@@ -148,9 +148,9 @@ export default function SaLocationsPage() {
                         </p>
                       </Link>
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] leading-4 text-[#64748b]">
-                        <span className="flex items-center gap-1" aria-label={`Rating ${location.rating.toFixed(1)} out of 5`}>
+                        <span className="flex items-center gap-1" aria-label={`Rating ${Math.round(location.rating)} out of 5`}>
                           <Star className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" aria-hidden="true" />
-                          <span className="font-semibold tabular-nums text-[#0f172a]">{location.rating.toFixed(1)}</span>
+                          <span className="font-semibold tabular-nums text-[#0f172a]">{Math.round(location.rating)}</span>
                         </span>
                         <span className="flex items-center gap-1" aria-label={`${location.reviews} reviews`}>
                           <MessageSquare className="size-3.5 text-[#94a3b8]" aria-hidden="true" />

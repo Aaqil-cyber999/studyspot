@@ -15,11 +15,35 @@ import {
 import { ProfileAvatar } from "@/components/shared/profile-avatar";
 import { editAdminProfileSchema } from "@/features/university-admin/schemas";
 import { profileImageSchema } from "@/lib/profile-image";
+import { useMemo } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const TITLES = ["Mr", "Mrs", "Ms", "Miss", "Dr", "Prof"] as const;
+
+/** Match a stored title to a known honorific, tolerating legacy trailing dots ("Dr." → "Dr"). */
+function normalizeTitleValue(raw: string | null): string {
+  if (!raw) return "Mr";
+  const t = raw.replace(/\.\s*$/, "").trim();
+  if (!t) return "Mr";
+  const match = TITLES.find((item) => item.toLowerCase() === t.toLowerCase());
+  return match ?? t;
+}
 
 interface EditProfileDialogProps {
   name: string;
   image: string | null;
-  onSave: (values: { name: string; image: string | null }) => void;
+  /** Current honorific title (e.g. "Dr."); shown only when `showTitle` is set. */
+  title?: string | null;
+  /** Render the title field (university-admins). Super-admins have none. */
+  showTitle?: boolean;
+  onSave: (values: { name: string; image: string | null; title: string | null | undefined }) => void;
   triggerLabel?: string;
   triggerClassName?: string;
   triggerTextClassName?: string;
@@ -32,13 +56,23 @@ interface EditProfileDialogProps {
 export function EditProfileDialog({
   name,
   image,
+  title = null,
+  showTitle = false,
   onSave,
-  triggerLabel = "Edit profile",
+  triggerLabel = "Edit",
   triggerClassName = "flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2",
   triggerTextClassName = "text-xs font-semibold",
 }: EditProfileDialogProps) {
+  /** Select needs the current (possibly legacy) title to be one of its options. */
+  const titleOptions = useMemo(() => {
+    const normalized = normalizeTitleValue(title);
+    const extra = !(TITLES as readonly string[]).includes(normalized) ? [normalized] : [];
+    return [...extra, ...TITLES];
+  }, [title]);
+
   const [open, setOpen] = useState(false);
   const [draftName, setDraftName] = useState(name);
+  const [draftTitle, setDraftTitle] = useState(() => normalizeTitleValue(title));
   const [draftImage, setDraftImage] = useState<string | null>(image);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +87,7 @@ export function EditProfileDialog({
     setOpen(nextOpen);
     if (!nextOpen) return;
     setDraftName(name);
+    setDraftTitle(normalizeTitleValue(title));
     setDraftImage(image);
     setError(null);
   }
@@ -97,6 +132,11 @@ export function EditProfileDialog({
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (showTitle && !draftTitle) {
+      setError("Select a title");
+      toast.error("Select a title");
+      return;
+    }
     const result = editAdminProfileSchema.safeParse({ name: draftName });
 
     if (!result.success) {
@@ -106,7 +146,11 @@ export function EditProfileDialog({
       return;
     }
 
-    onSave({ name: result.data.name, image: draftImage });
+    onSave({
+      name: result.data.name,
+      image: draftImage,
+      title: showTitle ? (draftTitle ? draftTitle : null) : undefined,
+    });
     setError(null);
     setOpen(false);
     toast.success("Profile changes saved");
@@ -154,7 +198,9 @@ export function EditProfileDialog({
           </div>
 
           <DialogDescription id={descriptionId} className="sr-only">
-            Update the photo and name shown on your admin profile.
+            {showTitle
+              ? "Update the photo, title and name shown on your admin profile."
+              : "Update the photo and name shown on your admin profile."}
           </DialogDescription>
 
           <div className="flex w-full items-center gap-3">
@@ -205,24 +251,46 @@ export function EditProfileDialog({
             />
           </div>
 
-          <div className="flex w-full flex-col gap-[10px]">
-            <label
-              htmlFor={nameId}
-              className="w-full font-heading text-[13px] leading-4 font-medium text-[#334052]"
-            >
-              Name
-            </label>
-            <input
-              id={nameId}
-              name="name"
-              type="text"
-              autoComplete="name"
-              value={draftName}
-              onChange={(event) => setDraftName(event.target.value)}
-              aria-invalid={error ? true : undefined}
-              aria-describedby={error ? errorId : undefined}
-              className="w-full rounded-[12px] border border-[#e2e8f0] bg-white px-4 py-[14px] font-heading text-[15px] leading-[19px] font-normal text-black outline-none focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/30 aria-invalid:border-[#dc2626]"
-            />
+          <div className="flex w-full items-start gap-[10px]">
+            {showTitle ? (
+              <div className="flex w-[76px] flex-none flex-col gap-[10px]">
+                <Select value={draftTitle} onValueChange={(value) => setDraftTitle(String(value))} name="title">
+                  <SelectLabel className="w-[76px] cursor-pointer font-heading text-[13px] leading-4 font-medium text-[#334052]">
+                    Title
+                  </SelectLabel>
+                  <SelectTrigger
+                    id="admin-title"
+                    className="flex h-[46px] w-[76px] cursor-pointer items-center justify-center gap-[2px] rounded-[12px] border border-[#e2e8f0] bg-white p-[10px_8px] text-[15px] leading-[19px] font-normal text-black outline-none transition focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/30"
+                  >
+                    <SelectValue placeholder="Title" />
+                  </SelectTrigger>
+                  <SelectContent className="w-[132px]">
+                    {titleOptions.map((option) => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+            <div className="flex min-w-0 flex-1 flex-col gap-[10px]">
+              <label
+                htmlFor={nameId}
+                className="w-full font-heading text-[13px] leading-4 font-medium text-[#334052]"
+              >
+                Name
+              </label>
+              <input
+                id={nameId}
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={draftName}
+                onChange={(event) => setDraftName(event.target.value)}
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? errorId : undefined}
+                className="w-full rounded-[12px] border border-[#e2e8f0] bg-white px-4 py-[14px] font-heading text-[15px] leading-[19px] font-normal text-black outline-none focus-visible:border-[#f97316] focus-visible:ring-2 focus-visible:ring-[#f97316]/30 aria-invalid:border-[#dc2626]"
+              />
+            </div>
           </div>
 
           <p

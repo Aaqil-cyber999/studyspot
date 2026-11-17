@@ -19,6 +19,19 @@ export async function getUaDashboard(): Promise<ApiDashboardOverview> {
   return api.get<ApiDashboardOverview>("/dashboard/overview");
 }
 
+export interface TopLocation {
+  id: string;
+  name: string;
+  building: string | null;
+  rating: number;
+  reviews: number;
+  totalViews: number;
+}
+
+export async function getUaTopLocations(): Promise<TopLocation[]> {
+  return api.get<TopLocation[]>("/dashboard/top-locations");
+}
+
 // ── Locations (backed by the SpotWise API) ───────────────────────────────────
 
 interface ApiLocation {
@@ -31,7 +44,7 @@ interface ApiLocation {
   address: string;
   hours: string | null;
   status: "Active" | "Inactive";
-  seats: "Yes" | "Limited" | "No" | "Unsure" | null;
+  seats: "Yes" | "Limited" | "No" | null;
   wifi: "Strong" | "Medium" | "Weak" | null;
   crowd: "Low" | "Medium" | "High" | null;
   noise: "Quiet" | "Moderate" | "Loud" | null;
@@ -42,7 +55,10 @@ interface ApiLocation {
   reviews: number;
   lastUpdated: string | null;
   lastReportedBy: string | null;
+  lastReportedByName?: string | null;
+  lastReportedByFaculty?: string | null;
   lastReportedAt: string | null;
+  reportComment?: string | null;
   universityId: string;
   universityName: string;
 }
@@ -71,7 +87,7 @@ function toAdminLocation(location: ApiLocation): AdminLocation {
     rating: Number(location.rating ?? 0),
     reviews: Number(location.reviews ?? 0),
     status: location.status,
-    seats: location.seats ?? "Unsure",
+    seats: location.seats ?? "Limited",
     wifi: location.wifi ?? "Weak",
     crowd: location.crowd ?? "Medium",
     noise: location.noise ?? "Moderate",
@@ -79,6 +95,9 @@ function toAdminLocation(location: ApiLocation): AdminLocation {
     amenities: location.amenities ?? [],
     imageUrls: location.imageUrls ?? [],
     lastUpdated: formatRelative(location.lastUpdated),
+    reportComment: location.reportComment ?? null,
+    lastReportedByName: location.lastReportedByName ?? (location.lastReportedBy ? "A student" : null),
+    lastReportedByFaculty: location.lastReportedByFaculty ?? null,
   };
 }
 
@@ -116,7 +135,7 @@ export interface UaLocationInput {
   address: string;
   hours?: string;
   status?: "Active" | "Inactive";
-  seats?: "Yes" | "Limited" | "No" | "Unsure";
+  seats?: "Yes" | "Limited" | "No";
   wifi?: "Strong" | "Medium" | "Weak";
   crowd?: "Low" | "Medium" | "High";
   noise?: "Quiet" | "Moderate" | "Loud";
@@ -150,6 +169,8 @@ interface ApiReview {
   locationId: string;
   locationName?: string;
   authorName?: string;
+  authorFaculty?: string | null;
+  authorImg?: string | null;
   rating: number;
   text: string;
   status: "Visible" | "Hidden";
@@ -163,13 +184,11 @@ function toAdminReview(review: ApiReview, locationName = ""): AdminReview {
     locationId: review.locationId,
     locationName: review.locationName ?? locationName,
     author: review.authorName ?? "Anonymous",
+    authorFaculty: review.authorFaculty ?? null,
+    authorImg: review.authorImg ?? null,
     rating: review.rating,
     text: review.text,
-    createdAt: new Date(review.createdAt).toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }),
+    createdAt: review.createdAt,
     status: review.status,
   };
 }
@@ -223,23 +242,4 @@ export interface ApiReportOption {
 
 export async function getReportOptions(includeInactive = true): Promise<ApiReportOption[]> {
   return api.get<ApiReportOption[]>(`/report-options${includeInactive ? "?includeInactive=true" : ""}`);
-}
-
-export async function createUaReportOption(category: ReportOptionCategory, label: string): Promise<ApiReportOption> {
-  return api.post<ApiReportOption>("/report-options", { category, label });
-}
-
-export async function updateUaReportOption(
-  id: string,
-  values: Partial<{ label: string; active: boolean }>,
-): Promise<ApiReportOption> {
-  return api.put<ApiReportOption>(`/report-options/${id}`, values);
-}
-
-export async function deleteUaReportOption(id: string): Promise<void> {
-  await api.del(`/report-options/${id}`);
-}
-
-export async function moveUaReportOption(id: string, direction: "up" | "down"): Promise<ApiReportOption> {
-  return api.post<ApiReportOption>(`/report-options/${id}/move`, { direction });
 }
