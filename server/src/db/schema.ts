@@ -149,10 +149,11 @@ export const locations = pgTable(
     hours: text("hours"),
     status: locationStatusEnum("status").notNull().default("Active"),
     // Live status cache: only the latest student report is kept.
-    seats: text("seats"), // Yes | Limited | No | Unsure
+    seats: text("seats"), // Yes | Limited | No
     wifi: text("wifi"), // Strong | Medium | Weak
     crowd: text("crowd"), // Low | Medium | High
     noise: text("noise"), // Quiet | Moderate | Loud
+    reportComment: text("report_comment"), // latest report's optional comment
     lastReportedBy: uuid("last_reported_by").references(() => students.id, {
       onDelete: "set null",
     }),
@@ -160,6 +161,8 @@ export const locations = pgTable(
     description: text("description"),
     amenities: text("amenities").array().notNull().default([]),
     imageUrls: text("image_urls").array().notNull().default([]),
+    // Global popularity counter: incremented by one per student detail-page open.
+    totalViews: integer("total_views").notNull().default(0),
     universityId: uuid("university_id")
       .notNull()
       .references(() => universities.id, { onDelete: "cascade" }),
@@ -328,7 +331,7 @@ export const insertLocationSchema = z.object({
   address: z.string().min(1, "Address is required"),
   hours: z.string().optional(),
   status: z.enum(["Active", "Inactive"]).optional(),
-  seats: z.enum(["Yes", "Limited", "No", "Unsure"]).optional(),
+  seats: z.enum(["Yes", "Limited", "No"]).optional(),
   wifi: z.enum(["Strong", "Medium", "Weak"]).optional(),
   crowd: z.enum(["Low", "Medium", "High"]).optional(),
   noise: z.enum(["Quiet", "Moderate", "Loud"]).optional(),
@@ -351,7 +354,7 @@ export const submitReportSchema = z.object({
   locationId: z.string().min(1),
   noise: z.enum(["Quiet", "Moderate", "Loud"]),
   crowd: z.enum(["Low", "Medium", "High"]),
-  seats: z.enum(["Yes", "Limited", "No", "Unsure"]),
+  seats: z.enum(["Yes", "Limited", "No"]),
   wifi: z.enum(["Strong", "Medium", "Weak"]),
   comment: z.string().max(2000).optional(),
 });

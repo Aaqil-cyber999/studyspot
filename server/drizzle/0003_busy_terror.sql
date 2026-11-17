@@ -1,0 +1,1 @@
+ALTER TABLE "locations" ADD COLUMN "total_views" integer DEFAULT 0 NOT NULL;

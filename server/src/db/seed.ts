@@ -17,7 +17,7 @@ import {
   amenities,
 } from "./schema.js";
 import { hashPassword } from "../lib/hash.js";
-import { count } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 
 /**
  * Deterministic seed for a fresh database, mirroring the frontend design mocks:
@@ -114,6 +114,8 @@ interface SeedLocation {
   wifi: string;
   crowd: string;
   noise: string;
+  lastReportedBy?: string | null;
+  lastReportedAt?: Date | null;
   description: string;
   amenities: string[];
   imageUrls: string[];
@@ -186,22 +188,22 @@ const CATALOG_STATUS: Array<{ seats: string; wifi: string; crowd: string }> = [
   { seats: "Yes", wifi: "Strong", crowd: "Low" },
   { seats: "Yes", wifi: "Medium", crowd: "Medium" },
   { seats: "No", wifi: "Weak", crowd: "High" },
-  { seats: "Unsure", wifi: "Strong", crowd: "Medium" },
+  { seats: "Limited", wifi: "Strong", crowd: "Medium" },
   { seats: "Yes", wifi: "Weak", crowd: "High" },
   { seats: "No", wifi: "Medium", crowd: "Low" },
-  { seats: "Unsure", wifi: "Weak", crowd: "High" },
+  { seats: "Limited", wifi: "Weak", crowd: "High" },
   { seats: "Yes", wifi: "Strong", crowd: "Medium" },
   { seats: "No", wifi: "Strong", crowd: "Low" },
-  { seats: "Unsure", wifi: "Medium", crowd: "High" },
+  { seats: "Limited", wifi: "Medium", crowd: "High" },
   { seats: "Yes", wifi: "Medium", crowd: "Low" },
   { seats: "No", wifi: "Weak", crowd: "Medium" },
-  { seats: "Unsure", wifi: "Strong", crowd: "Low" },
+  { seats: "Limited", wifi: "Strong", crowd: "Low" },
   { seats: "Yes", wifi: "Weak", crowd: "Medium" },
   { seats: "No", wifi: "Medium", crowd: "High" },
-  { seats: "Unsure", wifi: "Weak", crowd: "Low" },
+  { seats: "Limited", wifi: "Weak", crowd: "Low" },
   { seats: "Yes", wifi: "Strong", crowd: "High" },
   { seats: "No", wifi: "Strong", crowd: "Medium" },
-  { seats: "Unsure", wifi: "Medium", crowd: "Low" },
+  { seats: "Limited", wifi: "Medium", crowd: "Low" },
   { seats: "Yes", wifi: "Weak", crowd: "High" },
 ];
 
@@ -371,7 +373,7 @@ const ADMIN_LOCATIONS: Array<Omit<SeedLocation, "universityId" | "createdByUnive
   {
     key: "sjp-learning-commons", name: "Sri Jayewardenepura Learning Commons", building: "Learning Commons · Level 3", faculty: "Central Library", department: "Learning Commons", staffMonitored: false,
     address: "University of Sri Jayewardenepura — Learning Commons", hours: "8:00 AM – 8:00 PM", status: "Active",
-    seats: "Unsure", wifi: "Medium", crowd: "Medium", noise: "Moderate",
+    seats: "Limited", wifi: "Medium", crowd: "Medium", noise: "Moderate",
     description: "Flexible lounge-style commons above the library with soft seating and whiteboard walls. Suited to group work.",
     amenities: ["Wi-Fi", "Power outlets", "Group rooms"],
     imageUrls: ["/assets/home/296f7.png"], ratingTarget: 4.2, reviewsTarget: 98,
@@ -551,6 +553,8 @@ async function main() {
         wifi: status.wifi,
         crowd: status.crowd,
         noise: noiseFor(status.crowd),
+        lastReportedBy: authorIds[index % authorIds.length],
+        lastReportedAt: new Date(Date.now() - (1 + Math.floor(mulberry32(0xbeef + index)() * 29)) * 86_400_000),
         description: spot.description,
         amenities: spot.amenities,
         imageUrls:
@@ -566,7 +570,7 @@ async function main() {
     };
   });
 
-  const adminRows = ADMIN_LOCATIONS.map((loc) => {
+  const adminRows = ADMIN_LOCATIONS.map((loc, index) => {
     const university = uniByName.get(loc.universityName)!;
     const { universityName, ratingTarget, reviewsTarget, curated, key, ...rest } = loc;
     return {
@@ -574,6 +578,8 @@ async function main() {
         ...rest,
         ...adminByUni[university.id],
         universityId: university.id,
+        lastReportedBy: authorIds[index % authorIds.length],
+        lastReportedAt: new Date(Date.now() - (1 + Math.floor(mulberry32(0xf00d0000 + index)() * 29)) * 86_400_000),
       },
       lookupKey: key,
       ratingTarget,
@@ -607,6 +613,15 @@ async function main() {
 
   // ── "Helpful" votes on reviews: each non-author student votes on ~15% ───────
   // Stored as an array of student ids per review row.
+  // Seed a latest report comment on the demo spot so the student spot detail
+  // page shows an example note above the "Report Current Status" button.
+  if (seededLocationIds["uom-library"]) {
+    await db
+      .update(locations)
+      .set({ reportComment: "Quiet in the mornings, busy after 5 PM." })
+      .where(eq(locations.id, seededLocationIds["uom-library"]));
+  }
+
   const voteRng = mulberry32(0xfeedbeef);
   const voterIdsByReview = new Map<string, string[]>();
   for (const review of insertedReviews) {
@@ -647,7 +662,7 @@ async function main() {
     ["wifi", "Strong"], ["wifi", "Medium"], ["wifi", "Weak"],
     ["noise", "Quiet"], ["noise", "Moderate"], ["noise", "Loud"],
     ["crowd", "Low"], ["crowd", "Medium"], ["crowd", "High"],
-    ["seats", "Yes"], ["seats", "Limited"], ["seats", "No"], ["seats", "Unsure"],
+    ["seats", "Yes"], ["seats", "Limited"], ["seats", "No"],
   ];
   const perCategoryOrder = new Map<string, number>();
   await db.insert(reportOptions).values(

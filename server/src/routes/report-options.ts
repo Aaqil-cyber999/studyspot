@@ -44,7 +44,7 @@ const createSchema = z.object({
 router.post(
   "/",
   requireAuth,
-  requireRole("university-admin", "super-admin"),
+  requireRole("super-admin"),
   validate(createSchema),
   asyncHandler(async (req, res) => {
     const { category, label } = req.body as z.infer<typeof createSchema>;
@@ -63,7 +63,7 @@ const updateSchema = z.object({
 router.put(
   "/:id",
   requireAuth,
-  requireRole("university-admin", "super-admin"),
+  requireRole("super-admin"),
   validate(updateSchema),
   asyncHandler(async (req, res) => {
     const updated = await updateReportOption(req.params.id, req.body);
@@ -80,7 +80,7 @@ const moveSchema = z.object({ direction: z.enum(["up", "down"]) });
 router.post(
   "/:id/move",
   requireAuth,
-  requireRole("university-admin", "super-admin"),
+  requireRole("super-admin"),
   validate(moveSchema),
   asyncHandler(async (req, res) => {
     const moved = await swapReportOptionOrder(req.params.id, req.body.direction);
@@ -95,7 +95,7 @@ router.post(
 router.delete(
   "/:id",
   requireAuth,
-  requireRole("university-admin", "super-admin"),
+  requireRole("super-admin"),
   asyncHandler(async (req, res) => {
     const deleted = await deleteReportOption(req.params.id);
     if (!deleted) {

@@ -15,6 +15,20 @@
       "when": 1794841942998,
       "tag": "0001_add-student-faculty",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794918825565,
+      "tag": "0002_add-report-comment",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794932712664,
+      "tag": "0003_busy_terror",
+      "breakpoints": true
     }
   ]
 }

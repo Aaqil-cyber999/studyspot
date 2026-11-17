@@ -7,11 +7,11 @@ import {
   updateLocation,
   getLocationHours,
   upsertLocationHours,
-
+  incrementLocationViews,
 } from "../db/queries.js";
 import { validate } from "../middleware/validate.js";
 import { insertLocationSchema, updateLocationSchema } from "../db/schema.js";
-import { requireAuth, requireRole } from "../middleware/auth.js";
+import { requireAuth, requireRole, optionalAuth } from "../middleware/auth.js";
 import { asyncHandler } from "../lib/async-handler.js";
 import { universityScopeFor } from "../lib/scope.js";
 import { db } from "../db/index.js";
@@ -37,10 +37,18 @@ router.get(
 // GET /locations/:id — public detail, includes the latest student report
 router.get(
   "/:id",
-  asyncHandler(async (req, res) => {
+  optionalAuth,
+  asyncHandler(async (req: AuthRequest, res) => {
     const loc = await getLocationById(req.params.id);
     if (!loc) {
       return res.status(404).json({ error: "Location not found" });
+    }
+    // Count real student spot-detail opens towards popularity — anonymous/admin
+    // hits don't count, so the "top" list isn't inflated by tooling.
+    if (req.user?.role === "student") {
+      incrementLocationViews(req.params.id).catch(() => {
+        // fire-and-forget: popularity must never break the read
+      });
     }
     res.json(loc);
   })

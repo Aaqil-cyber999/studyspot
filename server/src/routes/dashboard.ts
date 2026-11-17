@@ -3,6 +3,7 @@ import {
   getDashboardStats,
   getRegistrationRequests,
   getAllReviews,
+  getTopLocations,
 } from "../db/queries.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../lib/async-handler.js";
@@ -66,6 +67,22 @@ router.get(
       pendingApprovals: pendingRequests.slice(0, 5),
       recentReviews: recentReviews.slice(0, 5),
     });
+  })
+);
+
+// GET /dashboard/top-locations — top 5 by student spot-detail opens (super-admin:
+// platform-wide; university-admin: own university)
+router.get(
+  "/top-locations",
+  requireAuth,
+  requireRole("super-admin", "university-admin"),
+  asyncHandler(async (req: AuthRequest, res) => {
+    const scope = await universityScopeFor(req);
+    if (req.user!.role === "university-admin" && !scope.universityId) {
+      res.json([]);
+      return;
+    }
+    res.json(await getTopLocations(scope.universityId));
   })
 );
 

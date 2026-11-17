@@ -259,7 +259,10 @@ function withReviewStats() {
       wifi: locations.wifi,
       crowd: locations.crowd,
       noise: locations.noise,
+      reportComment: locations.reportComment,
       lastReportedBy: locations.lastReportedBy,
+      lastReportedByName: students.name,
+      lastReportedByFaculty: students.faculty,
       lastReportedAt: locations.lastReportedAt,
       description: locations.description,
       amenities: locations.amenities,
@@ -268,6 +271,7 @@ function withReviewStats() {
       universityName: universities.name,
       createdByUniversityAdminId: locations.createdByUniversityAdminId,
       createdBySuperAdminId: locations.createdBySuperAdminId,
+      totalViews: locations.totalViews,
       lastUpdated: locations.lastUpdated,
       createdAt: locations.createdAt,
       rating: sql<number>`coalesce(${reviewStats.rating}, 0)`.mapWith(Number),
@@ -275,6 +279,7 @@ function withReviewStats() {
     })
     .from(locations)
     .innerJoin(universities, eq(locations.universityId, universities.id))
+    .leftJoin(students, eq(students.id, locations.lastReportedBy))
     .leftJoin(reviewStats, eq(reviewStats.locationId, locations.id));
 }
 
@@ -289,6 +294,30 @@ export async function getAllLocations(filters?: { universityId?: string; status?
 export async function getLocationById(id: string) {
   const [loc] = await withReviewStats().where(eq(locations.id, id));
   return loc ?? null;
+}
+
+/** Top locations by student detail-page opens (ties broken by review count then rating). */
+export async function getTopLocations(scopeUniversityId?: string | null, limit = 5) {
+  const conditions: SQL[] = [eq(locations.status, "Active")];
+  if (scopeUniversityId) {
+    conditions.push(eq(locations.universityId, scopeUniversityId));
+  }
+  return withReviewStats()
+    .where(and(...conditions))
+    .orderBy(
+      sql`${locations.totalViews} desc`,
+      sql`coalesce(${reviewStats.reviews}, 0) desc`,
+      sql`coalesce(${reviewStats.rating}, 0) desc`,
+    )
+    .limit(limit);
+}
+
+/** Increment a location's popularity counter by one (student spot-detail open). */
+export async function incrementLocationViews(id: string) {
+  await db
+    .update(locations)
+    .set({ totalViews: sql`${locations.totalViews} + 1` })
+    .where(eq(locations.id, id));
 }
 
 export async function createLocation(data: NewLocation) {
@@ -309,7 +338,7 @@ export async function updateLocation(id: string, data: Partial<NewLocation>) {
 export async function submitLiveStatus(
   locationId: string,
   studentId: string,
-  data: { noise: string; crowd: string; seats: string; wifi: string }
+  data: { noise: string; crowd: string; seats: string; wifi: string; comment?: string }
 ) {
   const [row] = await db
     .update(locations)
@@ -318,6 +347,7 @@ export async function submitLiveStatus(
       crowd: data.crowd,
       seats: data.seats,
       wifi: data.wifi,
+      reportComment: data.comment?.trim() || null,
       lastReportedBy: studentId,
       lastReportedAt: new Date(),
       lastUpdated: new Date(),
@@ -339,6 +369,7 @@ export async function getReviewsByLocation(locationId: string, includeHidden = f
       studentId: reviews.studentId,
       authorName: students.name,
       authorFaculty: students.faculty,
+      authorImg: students.profileImg,
       rating: reviews.rating,
       text: reviews.text,
       status: reviews.status,
@@ -365,9 +396,11 @@ export async function getAllReviews(status?: "Visible" | "Hidden", viewerId?: st
       id: reviews.id,
       locationId: reviews.locationId,
       locationName: locations.name,
+      universityName: universities.name,
       studentId: reviews.studentId,
       authorName: students.name,
       authorFaculty: students.faculty,
+      authorImg: students.profileImg,
       rating: reviews.rating,
       text: reviews.text,
       status: reviews.status,
@@ -384,7 +417,8 @@ export async function getAllReviews(status?: "Visible" | "Hidden", viewerId?: st
     })
     .from(reviews)
     .innerJoin(students, eq(reviews.studentId, students.id))
-    .innerJoin(locations, eq(reviews.locationId, locations.id));
+    .innerJoin(locations, eq(reviews.locationId, locations.id))
+    .innerJoin(universities, eq(locations.universityId, universities.id));
   const conditions = [
     ...(status ? [eq(reviews.status, status)] : []),
     ...(universityId ? [eq(locations.universityId, universityId)] : []),

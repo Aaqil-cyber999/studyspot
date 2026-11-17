@@ -47,7 +47,12 @@ router.get(
 );
 
 const createSchema = z.object({
-  name: z.string().min(2, "University name is required"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "University name is required")
+    .max(120, "Use 120 characters or fewer")
+    .transform((value) => value.replace(/\s+/g, " ")),
   status: z.enum(["Pending", "Active", "Inactive"]).optional(),
 });
 

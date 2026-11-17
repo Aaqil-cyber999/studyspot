@@ -93,6 +93,13 @@ router.put(
     const role = req.user!.role as AccountRole;
     const { universityId, ...rest } = req.body;
 
+    // University may only be set by students — their onboarding picker persists
+    // through this endpoint. Admins must never re-link themselves into another
+    // university, because university scoping everywhere is derived from it.
+    if (universityId !== undefined && role !== "student") {
+      return res.status(403).json({ error: "University cannot be changed for admin accounts" });
+    }
+
     if (universityId) {
       const resolved =
         (await getUniversityById(universityId)) ?? (await getUniversityByName(universityId));

@@ -4,7 +4,8 @@ import { ZodTypeAny, ZodError } from "zod";
 export function validate(schema: ZodTypeAny) {
   return (req: Request, res: Response, next: NextFunction): void | Response => {
     try {
-      schema.parse(req.body);
+      // Persist the parsed (and therefore trimmed/transformed) body, not the raw one.
+      req.body = schema.parse(req.body);
       next();
     } catch (err) {
       if (err instanceof ZodError) {
