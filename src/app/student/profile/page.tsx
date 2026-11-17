@@ -132,7 +132,7 @@ export default function StudentProfilePage() {
         />
       </div>
 
-      <SettingsCard showNotifications={false} />
+      <SettingsCard />
 
       <SignOutDialog />
     </div>

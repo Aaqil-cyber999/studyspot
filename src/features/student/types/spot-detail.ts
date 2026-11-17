@@ -41,7 +41,6 @@ export interface LiveMetric {
 
 export interface SpotAmenity {
   label: string;
-  detail: string;
   icon: string;
   /** Natural width of the icon artwork, in px. */
   iconWidth: number;
@@ -80,9 +79,17 @@ export interface SpotDetail {
     image: string;
     alt: string;
     photoCount: number;
+    /** Full ordered gallery URLs — used by the carousel. */
+    images: string[];
   };
   hours: OperatingHours;
   lastUpdated: string;
+  /** Optional comment from the latest student status report. */
+  reportComment?: string | null;
+  /** Name of the student who filed the latest status report, when known. */
+  lastReportedByName?: string | null;
+  /** Faculty of the student who filed the latest status report, when known. */
+  lastReportedByFaculty?: string | null;
   metrics: LiveMetric[];
   amenities: SpotAmenity[];
   reviews: SpotReviewSummary & {

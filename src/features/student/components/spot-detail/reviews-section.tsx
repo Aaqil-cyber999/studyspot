@@ -1,7 +1,11 @@
+import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react";
 import type { SpotDetail, SpotReview } from "@/features/student/types/spot-detail";
 import { AddReviewDialog, type SubmittedReview } from "./add-review-dialog";
 import { ReviewCard } from "./review-card";
+import { ShowMoreReviewsButton } from "@/components/shared/show-more-reviews-button";
+
+const PAGE_SIZE = 10;
 
 interface ReviewsSectionProps {
   reviews: SpotDetail["reviews"];
@@ -12,6 +16,28 @@ interface ReviewsSectionProps {
 }
 
 export function ReviewsSection({ reviews, items, spotName, onAddReview }: ReviewsSectionProps) {
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const shown = items.slice(0, visible);
+  const hasMore = items.length > visible;
+
+  // Infinite scroll: load the next batch when the sentinel scrolls into view.
+  useEffect(() => {
+    if (!hasMore) return;
+    const element = sentinelRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible((current) => Math.min(current + PAGE_SIZE, items.length));
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasMore, items.length]);
+
   return (
     <section aria-labelledby="reviews-heading" className="flex w-full flex-col gap-4">
       <div className="flex w-full items-center justify-between gap-2">
@@ -38,9 +64,25 @@ export function ReviewsSection({ reviews, items, spotName, onAddReview }: Review
       </div>
 
       <div className="flex w-full flex-col gap-3">
-        {items.map((review) => (
+        {shown.map((review) => (
           <ReviewCard key={review.id} review={review} />
         ))}
+        {hasMore ? (
+          <div className="flex flex-col items-center gap-2 pb-1">
+            <div
+              ref={sentinelRef}
+              aria-hidden="true"
+              className="h-1 w-full"
+            />
+            <ShowMoreReviewsButton
+              remaining={items.length - visible}
+              onLoadMore={() => setVisible((current) => Math.min(current + PAGE_SIZE, items.length))}
+            />
+            <p className="text-[11px] text-[#94a3b8]">{shown.length} of {items.length} shown</p>
+          </div>
+        ) : (
+          <p className="pt-2 text-center text-[12px] text-[#94a3b8]">You&apos;ve reached the end of the reviews.</p>
+        )}
       </div>
     </section>
   );

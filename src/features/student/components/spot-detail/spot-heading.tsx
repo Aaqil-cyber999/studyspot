@@ -9,7 +9,7 @@ export function SpotHeading({ spot }: { spot: Pick<SpotDetail, "name" | "rating"
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1">
         <div className="flex items-center">
           <Star aria-hidden="true" className="size-[15px] text-[#f59e0b]" fill="#f59e0b" strokeWidth={0} />
-          <span className="pl-1 font-body text-[18px] font-bold leading-6 text-[#0b1c30]">{spot.rating.toFixed(1)}</span>
+          <span className="pl-1 font-body text-[18px] font-bold leading-6 text-[#0b1c30]">{Math.round(spot.rating)}</span>
         </div>
 
         <p className="font-body text-[14px] leading-5 text-[#515f74]">({spot.reviewCount} student reviews)</p>

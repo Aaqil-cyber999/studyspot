@@ -30,14 +30,9 @@ export function AmenitiesSection({ amenities }: { amenities: SpotAmenity[] }) {
               />
             </span>
 
-            <div className="flex min-w-0 flex-col items-start">
-              <p className="w-full truncate font-body text-[12px] font-semibold leading-4 tracking-[0.3px] text-[#0b1c30]">
-                {amenity.label}
-              </p>
-              <p className="w-full truncate font-body text-[11px] font-medium leading-[14px] tracking-[0.33px] text-[#515f74]">
-                {amenity.detail}
-              </p>
-            </div>
+            <p className="w-full truncate font-body text-[13px] font-semibold leading-4 tracking-[0.3px] text-[#0b1c30]">
+              {amenity.label}
+            </p>
           </li>
         ))}
       </ul>

@@ -58,7 +58,7 @@ function displayLocation(building: string, address: string, universityName?: str
   const b = building.trim();
   let a = address.trim();
   const strip = (text: string, prefix: string) => {
-    const rx = new RegExp(`^${escapeRegExp(prefix.trim())}[\\s�-]*`, "i");
+    const rx = new RegExp(`^${escapeRegExp(prefix.trim())}[\\s:\u00B7\u2013\u2014-]*`, "i");
     return rx.test(text) ? text.replace(rx, "") : text;
   };
   if (b) {
@@ -112,7 +112,7 @@ export function LocationTile({
           <div className="flex items-center gap-[6px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt="" className="size-[14px] max-w-none" src={HOME_ASSET("30f3b.svg")} />
-            <p className="text-[13px] font-medium tabular-nums text-[#0f172a]">{Number(spot.rating).toFixed(1)}</p>
+            <p className="text-[13px] font-medium tabular-nums text-[#0f172a]">{Math.round(Number(spot.rating))}</p>
             <p className="shrink-0 text-[13px] text-[#64748b]">·</p>
             <MessageSquare aria-hidden="true" className="size-[14px] shrink-0 text-[#94a3b8]" strokeWidth={2} />
             <p className="shrink-0 whitespace-nowrap text-[13px] font-medium tabular-nums text-[#0f172a]">{spot.reviews} reviews</p>

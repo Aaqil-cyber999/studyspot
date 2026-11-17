@@ -15,6 +15,7 @@ import { api } from "@/services/api";
 
 export function SpotDetailView({ spot }: { spot: SpotDetail }) {
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const queryClient = useQueryClient();
 
   const createReview = useMutation({
@@ -39,16 +40,24 @@ export function SpotDetailView({ spot }: { spot: SpotDetail }) {
 
       <main className="flex flex-col gap-[15px] px-4 pb-4 pt-1">
         <ImageCarousel
-          previewUrls={spot.hero.image ? [spot.hero.image] : []}
-          currentIdx={0}
+          previewUrls={spot.hero.images}
+          currentIdx={currentIdx}
           onRemove={() => {}}
-          onPrev={() => {}}
-          onNext={() => {}}
+          onPrev={() => setCurrentIdx((index) => (index - 1 + spot.hero.images.length) % spot.hero.images.length)}
+          onNext={() => setCurrentIdx((index) => (index + 1) % spot.hero.images.length)}
           showRemoveButton={false}
         />
         <SpotHeading spot={spot} />
         <OperatingHoursCard hours={spot.hours} />
-        <CurrentStatusSection metrics={spot.metrics} lastUpdated={spot.lastUpdated} />
+        <CurrentStatusSection
+          metrics={spot.metrics}
+          lastUpdated={spot.lastUpdated}
+          locationId={spot.slug}
+          spotName={spot.name}
+          reportComment={spot.reportComment}
+          lastReportedByName={spot.lastReportedByName}
+          lastReportedByFaculty={spot.lastReportedByFaculty}
+        />
         <AmenitiesSection amenities={spot.amenities} />
         <ReviewsSection
           reviews={spot.reviews}

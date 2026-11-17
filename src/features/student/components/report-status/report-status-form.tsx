@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import { useReportStore } from "@/stores/report-store";
+
 import { getReportOptions, type ApiReportOption } from "@/services/university-admin";
 import { PageLoader } from "@/components/shared/page-loader";
 import { StatusChoiceRow } from "./status-choice-row";
@@ -21,7 +20,7 @@ const CROWD_FALLBACK = "Low";
 const SEATS_FALLBACK = "Yes";
 const WIFI_FALLBACK = "Strong";
 
-export function ReportStatusForm({ spotName }: { spotName: string }) {
+export function ReportStatusForm({ spotName, locationId }: { spotName: string; locationId?: string }) {
   const { data: options = [], isPending } = useQuery({
     queryKey: ["ua", "report-options", "active"],
     queryFn: () => getReportOptions(false),
@@ -32,53 +31,37 @@ export function ReportStatusForm({ spotName }: { spotName: string }) {
     return <PageLoader className="min-h-[50vh]" />;
   }
 
-  return <ReportStatusFormInner spotName={spotName} options={options} />;
+  return <ReportStatusFormInner spotName={spotName} locationId={locationId} options={options} />;
 }
 
-function ReportStatusFormInner({ spotName, options }: { spotName: string; options: ApiReportOption[] }) {
+function ReportStatusFormInner({ spotName, locationId, options }: { spotName: string; locationId?: string; options: ApiReportOption[] }) {
   const router = useRouter();
-  const setReport = useReportStore((state) => state.setReport);
-  const storedNoise = useReportStore((state) => state.noise);
-  const storedCrowd = useReportStore((state) => state.crowd);
-  const storedSeats = useReportStore((state) => state.seats);
-  const storedWifi = useReportStore((state) => state.wifi);
-  const storedComment = useReportStore((state) => state.comment);
 
-  const byCategory = (category: (typeof OPTION_CATEGORY)[keyof typeof OPTION_CATEGORY], currentValue: string) => {
+  const byCategory = (category: (typeof OPTION_CATEGORY)[keyof typeof OPTION_CATEGORY]) => {
     const active = options
       .filter((option) => option.category === category && option.active)
       .sort((a, b) => a.order - b.order)
       .map((option) => option.label);
-    const withCurrent = options
-      .filter((option) => option.category === category)
-      .sort((a, b) => a.order - b.order)
-      .map((option) => option.label);
-    return { active, withCurrent: currentValue && !active.includes(currentValue) ? withCurrent : active };
+    return active;
   };
 
-  const noiseOptions = byCategory(OPTION_CATEGORY.noise, storedNoise);
-  const crowdOptions = byCategory(OPTION_CATEGORY.crowd, storedCrowd);
-  const seatsOptions = byCategory(OPTION_CATEGORY.seats, storedSeats);
-  const wifiOptions = byCategory(OPTION_CATEGORY.wifi, storedWifi);
+  const noiseOptions = byCategory(OPTION_CATEGORY.noise);
+  const crowdOptions = byCategory(OPTION_CATEGORY.crowd);
+  const seatsOptions = byCategory(OPTION_CATEGORY.seats);
+  const wifiOptions = byCategory(OPTION_CATEGORY.wifi);
 
-  const [noise, setNoise] = useState(() =>
-    noiseOptions.withCurrent.includes(storedNoise) ? storedNoise : noiseOptions.withCurrent[0] ?? NOISE_FALLBACK,
-  );
-  const [crowd, setCrowd] = useState(() =>
-    crowdOptions.withCurrent.includes(storedCrowd) ? storedCrowd : crowdOptions.withCurrent[0] ?? CROWD_FALLBACK,
-  );
-  const [seats, setSeats] = useState(() =>
-    seatsOptions.withCurrent.includes(storedSeats) ? storedSeats : seatsOptions.withCurrent[0] ?? SEATS_FALLBACK,
-  );
-  const [wifi, setWifi] = useState(() =>
-    wifiOptions.withCurrent.includes(storedWifi) ? storedWifi : wifiOptions.withCurrent[0] ?? WIFI_FALLBACK,
-  );
-  const [comment, setComment] = useState(storedComment);
+  const [noise, setNoise] = useState(() => (noiseOptions[0] ?? NOISE_FALLBACK));
+  const [crowd, setCrowd] = useState(() => (crowdOptions[0] ?? CROWD_FALLBACK));
+  const [seats, setSeats] = useState(() => (seatsOptions[0] ?? SEATS_FALLBACK));
+  const [wifi, setWifi] = useState(() => (wifiOptions[0] ?? WIFI_FALLBACK));
+  const [comment, setComment] = useState("");
 
   const submit = () => {
-    setReport({ noise, crowd, seats, wifi, comment });
-    toast.success("Status updated");
-    router.push("/student/review");
+    // The report is only persisted when the user confirms on the review step.
+    const params = new URLSearchParams({ noise, crowd, seats, wifi, name: spotName });
+    if (locationId) params.set("locationId", locationId);
+    if (comment.trim()) params.set("comment", comment.trim());
+    router.push(`/student/review?${params.toString()}`);
   };
 
   return (
@@ -106,10 +89,10 @@ function ReportStatusFormInner({ spotName, options }: { spotName: string; option
           Current status
         </p>
         <div className="divide-y divide-[#e2e8f0]">
-          <StatusChoiceRow label="Noise level" options={noiseOptions.withCurrent} value={noise} onChange={setNoise} />
-          <StatusChoiceRow label="Crowd level" options={crowdOptions.withCurrent} value={crowd} onChange={setCrowd} />
-          <StatusChoiceRow label="Seats available" options={seatsOptions.withCurrent} value={seats} onChange={setSeats} />
-          <StatusChoiceRow label="Wi-Fi" options={wifiOptions.withCurrent} value={wifi} onChange={setWifi} />
+          <StatusChoiceRow label="Noise level" options={noiseOptions} value={noise} onChange={setNoise} />
+          <StatusChoiceRow label="Crowd level" options={crowdOptions} value={crowd} onChange={setCrowd} />
+          <StatusChoiceRow label="Seats available" options={seatsOptions} value={seats} onChange={setSeats} />
+          <StatusChoiceRow label="Wi-Fi" options={wifiOptions} value={wifi} onChange={setWifi} />
         </div>
       </div>
 
@@ -127,7 +110,7 @@ function ReportStatusFormInner({ spotName, options }: { spotName: string; option
         />
       </div>
 
-      <div className="mt-auto flex flex-col gap-[24px]">
+      <div className="mt-auto flex flex-col gap-[12px]">
         <button
           type="button"
           onClick={submit}
