@@ -51,6 +51,18 @@ function sessionRole(token: string | undefined): string | null {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Landing page: a signed-in user should never see the user-type picker —
+  // send them straight to their portal (this is also the PWA start_url).
+  if (pathname === "/") {
+    const role = sessionRole(request.cookies.get("token")?.value);
+    const own = PORTALS.find((p) => p.role === role);
+    if (own) {
+      return NextResponse.redirect(new URL(own.home, request.url));
+    }
+    return NextResponse.next();
+  }
+
   const portal = PORTALS.find((p) => pathname.startsWith(p.prefix));
   if (!portal) {
     return NextResponse.next();
@@ -82,5 +94,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/student/:path*", "/university-admin/:path*", "/super-admin/:path*"],
+  matcher: ["/", "/student/:path*", "/university-admin/:path*", "/super-admin/:path*"],
 };
