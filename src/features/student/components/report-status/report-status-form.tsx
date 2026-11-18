@@ -28,7 +28,7 @@ export function ReportStatusForm({ spotName, locationId }: { spotName: string; l
   });
 
   if (isPending) {
-    return <PageLoader className="min-h-[50vh]" />;
+    return <PageLoader className="min-h-[calc(100dvh-120px)]" />;
   }
 
   return <ReportStatusFormInner spotName={spotName} locationId={locationId} options={options} />;

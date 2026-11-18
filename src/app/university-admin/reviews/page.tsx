@@ -96,7 +96,7 @@ export default function UaReviewsPage() {
 
       <div className="px-6 pb-[90px] pt-4">
         {isPending ? (
-          <PageLoader className="min-h-[40vh]" />
+          <PageLoader className="min-h-[calc(100dvh-120px)]" />
         ) : (
           <div className="flex flex-col gap-4">
             {shownReviews.map((review) => (

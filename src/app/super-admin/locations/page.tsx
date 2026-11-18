@@ -97,7 +97,7 @@ export default function SaLocationsPage() {
 
       <div className="flex flex-1 flex-col pb-4 pt-3">
         {isPending ? (
-          <PageLoader className="min-h-[40vh]" />
+          <PageLoader className="min-h-[calc(100dvh-120px)]" />
         ) : filteredLocations.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
             <span className="flex size-16 items-center justify-center rounded-full bg-[#ffdbca] text-[#f97316]">
