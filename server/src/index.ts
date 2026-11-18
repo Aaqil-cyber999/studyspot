@@ -26,9 +26,25 @@ const PORT = Number(process.env.PORT ?? 4000);
 
 app.disable("x-powered-by");
 
+// Allow localhost-ish origins plus private LAN ranges so devices on the same network (phones) can reach the dev frontend.
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:3001",
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
+  /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/,
+  /^http:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/,
+  /^http:\/\/172\.(1[6-9]|2[0-9]|3[01])\.\d{1,3}\.\d{1,3}(:\d+)?$/,
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3001",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.some((item) => (typeof item === "string" ? item === origin : item.test(origin)))) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   })
 );

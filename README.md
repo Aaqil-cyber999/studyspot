@@ -237,6 +237,19 @@ npm run dev
 
 Open http://localhost:3001. The backend must be up for authenticated routes.
 
+### 7. Mobile preview (same Wi-Fi)
+
+The app is wired so one origin serves both the UI and the API (Next.js proxies `/api/*` to the Express server), so the phone only needs to reach your laptop's LAN IP:
+
+1. Confirm your laptop's LAN IP (look under *Wi-Fi* in `ipconfig` — e.g. `192.168.43.45`; ignore virtual adapters).
+2. Run the frontend bound to all interfaces instead of localhost-only:
+   ```bash
+   npm run dev -- -H 0.0.0.0
+   ```
+3. On the phone, open `http://<your-laptop-ip>:3001` in the browser.
+
+No env edits or second server binding are needed. Cookies work because the phone only sees your laptop's origin (same-site, host-only cookies), and CORS is relaxed to allow private LAN origins in dev.
+
 ### Seeded accounts
 
 | Role | Email | Password / OTP |
