@@ -46,7 +46,7 @@ export default function SelectUniversityPage() {
     <main className="flex min-h-screen w-full md:max-w-[412px] mx-auto flex-col bg-[#E2E8F0] px-[24px] pt-[32px] overflow-x-hidden overflow-y-auto">
       {/* Header */}
       <div className="mb-[24px] flex h-[36px] items-center gap-[12px]">
-        <button onClick={() => router.back()} className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] bg-white" aria-label="Go back">
+        <button onClick={() => router.push("/student/info", { transitionTypes: ["nav-back"] })} className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] bg-white" aria-label="Go back">
           <ArrowLeft className="size-[18px] text-[#334052]" />
         </button>
         <p className="min-w-0 flex-1 truncate text-left text-[20px] font-semibold leading-normal tracking-[-0.6px] text-[#0f172a]" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>

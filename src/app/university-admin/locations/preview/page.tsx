@@ -150,14 +150,14 @@ export default function LocationPreviewPage() {
       {/* Header */}
       <div className="sticky top-0 z-20 flex items-center gap-3 bg-[#E2E8F0] px-[24px] pb-[16px] pt-[16px]">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/university-admin/locations/new", { transitionTypes: ["nav-back"] })}
           className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white"
         >
           <ArrowLeft className="size-5 text-[#0f172a]" />
         </button>
         <h1 className="flex-1 text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Preview location</h1>
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/university-admin/locations/new", { transitionTypes: ["nav-back"] })}
           className="flex items-center gap-1.5 rounded-[12px] bg-[#f97316] px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
         >
           <Pencil className="size-4 text-white" />

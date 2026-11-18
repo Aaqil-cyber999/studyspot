@@ -47,6 +47,7 @@ interface ImageItem {
 }
 
 function EditLocationForm({ location }: { location: AdminLocation }) {
+  const { id } = location;
   const router = useRouter();
   const queryClient = useQueryClient();
   const setLocationPreview = useLocationPreviewStore((state) => state.setData);
@@ -277,7 +278,7 @@ function EditLocationForm({ location }: { location: AdminLocation }) {
   return (
     <div className="min-h-screen bg-[#E2E8F0]">
       <div className="flex items-center gap-3 px-[24px] pb-[16px] pt-[16px]">
-        <button onClick={() => router.back()} className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white">
+        <button onClick={() => router.push(`/university-admin/locations/${id}`, { transitionTypes: ["nav-back"] })} className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white">
           <ArrowLeft className="size-5 text-[#0f172a]" />
         </button>
         <h1 className="text-[24px] font-semibold tracking-[-0.3px] text-[#0f172a]">Edit location</h1>

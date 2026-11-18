@@ -69,7 +69,7 @@ function ReportStatusFormInner({ spotName, locationId, options }: { spotName: st
       <header className="flex h-[46px] items-center gap-[12px]">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push(`/student/results/${locationId}`, { transitionTypes: ["nav-back"] })}
           aria-label="Go back"
           className="flex size-[36px] shrink-0 items-center justify-center rounded-[18px] border border-[#e2e8f0] bg-white transition-colors hover:bg-[#d0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
         >
@@ -124,7 +124,7 @@ function ReportStatusFormInner({ spotName, locationId, options }: { spotName: st
         </button>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push(`/student/results/${locationId}`, { transitionTypes: ["nav-back"] })}
           className="flex h-[32px] w-full items-center justify-center gap-[8px] rounded-[10px] border border-[#e5e5e5] bg-white px-[10px] py-[6px] transition-colors hover:bg-[#f5f5f5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -57,7 +57,7 @@ function ReviewSubmission() {
     <div className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[32px] pb-[24px] flex flex-col gap-[20px]">
       <div className="flex items-center gap-[12px]">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push(`/student/results/${locationId}`, { transitionTypes: ["nav-back"] })}
           aria-label="Go back"
           className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] border border-[#e2e8f0] bg-white"
         >
