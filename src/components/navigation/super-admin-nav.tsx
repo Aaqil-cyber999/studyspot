@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, Layout, Building2, Users, Inbox, MapPin, MessageSquare, User, LogOut } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import { logout } from "@/services/auth";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 
@@ -53,11 +54,18 @@ export function SuperAdminNav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [profileMenuOpen]);
 
-  const handleSignOut = (event: React.MouseEvent) => {
-    event.stopPropagation();
+  async function handleSignOut() {
+    try {
+      await logout();
+    } catch {
+      // Sign out locally even if the server cookie could not be revoked.
+    }
     signOut();
     setProfileMenuOpen(false);
-  };
+    // Full document load — never keep a stale page after the session is gone.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/");
+  }
 
   return (
     <>
@@ -111,10 +119,10 @@ export function SuperAdminNav() {
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Account</p>
                 <p className="text-sm text-[#d1d5db] mb-3">Signed in as Super Admin</p>
               </div>
-              <Link href="/super-admin/login" onClick={handleSignOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#111827] text-sm font-medium text-[#f97316] hover:bg-[#1f2937] transition w-full justify-center">
+              <button type="button" onClick={() => { void handleSignOut(); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#111827] text-sm font-medium text-[#f97316] hover:bg-[#1f2937] transition w-full justify-center">
                 <LogOut className="size-4" aria-hidden="true" />
                 Sign out
-              </Link>
+              </button>
             </div>
           )}
         </div>
@@ -202,10 +210,10 @@ export function SuperAdminNav() {
                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Account</p>
                   <p className="text-sm text-[#d1d5db] mb-3">Signed in as Super Admin</p>
                 </div>
-                <Link href="/super-admin/login" onClick={handleSignOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#111827] text-sm font-medium text-[#f97316] hover:bg-[#1f2937] transition w-full justify-center">
+                <button type="button" onClick={() => { void handleSignOut(); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#111827] text-sm font-medium text-[#f97316] hover:bg-[#1f2937] transition w-full justify-center">
                   <LogOut className="size-4" aria-hidden="true" />
                   Sign out
-                </Link>
+                </button>
               </div>
             )}
           </div>

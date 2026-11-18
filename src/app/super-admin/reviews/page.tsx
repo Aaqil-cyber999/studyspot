@@ -7,6 +7,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { PageLoader } from "@/components/shared/page-loader";
 import { getSaReviews, moderateSaReview } from "@/services/super-admin";
+import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { ShowMoreReviewsButton } from "@/components/shared/show-more-reviews-button";
 
 const PAGE_SIZE = 10;
@@ -60,6 +61,7 @@ export default function SaReviewsPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("All");
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [hideTarget, setHideTarget] = useState<{ id: string; authorName: string } | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
@@ -95,9 +97,25 @@ export default function SaReviewsPage() {
 
   const visibleCount = reviews.filter((review) => review.status === "Visible").length;
 
-  function toggleVisibility(id: string, status: "Visible" | "Hidden") {
+  function requestToggle(id: string, status: "Visible" | "Hidden", authorName: string) {
+    if (status === "Visible") {
+      setHideTarget({ id, authorName });
+      return;
+    }
     moderateMutation.mutate(
-      { id, status: status === "Visible" ? "Hidden" : "Visible" },
+      { id, status: "Visible" },
+      {
+        onSuccess: (updated) => toast.success(updated.status === "Visible" ? "Review shown" : "Review hidden"),
+      },
+    );
+  }
+
+  function confirmHide() {
+    if (!hideTarget) return;
+    const { id } = hideTarget;
+    setHideTarget(null);
+    moderateMutation.mutate(
+      { id, status: "Hidden" },
       {
         onSuccess: (updated) => toast.success(updated.status === "Visible" ? "Review shown" : "Review hidden"),
       },
@@ -187,9 +205,9 @@ export default function SaReviewsPage() {
 
                 <p className="mt-3 text-sm leading-6 text-slate-700">&ldquo;{review.text}&rdquo;</p>
 
-                <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                <div className="flex items-center justify-between gap-2 pt-3">
                   <Stars rating={review.rating} />
-                  <button type="button" disabled={moderateMutation.isPending} onClick={() => toggleVisibility(review.id, review.status)} className={`flex items-center gap-1.5 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60 ${review.status === "Visible" ? "text-red-600 hover:text-red-700" : "text-orange-600 hover:text-orange-700"}`}>
+                  <button type="button" disabled={moderateMutation.isPending} onClick={() => requestToggle(review.id, review.status, review.authorName)} className={`flex items-center gap-1.5 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 disabled:opacity-60 ${review.status === "Visible" ? "text-red-600 hover:text-red-700" : "text-orange-600 hover:text-orange-700"}`}>
                     {review.status === "Visible" ? (
                       <>
                         <EyeOff className="size-3.5" aria-hidden="true" /> Hide
@@ -217,6 +235,18 @@ export default function SaReviewsPage() {
           </div>
         )}
       </div>
+
+      <AdminConfirmDialog
+        open={hideTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setHideTarget(null);
+        }}
+        title="Hide this review?"
+        description={hideTarget ? `Students will no longer see ${hideTarget.authorName}&rsquo;s review. You can show it again later.` : ""}
+        confirmLabel="Hide review"
+        destructive
+        onConfirm={confirmHide}
+      />
     </div>
   );
 }
