@@ -69,7 +69,7 @@ export default function SavedPage() {
                 onClick={() => removeCard(card.id, card.name)}
                 aria-label={`Remove ${card.name} from saved places`}
                 aria-pressed="true"
-                className="absolute left-[320px] top-[12px] z-10 flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="absolute right-[12px] top-[12px] z-10 flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img alt="" className="size-[16px] max-w-none" src="/assets/saved/5cc8f.svg" />

@@ -27,7 +27,7 @@ export function SpotBookmark({ slug, name }: SpotBookmarkProps) {
       onClick={handleToggle}
       aria-label={saved ? `Remove ${name} from saved places` : `Save ${name} to saved places`}
       aria-pressed={saved}
-      className="absolute left-[320px] top-[12px] z-10 flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white student-keep-light focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="absolute right-[12px] top-[12px] z-10 flex size-[32px] items-center justify-center overflow-clip rounded-[16px] bg-white student-keep-light focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

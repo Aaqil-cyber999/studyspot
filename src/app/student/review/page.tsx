@@ -74,7 +74,7 @@ function ReviewSubmission() {
         <div className="relative h-[176px] w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" className="absolute inset-0 max-w-none object-cover size-full" src="/assets/review/96063.png" />
-          <Bookmark className="absolute left-[327px] top-[135px] size-[16px] text-[#334052]" aria-hidden="true" />
+          <Bookmark className="absolute right-[24px] top-[135px] size-[16px] text-[#334052]" aria-hidden="true" />
         </div>
       </div>
 
