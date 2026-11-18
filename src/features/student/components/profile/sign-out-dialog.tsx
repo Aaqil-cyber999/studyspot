@@ -1,10 +1,11 @@
 "use client";
 
-import { useId } from "react";
-import { useRouter } from "next/navigation";
+import { useId, useState } from "react";
 import { LogOut, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/auth-store";
+import { logout } from "@/services/auth";
 import {
   Dialog,
   DialogClose,
@@ -15,8 +16,28 @@ import {
 } from "@/components/ui/dialog";
 
 export function SignOutDialog() {
-  const router = useRouter();
   const descriptionId = useId();
+  const [signingOut, setSigningOut] = useState(false);
+  const signOut = useAuthStore((state) => state.signOut);
+
+  async function doSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    let revoked = true;
+    try {
+      revoked = await logout();
+    } catch {
+      // Sign out locally even if the server cookie could not be revoked.
+      revoked = false;
+    } finally {
+      signOut();
+      toast.success(revoked ? "Signed out" : "Signed out on this device (server session could not be revoked)");
+      // Full document load: never reuse a cached client page or stale RSC
+      // payload after the session is gone.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/");
+    }
+  }
 
   return (
     <Dialog>
@@ -84,18 +105,17 @@ export function SignOutDialog() {
           </DialogClose>
 
           <DialogClose
-            onClick={() => {
-              toast.success("Signed out");
-              router.push("/");
-            }}
+            onClick={doSignOut}
+            disabled={signingOut}
             render={
               <Button
                 type="button"
-                className="min-h-10 min-w-0 flex-1 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                disabled={signingOut}
+                className="min-h-10 min-w-0 flex-1 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:opacity-60"
               />
             }
           >
-            Sign out
+            {signingOut ? "Signing out…" : "Sign out"}
           </DialogClose>
         </div>
       </DialogContent>

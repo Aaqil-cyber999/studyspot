@@ -11,7 +11,6 @@ import { useProfileStore } from "@/stores/profile-store";
 import { SelectUniversityDialog } from "@/features/student/components/info/select-university-dialog";
 import { api, ApiError } from "@/services/api";
 
-const asset = (name: string) => `/assets/${name}.svg`;
 
 function CampusIllustration() {
   return (
@@ -25,7 +24,7 @@ function CampusIllustration() {
 
 export default function InfoPage() {
   const router = useRouter();
-  const { name, setName, address, setAddress, faculty, setFaculty, error, setError, shake, setShake, reset } = useInfoStore();
+  const { name, setName, address, setAddress, faculty, setFaculty, error, setError, shake, setShake } = useInfoStore();
   const university = useOnboardingStore((state) => state.university);
   const universityId = useOnboardingStore((state) => state.universityId);
   const queryClient = useQueryClient();

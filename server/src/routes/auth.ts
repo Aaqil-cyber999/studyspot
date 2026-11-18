@@ -86,8 +86,10 @@ router.post(
 
 // POST /auth/logout
 router.post("/logout", (_req, res) => {
-  const { maxAge: _maxAge, ...options } = authCookieOptions();
-  res.clearCookie(AUTH_COOKIE, options);
+  const options = authCookieOptions();
+  // Expire the cookie decisively — some browsers are picky about
+  // Expires-only clearing when the cookie was set with Max-Age.
+  res.clearCookie(AUTH_COOKIE, { ...options, maxAge: 0, expires: new Date(0) });
   res.json({ ok: true });
 });
 

@@ -27,12 +27,22 @@ const PUBLIC_PATHS = new Set([
   "/super-admin/login",
 ]);
 
-function decodeRole(token: string): string | null {
+/**
+ * Decode the session JWT payload without verifying the signature (the API
+ * re-verifies on every request; this proxy only routes). An expired or
+ * malformed token is treated as signed out, so a stale browser cookie can
+ * never bounce a logged-out user back into a portal dashboard.
+ */
+function sessionRole(token: string | undefined): string | null {
+  if (!token) return null;
   try {
-    const part = token.split(".")[1];
-    if (!part) return null;
-    const base64 = part.replace(/-/g, "+").replace(/_/g, "/");
-    const json = JSON.parse(atob(base64)) as { role?: unknown };
+    const part = token.split(".");
+    if (part.length !== 3) return null;
+    const base64 = part[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = JSON.parse(atob(base64)) as { role?: unknown; exp?: unknown };
+    if (typeof json.exp === "number" && json.exp * 1000 <= Date.now()) {
+      return null; // Expired — behave as logged out.
+    }
     return typeof json.role === "string" ? json.role : null;
   } catch {
     return null;
@@ -46,7 +56,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const role = decodeRole(request.cookies.get("token")?.value ?? "");
+  const role = sessionRole(request.cookies.get("token")?.value);
 
   if (PUBLIC_PATHS.has(pathname)) {
     // Already signed in with the matching role? Skip the login screen.

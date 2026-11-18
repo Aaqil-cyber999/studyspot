@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Building2, Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import { PageLoader } from "@/components/shared/page-loader";
 import { ProfileAvatar } from "@/components/shared/profile-avatar";
@@ -15,7 +14,6 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
 export default function UaProfilePage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const signOut = useAuthStore((state) => state.signOut);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -54,7 +52,9 @@ export default function UaProfilePage() {
     }
     signOut();
     toast.success("You have been logged out");
-    router.replace("/");
+    // Full document load: never reuse a cached client page after sign-out.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/");
   }
 
   async function saveProfile({ name: nextName, image: nextImage, title: nextTitle }: { name: string; image: string | null; title: string | null | undefined }) {

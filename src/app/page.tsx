@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import { GraduationCap, ShieldCheck } from "lucide-react";
-import { useAuthStore } from "@/stores/auth-store";
 import { RouteTransition } from "@/components/shared/route-transition";
 
 export default function WelcomePage() {
-  const setRole = useAuthStore((s) => s.setRole);
 
   return (
     <RouteTransition>
@@ -47,7 +45,6 @@ export default function WelcomePage() {
 
             <Link
               href="/student/login"
-              onClick={() => setRole("student")}
               className="flex w-full items-center gap-[16px] overflow-clip rounded-[50px] border border-[rgba(226,232,240,0.6)] bg-white p-[18px] shadow-[0px_2px_10px_0px_rgba(0,0,0,0.05)]"
             >
               <div className="flex size-[48px] shrink-0 items-center justify-center overflow-clip rounded-[24px] bg-[rgba(249,115,22,0.1)]">
@@ -59,7 +56,7 @@ export default function WelcomePage() {
               </div>
             </Link>
 
-            <Link href="/university-admin/login" onClick={() => setRole("university-admin")} className="mt-[20px] flex w-full items-center gap-[16px] overflow-clip rounded-[50px] border border-[rgba(226,232,240,0.6)] bg-white p-[18px] shadow-[0px_2px_10px_0px_rgba(0,0,0,0.05)]">
+            <Link href="/university-admin/login" className="mt-[20px] flex w-full items-center gap-[16px] overflow-clip rounded-[50px] border border-[rgba(226,232,240,0.6)] bg-white p-[18px] shadow-[0px_2px_10px_0px_rgba(0,0,0,0.05)]">
               <div className="flex size-[48px] shrink-0 items-center justify-center overflow-clip rounded-[24px] bg-[rgba(249,115,22,0.1)]">
                 <ShieldCheck className="size-[24px] text-[#f97316]" />
               </div>

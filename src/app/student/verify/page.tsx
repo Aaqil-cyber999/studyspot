@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Info } from "lucide-react";
 import toast from "react-hot-toast";
@@ -10,7 +10,6 @@ import { showDemoOtpToast } from "@/components/shared/demo-otp-toast";
 import { me } from "@/services/auth";
 import { useProfileStore } from "@/stores/profile-store";
 
-const asset = (name: string) => `/assets/${name}.svg`;
 const otpAsset = (name: string) => `/assets/otp/${name}`;
 
 function OtpVerification() {

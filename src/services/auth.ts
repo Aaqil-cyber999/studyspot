@@ -38,11 +38,13 @@ export async function updateProfileImage(profileImg: string | null): Promise<{ p
   return api.put<{ profileImg: string | null }>("/users/me/profile-image", { profileImg });
 }
 
-export async function logout(): Promise<void> {
+export async function logout(): Promise<boolean> {
+  let serverRevoked = true;
   try {
     await api.post("/auth/logout", {});
   } catch {
     // Even if the network/logout call fails, we still wipe local session traces.
+    serverRevoked = false;
   }
 
   try {
@@ -59,6 +61,8 @@ export async function logout(): Promise<void> {
   } catch {
     // Best-effort; don't let this break logout.
   }
+
+  return serverRevoked;
 }
 
 /** Returns the current session user, or null when not authenticated. */

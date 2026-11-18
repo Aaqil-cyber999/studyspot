@@ -9,7 +9,6 @@ import { Mail } from "lucide-react";
 import { EditProfileDialog } from "@/features/university-admin/components/edit-profile-dialog";
 import { AdminConfirmDialog } from "@/components/shared/admin-confirm-dialog";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function SaProfilePage() {
@@ -19,7 +18,6 @@ export default function SaProfilePage() {
   const [savedName, setSavedName] = useState<string | null>(null);
   const [savedImage, setSavedImage] = useState<string | null>(null);
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const router = useRouter();
   const signOut = useAuthStore((state) => state.signOut);
 
   if (!profile) {
@@ -39,7 +37,9 @@ export default function SaProfilePage() {
     }
     signOut();
     toast.success("You have been logged out");
-    router.replace("/");
+    // Full document load: never reuse a cached client page after sign-out.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/");
   }
 
   async function saveProfile({ name: nextName, image: nextImage }: { name: string; image: string | null }) {
