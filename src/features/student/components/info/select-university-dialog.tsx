@@ -89,7 +89,7 @@ export function SelectUniversityDialog({ error = false, shake = false }: SelectU
       </DialogTrigger>
 
       <DialogContent
-        className="w-[90vw] max-w-[340px] gap-4 rounded-[16px] border border-[#e2e8f0] p-5"
+        className="w-[90vw] md:w-[340px] gap-4 rounded-[16px] border border-[#e2e8f0] p-5"
         aria-describedby={undefined}
       >
         <div className="flex w-full items-center justify-between gap-2">

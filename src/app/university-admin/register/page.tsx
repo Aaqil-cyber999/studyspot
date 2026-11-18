@@ -219,7 +219,7 @@ export default function UniversityAdminRegisterPage() {
       </section>
       {/* Success Modal */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="p-8 max-w-[320px] w-[90vw]">
+        <DialogContent className="p-8 w-[90vw] md:w-[320px]">
           <DialogTitle className="mb-4">Request submitted</DialogTitle>
           <DialogDescription>Once verified, you can log in to the platform.</DialogDescription>
           <DialogClose>

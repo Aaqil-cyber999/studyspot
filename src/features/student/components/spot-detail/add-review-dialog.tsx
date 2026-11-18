@@ -102,7 +102,7 @@ export function AddReviewDialog({
       ) : null}
 
       <DialogContent
-        className="w-[90vw] max-w-[340px] gap-4 border border-[#e2e8f0] p-5"
+        className="w-[90vw] md:w-[340px] gap-4 border border-[#e2e8f0] p-5"
         aria-describedby={descriptionId}
       >
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">

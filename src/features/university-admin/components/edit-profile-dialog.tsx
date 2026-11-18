@@ -166,7 +166,7 @@ export function EditProfileDialog({
       </DialogTrigger>
 
       <DialogContent
-        className="w-[90vw] max-w-[340px] gap-4 rounded-[16px] border border-[#e2e8f0] p-5"
+        className="w-[90vw] md:w-[340px] gap-4 rounded-[16px] border border-[#e2e8f0] p-5"
         aria-describedby={descriptionId}
       >
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4" noValidate>
