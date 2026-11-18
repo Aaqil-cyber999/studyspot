@@ -10,7 +10,10 @@ const asset = (name: string) => `/assets/${name}.svg`;
 
 function CampusIllustration() {
   return (
-    <div className="art-canvas absolute top-0 left-1/2 w-[min(100%,412px)] aspect-[412/397] -translate-x-1/2" aria-hidden="true">
+    <div
+      className="absolute inset-0"
+      aria-hidden="true"
+    >
       <img className="art absolute block max-w-none top-[18%] left-[23.45%] w-[53.09%]" src={asset("12bb6")} alt="" />
       <img className="art absolute block max-w-none top-[30.1%] left-[69.97%] w-[18.37%]" src={asset("5debe")} alt="" />
       <img className="art absolute block max-w-none top-[30.1%] left-[11.65%] w-[18.37%]" src={asset("d46b1")} alt="" />
@@ -75,13 +78,14 @@ export default function StudentLoginPage() {
   };
 
   return (
-    <main className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
-      <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-[#E2E8F0]" aria-label="University students">
+    <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
+      {/* Illustration section — sizes with width */}
+      <section className="relative flex w-full max-w-[412px] shrink-0 aspect-[412/397] bg-[#E2E8F0]" aria-label="University students">
         <CampusIllustration />
       </section>
 
-      <section className="relative z-20 min-h-[calc(100dvh-500px)] px-[13px] bg-[#F97316]">
-        <div className="absolute z-[-1] top-[-35px] left-[-10px] w-[105%] h-25 rounded-t-[50%] rounded-b-none bg-[#F97316]" />
+      <section className="relative flex-1 bg-[#F97316] px-[13px] pt-2 pb-6">
+        <div className="absolute z-[-1] top-[-26px] left-[-10px] w-[105%] h-[42px] rounded-t-[50%] rounded-b-none bg-[#F97316]" />
         <div className="w-full z-1">
           <h1 className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Sign in as student

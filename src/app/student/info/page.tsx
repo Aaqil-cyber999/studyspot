@@ -15,8 +15,10 @@ const asset = (name: string) => `/assets/${name}.svg`;
 
 function CampusIllustration() {
   return (
-    <div className="art-canvas absolute top-[18%] left-1/2 w-[min(72%,280px)] aspect-[412/397] -translate-x-1/2" aria-hidden="true">
-      <img className="absolute block max-w-none inset-0 size-full" src="/assets/info/illustration.svg" alt="" />
+    <div className="absolute inset-0 w-full flex items-center justify-center" aria-hidden="true">
+      <div className="relative h-full w-[min(80%,280px)] aspect-[412/397]">
+        <img className="absolute inset-0 block size-full" src="/assets/info/illustration.svg" alt="" />
+      </div>
     </div>
   );
 }
@@ -65,15 +67,15 @@ export default function InfoPage() {
     }
   }
   return (
-    <main className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#F97316]">
+    <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-y-auto bg-[#F97316]">
       <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}`}</style>
-      <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-[#E2E8F0]" aria-label="University students">
+      <section className="relative h-[240px] shrink-0 bg-[#E2E8F0] sm:h-[280px]" aria-label="University students">
         <CampusIllustration />
       </section>
 
-      <section className="relative z-20 min-h-[calc(100dvh-500px)] px-[13px] bg-[#F97316]">
-        <div className="absolute z-[-1] top-[-28px] left-[-50px] w-[125%] h-25 rounded-t-[50%] rounded-b-none bg-[#F97316]" />
-        <div className="-mt-[58px] w-full z-1">
+      <section className="relative flex-1 px-[13px] pt-2 pb-6 bg-[#F97316]">
+        <div className="absolute z-[-1] top-[-26px] left-[-10px] w-[105%] h-[42px] rounded-t-[50%] rounded-b-none bg-[#F97316]" />
+        <div className="-mt-[10px] w-full z-1">
           <h1 className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Your details
           </h1>
