@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, ViewTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { StudentBottomNav } from "@/components/navigation/student-bottom-nav";
 import { useThemeStore } from "@/stores/theme-store";
@@ -59,7 +59,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       }`}
     >
       {children && <RouteTransition>{children}</RouteTransition>}
-      {!hideNav && <StudentBottomNav />}
+      {!hideNav && (
+        <ViewTransition>
+          <StudentBottomNav />
+        </ViewTransition>
+      )}
     </div>
   );
 }

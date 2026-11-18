@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, ViewTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { SuperAdminNav } from "@/components/navigation/super-admin-nav";
@@ -36,7 +36,9 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen bg-[#E2E8F0] relative">
-      <SuperAdminNav />
+      <ViewTransition>
+        <SuperAdminNav />
+      </ViewTransition>
       <main className="lg:pl-[260px] pt-[56px] lg:pt-0">
         <div className="mx-auto w-full max-w-7xl">
           <RouteTransition>{children}</RouteTransition>

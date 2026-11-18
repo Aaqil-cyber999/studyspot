@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, ViewTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { AdminStudentNav } from "@/components/navigation/admin-student-nav";
@@ -51,7 +51,9 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
       className="admin-shell mx-auto min-h-screen w-full md:max-w-[412px] bg-[#E2E8F0] pb-[90px]"
     >
       <RouteTransition>{children}</RouteTransition>
-      <AdminStudentNav />
+      <ViewTransition>
+        <AdminStudentNav />
+      </ViewTransition>
     </div>
   );
 }
