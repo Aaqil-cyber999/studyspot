@@ -301,13 +301,16 @@ Edit `server/.env`. Backend variables:
 
 Never commit `server/.env` — `server/.env.example` is the tracked template. For production use a real `JWT_SECRET`, `COOKIE_SECURE=true` and a real `FRONTEND_URL`.
 
-### 4. Create, migrate, seed
+### 4. Migrate and seed
 
 ```bash
 cd server
-npm run db:migrate   # applies migrations from server/drizzle/
+npm run db:create    # optional: create the database without migrating
+npm run db:migrate   # creates the database if absent, then applies migrations from server/drizzle/
 npm run db:seed      # drops + recreates: 6 universities, 28 locations, ~2,990 reviews, OTP rows, amenities, report options
 ```
+
+`npm run db:migrate` creates the target database from `DATABASE_URL` when it is missing, so `db:create` is only needed when you want to create it without migrating. The Postgres role needs `CREATEDB` for that step.
 
 `npm run db:seed` regenerates university and admin IDs every run; use real re-auth after any reset.
 
