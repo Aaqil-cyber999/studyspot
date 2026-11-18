@@ -318,7 +318,7 @@ npm run db:seed      # drops + recreates: 6 universities, 28 locations, ~2,990 r
 
 ```bash
 # at repository root
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
 If the file does not exist yet, just create `.env.local` with:
