@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { flipThemeWithCircleBlurTopLeft } from "@/lib/theme-transition";
+import { flipThemeWithFade } from "@/lib/theme-transition";
 
 interface ThemeState {
   isDark: boolean;
@@ -28,7 +28,7 @@ export const useThemeStore = create<ThemeState>()(
     (set) => ({
       isDark: false,
       toggleTheme: () =>
-        flipThemeWithCircleBlurTopLeft(() =>
+        flipThemeWithFade(() =>
           set((state) => {
             const isDark = !state.isDark;
             stampBody(isDark);
