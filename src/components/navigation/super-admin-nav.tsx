@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Menu, Layout, Building2, Users, Inbox, MapPin, MessageSquare, User, LogOut } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRef } from "react";
+import { motion } from "framer-motion";
 
 const navItems = [
   { href: "/super-admin/dashboard", label: "Dashboard", icon: Layout },
@@ -73,9 +74,23 @@ export function SuperAdminNav() {
             const Icon = item.icon;
             const active = pathname?.startsWith(item.href);
             return (
-              <Link key={item.href} href={item.href} className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${active ? "bg-[#f97316] text-white" : "text-[#94a3b8] hover:bg-[#111827] hover:text-white hover:scale-105"}`}>
-                <Icon className={`size-4 transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-110`} aria-hidden="true" />
-                {item.label}
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  active ? "text-white" : "text-[#94a3b8] hover:bg-[#111827] hover:text-white hover:scale-105"
+                }`}
+              >
+                {active ? (
+                  <motion.div
+                    layoutId="super-admin-sidebar-pill"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    className="absolute inset-0 rounded-xl bg-[#f97316]"
+                  />
+                ) : null}
+                <Icon className="relative size-4 transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-110" aria-hidden="true" />
+                <span className="relative">{item.label}</span>
               </Link>
             );
           })}
@@ -149,9 +164,24 @@ export function SuperAdminNav() {
               const Icon = item.icon;
               const active = pathname?.startsWith(item.href);
               return (
-                <Link key={item.href} href={item.href} onClick={() => setDrawerOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${active ? "bg-[#f97316] text-white" : "text-[#94a3b8] hover:bg-[#111827] hover:text-white"}`}>
-                  <Icon className="size-4" aria-hidden="true" />
-                  {item.label}
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setDrawerOpen(false)}
+                  aria-current={active ? "page" : undefined}
+                  className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+                    active ? "text-white" : "text-[#94a3b8] hover:bg-[#111827] hover:text-white"
+                  }`}
+                >
+                  {active ? (
+                    <motion.div
+                      layoutId="super-admin-drawer-pill"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      className="absolute inset-0 rounded-lg bg-[#f97316]"
+                    />
+                  ) : null}
+                  <Icon className="relative size-4" aria-hidden="true" />
+                  <span className="relative">{item.label}</span>
                 </Link>
               );
             })}
