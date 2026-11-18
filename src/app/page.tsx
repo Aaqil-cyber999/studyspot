@@ -8,7 +8,7 @@ export default function WelcomePage() {
   const setRole = useAuthStore((s) => s.setRole);
 
   return (
-    <div className="relative min-h-screen w-[412px] mx-auto overflow-hidden bg-white">
+    <div className="relative min-h-screen w-full md:max-w-[412px] mx-auto overflow-hidden bg-white">
       {/* background ellipses */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-345px] top-[350px] h-[1078.912px] w-[1058.88px] flex items-center justify-center">

@@ -53,7 +53,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   return (
     <div
       data-admin-theme={isDark ? "dark" : "light"}
-      className={`student-shell mx-auto min-h-screen w-full max-w-[412px] bg-[#E2E8F0] ${
+      className={`student-shell mx-auto min-h-screen w-full md:max-w-[412px] bg-[#E2E8F0] ${
         needsNavClearance ? "pb-[90px]" : ""
       }`}
     >

@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function SubmissionResultPage() {
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[52px] flex flex-col items-center justify-center gap-[24px]">
+    <div className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[52px] flex flex-col items-center justify-center gap-[24px]">
       <div className="flex flex-col items-center gap-[12px]">
         <div className="flex size-[80px] items-center justify-center rounded-[40px] bg-[#16a34a] shadow-[0px_6px_20px_0px_rgba(22,163,74,0.3)]">
           <img alt="" className="size-[40px] max-w-none" src="/assets/result/4164b.svg" />

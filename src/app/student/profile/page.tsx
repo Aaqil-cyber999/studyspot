@@ -42,7 +42,7 @@ export default function StudentProfilePage() {
   }
 
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden bg-[#E2E8F0] px-[24px] pt-[20px] pb-[110px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden bg-[#E2E8F0] px-[24px] pt-[20px] pb-[110px] flex flex-col gap-[20px]">
       <p className="text-[20px] font-bold leading-[25px] text-[#0f172a]">Profile</p>
 
       <div className="overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">

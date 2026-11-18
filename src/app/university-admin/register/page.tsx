@@ -71,7 +71,7 @@ export default function UniversityAdminRegisterPage() {
   }
 
   return (
-    <main className="admin-login flex h-dvh w-full max-w-[412px] mx-auto flex-col overflow-hidden bg-white">
+    <main className="admin-login flex h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-hidden bg-white">
       <section className="flex h-dvh shrink-0 p-5 bg-[#F97316] justify-center items-center overflow-y-auto">
         <div className="relative w-full z-1 pt-[8px] m-auto">
           <h1 className="text-center text-[23px] font-normal leading-normal text-white" style={{ fontVariationSettings: "'CRSV' 0, 'SHRP' 0" }}>

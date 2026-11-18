@@ -73,7 +73,7 @@ export default function UniversityAdminLoginPage() {
   }
 
   return (
-    <main className="admin-login flex h-dvh w-full max-w-[412px] mx-auto flex-col overflow-hidden bg-white">
+    <main className="admin-login flex h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-hidden bg-white">
       <section className="relative z-10 min-h-0 flex-1 overflow-hidden bg-white" aria-label="University">
         <CampusIllustration />
       </section>

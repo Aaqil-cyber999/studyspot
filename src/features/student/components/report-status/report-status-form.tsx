@@ -65,7 +65,7 @@ function ReportStatusFormInner({ spotName, locationId, options }: { spotName: st
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[412px] flex-col gap-[20px] bg-[#E2E8F0] px-[24px] pb-[24px] pt-[32px]">
+    <main className="mx-auto flex min-h-dvh w-full md:max-w-[412px] flex-col gap-[20px] bg-[#E2E8F0] px-[24px] pb-[24px] pt-[32px]">
       <header className="flex h-[46px] items-center gap-[12px]">
         <button
           type="button"

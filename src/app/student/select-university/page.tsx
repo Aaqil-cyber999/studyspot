@@ -43,7 +43,7 @@ export default function SelectUniversityPage() {
   const effectiveSelected = selected ?? universities[0]?.id ?? null;
 
   return (
-    <main className="flex min-h-screen w-[412px] mx-auto flex-col bg-[#E2E8F0] px-[24px] pt-[32px] overflow-x-hidden overflow-y-auto">
+    <main className="flex min-h-screen w-full md:max-w-[412px] mx-auto flex-col bg-[#E2E8F0] px-[24px] pt-[32px] overflow-x-hidden overflow-y-auto">
       {/* Header */}
       <div className="mb-[24px] flex h-[36px] items-center gap-[12px]">
         <button onClick={() => router.back()} className="flex size-[36px] items-center justify-center overflow-clip rounded-[18px] bg-white" aria-label="Go back">

@@ -472,7 +472,7 @@ function EditLocationForm({ location }: { location: AdminLocation }) {
         {/* Clears the fixed action bar so the last card is fully scrollable into view */}
         <div aria-hidden className="h-[88px]" />
 
-        <div className="fixed bottom-0 left-1/2 z-30 -translate-x-1/2 border-t border-[#e2e8f0] bg-white/95 px-[24px] py-[12px] backdrop-blur flex items-center justify-between gap-3 w-full max-w-[412px]">
+        <div className="fixed bottom-0 left-1/2 z-30 -translate-x-1/2 border-t border-[#e2e8f0] bg-white/95 px-[24px] py-[12px] backdrop-blur flex items-center justify-between gap-3 w-full md:max-w-[412px]">
           <Button onClick={() => {
             if (!(name.trim() && building.trim() && imageItems.length > 0)) {
               toast.error("Enter required data");

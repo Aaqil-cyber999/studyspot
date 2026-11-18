@@ -40,14 +40,14 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   // Pages that should not show the bottom navigation (login, register, and Add Location)
   const isLocationDetail = pathname.startsWith("/university-admin/locations/") && pathname !== "/university-admin/locations" && pathname !== "/university-admin/locations/new" && pathname !== "/university-admin/locations/preview";
   if (isLogin || isRegister || pathname === "/university-admin/locations/new" || pathname === "/university-admin/locations/preview" || isLocationDetail) {
-    return <div className="mx-auto min-h-screen w-full max-w-[412px] bg-white">{children}</div>;
+    return <div className="mx-auto min-h-screen w-full md:max-w-[412px] bg-white">{children}</div>;
   }
 
   // All other admin pages get the full shell with navigation
   return (
     <div
       data-admin-theme={isDark ? "dark" : "light"}
-      className="admin-shell mx-auto min-h-screen w-full max-w-[412px] bg-[#E2E8F0] pb-[90px]"
+      className="admin-shell mx-auto min-h-screen w-full md:max-w-[412px] bg-[#E2E8F0] pb-[90px]"
     >
       {children}
       <AdminStudentNav />

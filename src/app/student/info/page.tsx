@@ -65,7 +65,7 @@ export default function InfoPage() {
     }
   }
   return (
-    <main className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#F97316]">
+    <main className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#F97316]">
       <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}`}</style>
       <section className="relative z-10 min-h-[390px] h-[min(50.8vw,500px)] bg-[#E2E8F0]" aria-label="University students">
         <CampusIllustration />

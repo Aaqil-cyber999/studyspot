@@ -165,7 +165,7 @@ function OtpVerification() {
   };
 
   return (
-    <main className="relative min-h-screen w-[412px] mx-auto bg-[#E2E8F0] overflow-hidden">
+    <main className="relative min-h-screen w-full md:max-w-[412px] mx-auto bg-[#E2E8F0] overflow-hidden">
       {/* Illustration */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-[13.41%_0.24%_58.91%_0%]">

@@ -54,7 +54,7 @@ function ReviewSubmission() {
   }
 
   return (
-    <div className="min-h-screen w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[32px] pb-[24px] flex flex-col gap-[20px]">
+    <div className="min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-[#E2E8F0] px-[24px] pt-[32px] pb-[24px] flex flex-col gap-[20px]">
       <div className="flex items-center gap-[12px]">
         <button
           onClick={() => router.back()}
