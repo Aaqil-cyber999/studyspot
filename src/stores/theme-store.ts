@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { flushSync } from "react-dom";
 
 interface ThemeState {
   isDark: boolean;
@@ -60,7 +61,12 @@ function toggleThemeWithTransition(set: (fn: (state: ThemeState) => Partial<Them
     return;
   }
 
-  doc.startViewTransition(apply);
+  // The update callback must commit the DOM synchronously: React schedules
+  // external-store updates, so without flushSync the browser snapshots the
+  // old DOM for both pseudo-elements and the transition animates nothing.
+  doc.startViewTransition(() => {
+    flushSync(apply);
+  });
 
   const maxRadius = Math.hypot(window.innerWidth, window.innerHeight);
   document.documentElement.animate(
