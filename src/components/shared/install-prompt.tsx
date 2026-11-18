@@ -22,6 +22,13 @@ type InstallEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+/** Read the prompt captured synchronously by the inline script in <body>. */
+function readDeferredPrompt(): InstallEvent | null {
+  if (typeof window === "undefined") return null;
+  return ((window as unknown as { __deferredInstallPrompt?: InstallEvent | null }).__deferredInstallPrompt ??
+    null);
+}
+
 const DISMISS_KEY = "spotwise-install-dismissed";
 
 function isIosDevice() {
@@ -63,27 +70,29 @@ export function InstallPrompt() {
   const standalone = useClientValue(isStandalone, () => true);
   const dismissedAt = useClientValue(dismissalRecord, () => "dismissed");
 
-  const [deferredPrompt, setDeferredPrompt] = useState<InstallEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<InstallEvent | null>(() => readDeferredPrompt());
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (standalone || dismissedAt !== null) return;
-
-    const onBeforeInstall = (event: Event) => {
-      event.preventDefault();
-      setDeferredPrompt(event as InstallEvent);
+    const grab = () => {
+      const captured = readDeferredPrompt();
+      if (captured) setDeferredPrompt(captured);
     };
     const onInstalled = () => {
       setDeferredPrompt(null);
+      (window as unknown as { __deferredInstallPrompt?: InstallEvent | null }).__deferredInstallPrompt = null;
       toast.success("SpotWise installed");
     };
-    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    // The inline head script stores the event and dispatches this; we only
+    // need to re-read it here. Anything Chromium fired before we mounted was
+    // already picked up by the lazy useState initializer.
+    window.addEventListener("spotwise-install-available", grab);
     window.addEventListener("appinstalled", onInstalled);
     return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("spotwise-install-available", grab);
       window.removeEventListener("appinstalled", onInstalled);
     };
-  }, [standalone, dismissedAt]);
+  }, []);
 
   const visible = !standalone && !dismissed && dismissedAt === null && (isIos || deferredPrompt !== null);
   if (!visible) return null;
@@ -100,6 +109,7 @@ export function InstallPrompt() {
   const install = async () => {
     if (!deferredPrompt) return;
     setDeferredPrompt(null);
+    (window as unknown as { __deferredInstallPrompt?: InstallEvent | null }).__deferredInstallPrompt = null;
     await deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice;
     if (choice.outcome !== "accepted") {

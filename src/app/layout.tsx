@@ -33,6 +33,12 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "SpotWise",
   },
+  // Next 16 only emits the standard `mobile-web-app-capable`; older iOS
+  // versions still require the legacy apple- prefixed meta to launch
+  // fullscreen from the home screen icon.
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 // Use light/dark theme-color meta to match the user's system scheme.
@@ -53,6 +59,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           theme store (see stores/theme-store.ts), so the server render can never
           match it — suppressHydrationWarning is intentional. */}
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
+        {/* Capture the PWA install event before React hydration — Chromium
+            can dispatch beforeinstallprompt within milliseconds of load, and
+            a listener attached later misses it forever. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(window.__deferredInstallPrompt=null,window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__deferredInstallPrompt=e;window.dispatchEvent(new Event('spotwise-install-available'));}));",
+          }}
+        />
         <QueryProvider>
           <AuthStoreHydrator />
           <ServiceWorkerRegister />
