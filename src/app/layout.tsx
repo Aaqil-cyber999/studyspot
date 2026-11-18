@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geologica, Inter } from "next/font/google";
 import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import { AuthStoreHydrator } from "@/components/shared/auth-store-hydrator";
+import { ServiceWorkerRegister } from "@/components/shared/service-worker-register";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { Toaster } from "react-hot-toast";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <QueryProvider>
           <AuthStoreHydrator />
+          <ServiceWorkerRegister />
           {children}
         </QueryProvider>
         <Toaster
