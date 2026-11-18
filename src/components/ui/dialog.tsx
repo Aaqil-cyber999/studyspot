@@ -44,7 +44,7 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.
         data-admin-theme={isDark ? "dark" : "light"}
         aria-modal="true"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-[16px] bg-white text-sm text-[#0f172a] shadow-[0px_12px_32px_0px_rgba(0,0,0,0.18)] outline-none duration-150 data-open:animate-in data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-[16px] bg-white text-sm text-[#0f172a] shadow-[0px_12px_32px_0px_rgba(0,0,0,0.18)] outline-none duration-150 data-open:animate-in data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           isDark && "bg-[#111827] text-[#f8fafc]",
           className,
         )}

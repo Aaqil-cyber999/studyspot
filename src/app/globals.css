@@ -871,3 +871,13 @@ input[type="time"]::-webkit-datetime-edit-fields-wrapper {
     animation-delay: 0s !important;
   }
 }
+
+/* Theme toggle — circle blur reveal from the top-left corner.
+   The clip-path/blur animation itself is driven from useThemeStore via the
+   Web Animations API on ::view-transition-new(root); here we only neutralize
+   the default root cross-fade so the two animations don't fight. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
