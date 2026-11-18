@@ -383,7 +383,7 @@
 [data-admin-theme="dark"] input,
 [data-admin-theme="dark"] textarea,
 [data-admin-theme="dark"] select {
-  background-color: #172235;
+  background-color: #0f172a;
   border-color: #475569;
   color: #f8fafc;
 }
@@ -480,11 +480,11 @@
 }
 
 /* Search input in student dark mode – bg-transparent is overridden so the
-   dark-mode input rule (#172235 bg, #475569 border, #f8fafc text, #94a3b8 placeholder) takes effect. */
+   dark-mode input rule (#0f172a bg, #475569 border, #f8fafc text, #94a3b8 placeholder) takes effect. */
 [data-admin-theme="dark"].student-shell input,
 [data-admin-theme="dark"].student-shell textarea,
 [data-admin-theme="dark"].student-shell select {
-  background-color: #172235 !important;
+  background-color: #0f172a !important;
   border-color: #475569 !important;
   color: #f8fafc !important;
 }
@@ -701,7 +701,7 @@
 }
 
 .admin-login {
-  background: #f8fafc;
+  background: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -872,12 +872,3 @@ input[type="time"]::-webkit-datetime-edit-fields-wrapper {
   }
 }
 
-/* Theme toggle — circle blur reveal from the top-left corner.
-   The clip-path/blur animation itself is driven from useThemeStore via the
-   Web Animations API on ::view-transition-new(root); here we only neutralize
-   the default root cross-fade so the two animations don't fight. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
