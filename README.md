@@ -85,6 +85,12 @@
 ### 🖼️ Smooth carousel
 - Shared `ImageCarousel` powers every photo gallery with a real 700 ms sliding track transition (`cubic-bezier(0.32,0.72,0.24,1)`) and a 5-second auto-advance (paused on hover/focus).
 
+### 🖼️ Curated location photos in the seed
+- All 28 seeded locations (20 student catalog spots + 8 platform-wide admin spots) get **five distinct photos each**, rotated by location so neighbouring spots have different hero images.
+- The curated pool lives in `server/src/db/seed.ts` and uses these files from `public/assets/`:
+  `assets/home/838a8.png`, `assets/select-university/50ace.png`, `assets/home/64a28.png`, `assets/review/96063.png`, `assets/home/26beb.png`.
+- The database stores only the URL strings; the PNGs are served statically by Next.js, not by the API. Re-seeding resets any location photo changes back to these defaults.
+
 ### ⭐ Integer ratings everywhere
 - Removed all half-star / fractional displays. Stars and counts show whole numbers everywhere.
 
