@@ -3,7 +3,7 @@
   <br />
   SpotWise
 </h1>
-<p align="center"><strong>Focus starts with the right place.</strong></p>
+<p align="center"><strong>Where focus finds you</strong></p>
 
 <p align="center">
   <picture>
