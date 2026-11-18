@@ -95,7 +95,7 @@ export default function StudentHomePage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search place, area, amenity"
             aria-label="Search study places"
-            className="min-w-0 flex-1 bg-transparent text-[14px] text-[#64748b] outline-none placeholder:text-[#64748b]"
+            className="search-input min-w-0 flex-1 bg-transparent text-[14px] text-[#64748b] outline-none placeholder:text-[#64748b]"
           />
           {query ? (
             <button type="button" onClick={() => setQuery("")} aria-label="Clear search" className="flex size-[20px] shrink-0 items-center justify-center rounded-full text-[#64748b] focus-visible:outline-2 focus-visible:outline-[#f97316]">

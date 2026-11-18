@@ -498,6 +498,17 @@
   color: #475569;
 }
 
+/* Search bar input — stays transparent so the outer pill remains a single surface. */
+[data-admin-theme="dark"].student-shell input.search-input {
+  background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  color: #cbd5e1 !important;
+}
+[data-admin-theme="dark"].student-shell input.search-input::placeholder {
+  color: #64748b !important;
+}
+
 /* Stat tiles ring color in dark mode – override bg-transparent Tailwind + light gray */
 [data-admin-theme="dark"].student-shell .ring-\[\#e2e8f0\] {
   box-shadow: 0 0 0 1px #334155;
