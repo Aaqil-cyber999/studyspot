@@ -6,6 +6,7 @@ import { StudentBottomNav } from "@/components/navigation/student-bottom-nav";
 import { useThemeStore } from "@/stores/theme-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { PageLoader } from "@/components/shared/page-loader";
+import { RouteTransition } from "@/components/shared/route-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         needsNavClearance ? "pb-[90px]" : ""
       }`}
     >
-      {children}
+      {children && <RouteTransition>{children}</RouteTransition>}
       {!hideNav && <StudentBottomNav />}
     </div>
   );

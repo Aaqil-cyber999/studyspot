@@ -816,3 +816,46 @@ input[type="time"]::-webkit-datetime-edit-fields-wrapper {
     "GRAD" 0,
     "opsz" 24;
 }
+
+/* Route transitions — directional slide like Android's shared-axis motion. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.route-exit) {
+  --slide-offset: -60px;
+  animation:
+    150ms ease-in both fade reverse,
+    360ms cubic-bezier(0.32, 0.72, 0.24, 1) both slide reverse;
+}
+::view-transition-new(.route-enter) {
+  --slide-offset: 60px;
+  animation:
+    210ms ease-out 120ms both fade,
+    360ms cubic-bezier(0.32, 0.72, 0.24, 1) both slide;
+}
+@keyframes fade {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+@keyframes slide {
+  from {
+    transform: translateX(var(--slide-offset));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}

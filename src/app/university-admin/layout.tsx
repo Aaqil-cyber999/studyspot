@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { AdminStudentNav } from "@/components/navigation/admin-student-nav";
+import { RouteTransition } from "@/components/shared/route-transition";
 import { useUniversityAdminThemeStore } from "@/stores/university-admin-theme-store";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +41,7 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
   // Pages that should not show the bottom navigation (login, register, and Add Location)
   const isLocationDetail = pathname.startsWith("/university-admin/locations/") && pathname !== "/university-admin/locations" && pathname !== "/university-admin/locations/new" && pathname !== "/university-admin/locations/preview";
   if (isLogin || isRegister || pathname === "/university-admin/locations/new" || pathname === "/university-admin/locations/preview" || isLocationDetail) {
-    return <div className="mx-auto min-h-screen w-full md:max-w-[412px] bg-white">{children}</div>;
+    return <div className="mx-auto min-h-screen w-full md:max-w-[412px] bg-white"><RouteTransition>{children}</RouteTransition></div>;
   }
 
   // All other admin pages get the full shell with navigation
@@ -49,7 +50,7 @@ export default function UniversityAdminLayout({ children }: { children: React.Re
       data-admin-theme={isDark ? "dark" : "light"}
       className="admin-shell mx-auto min-h-screen w-full md:max-w-[412px] bg-[#E2E8F0] pb-[90px]"
     >
-      {children}
+      <RouteTransition>{children}</RouteTransition>
       <AdminStudentNav />
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { SuperAdminNav } from "@/components/navigation/super-admin-nav";
+import { RouteTransition } from "@/components/shared/route-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,11 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   }, [hasHydrated, role, router, isLogin]);
 
   if (isLogin) {
-    return <div className="min-h-screen bg-[#E2E8F0]">{children}</div>;
+    return (
+      <div className="min-h-screen bg-[#E2E8F0]">
+        <RouteTransition>{children}</RouteTransition>
+      </div>
+    );
   }
 
   if (!hasHydrated || role !== "super-admin") {
@@ -33,7 +38,9 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     <div className="min-h-screen bg-[#E2E8F0] relative">
       <SuperAdminNav />
       <main className="lg:pl-[260px] pt-[56px] lg:pt-0">
-        <div className="mx-auto w-full max-w-7xl">{children}</div>
+        <div className="mx-auto w-full max-w-7xl">
+          <RouteTransition>{children}</RouteTransition>
+        </div>
       </main>
     </div>
   );
