@@ -1,4 +1,21 @@
 import type { NextConfig } from "next";
+import withPWAInit from "@ducanh2912/next-pwa";
+
+const withPWA = withPWAInit({
+  dest: "public",
+  register: true,
+  disable: process.env.NODE_ENV === "development",
+  fallbacks: {
+    document: "/offline",
+  },
+  workboxOptions: {
+    skipWaiting: true,
+    clientsClaim: true,
+    cleanupOutdatedCaches: true,
+    // Network-first for documents so logged-out users get fresh HTML on revisits
+    // when online; cache-first fallback handled by the offline page fallback above.
+  },
+});
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
@@ -23,4 +40,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geologica, Inter } from "next/font/google";
 import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import { AuthStoreHydrator } from "@/components/shared/auth-store-hydrator";
@@ -23,7 +23,21 @@ export const metadata: Metadata = {
   description: "Focus starts with the right place.",
   icons: {
     icon: "/favicon.png",
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SpotWise",
+  },
+};
+
+// Use light/dark theme-color meta to match the user's system scheme.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#E2E8F0" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1120" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
