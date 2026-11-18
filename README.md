@@ -7,7 +7,7 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/nextdotjs?color=ffffff" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/nextdotjs/ffffff" />
     <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" width="42" height="42" />
   </picture>
   &nbsp;&nbsp;
@@ -16,7 +16,7 @@
   <img src="https://cdn.simpleicons.org/typescript" alt="TypeScript" width="42" height="42" />
   &nbsp;&nbsp;
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/express?color=ffffff" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/express/ffffff" />
     <img src="https://cdn.simpleicons.org/express" alt="Express" width="42" height="42" />
   </picture>
   &nbsp;&nbsp;
@@ -27,7 +27,7 @@
   <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" width="42" height="42" />
   &nbsp;&nbsp;
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/shadcnui?color=ffffff" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/shadcnui/ffffff" />
     <img src="https://cdn.simpleicons.org/shadcnui" alt="shadcn/ui" width="42" height="42" />
   </picture>
 </p>
@@ -200,7 +200,7 @@
 
 <p>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/nextdotjs?color=ffffff" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/nextdotjs/ffffff" />
     <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" height="48" />
   </picture>
   &nbsp;&nbsp;
@@ -211,7 +211,7 @@
   <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" height="48" />
   &nbsp;&nbsp;
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/express?color=ffffff" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/express/ffffff" />
     <img src="https://cdn.simpleicons.org/express" alt="Express" height="48" />
   </picture>
   &nbsp;&nbsp;
