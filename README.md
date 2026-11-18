@@ -52,6 +52,101 @@
 - [📱 Responsive behaviour](#-responsive-behaviour)
 - [🔐 Security model](#-security-model)
 - [⚠️ Known limitations](#️-known-limitations)
+- [🩺 PWA install troubleshooting](#pwa-install-troubleshooting)
+
+---
+
+## 🩺 PWA install troubleshooting
+
+### Symptom
+
+When you try to install SpotWise from Chrome, nothing happens, the address-bar **Install** icon is missing, the in-app banner never appears, or Chrome says:
+
+> **This site can't be installed as an app**
+
+This is almost always an **environment** problem, not a broken PWA. Chrome only offers installation when all of these are true:
+
+1. The page is a **secure context** — HTTPS, or `http://localhost` (loopback is trusted). A plain `http://<laptop-ip>:3001` LAN URL is **not** secure, so Chrome refuses to install.
+2. A **service worker** is registered and controlling the page (`/sw.js`).
+3. The **manifest** (`/manifest.webmanifest`) has `name`/`short_name`, `start_url`, `display: standalone`, and 192 px + 512 px icons. SpotWise has all of these — see `src/app/manifest.ts`.
+4. The app is **not already installed**, and the user has interacted with the page (one click/tap and roughly 30 seconds of viewing) before Chrome shows its install UI.
+
+SpotWise also only registers the service worker in a **production build** — `next.config.ts` sets `disable: process.env.NODE_ENV === "development"`, and `service-worker-register.tsx` bails out in development. So `npm run dev` will never install, even on `localhost`.
+
+### Solution 1 — make Chrome treat the LAN origin as secure (`chrome://flags`)
+
+Use this when you are testing on a phone or a second machine at `http://<laptop-ip>:3001`, where you cannot easily use HTTPS.
+
+1. Build and start the production server on the laptop:
+
+   ```bash
+   npm run build
+   npm run start
+   ```
+
+   The app listens on port **3001**. Confirm you can open `http://<laptop-ip>:3001` in the browser first.
+
+2. On the **device whose Chrome must install the app**, open a new tab and go to:
+
+   ```
+   chrome://flags/#unsafely-treat-insecure-origin-as-secure
+   ```
+
+   If the direct link doesn't resolve, open `chrome://flags`, search for **unsafely-treat-insecure-origin-as-secure**, and use that entry.
+
+3. Set the flag to **Enabled**.
+
+4. In the text field that appears, enter the **exact origin** you load the app from — scheme, host and port, no path or trailing slash:
+
+   ```
+   http://192.168.1.10:3001
+   ```
+
+   Separate multiple origins with commas, e.g. `http://192.168.1.10:3001,http://localhost:3001`. `localhost` is normally trusted already, so you usually only need the LAN IP.
+
+5. Click **Relaunch** in the bottom-right corner. Chrome restarts with the flag applied.
+
+6. Reopen the app at that same origin. Click somewhere on the page and wait a few seconds, then check:
+
+   - DevTools → **Application** → **Manifest** → *Installability* should say the page is installable, with no errors.
+   - DevTools → **Application** → **Service Workers** should show `/sw.js` as **Activated and Serving**.
+   - The address bar now shows the **Install** icon (desktop), or Chrome's menu offers **Install app** / **Add to Home screen**. On a narrow viewport the app's own "Install SpotWise" banner also appears.
+
+7. Reset the flag afterwards:
+
+   ```
+   chrome://flags/#unsafely-treat-insecure-origin-as-secure  →  Disabled (or Default)  →  Relaunch
+   ```
+
+**Why this works:** the flag tells Chrome to apply secure-origin rules to the listed origins, which unlocks service workers and installation on an otherwise insecure HTTP LAN address.
+
+**Caveats:** this is a **local development workaround only**. It is a Chrome desktop/Android experimental flag, it weakens security for the listed origins, it is not available in iOS Safari, and its name or availability can change between Chrome versions. Never ask real users to enable it — deploy the app over HTTPS instead.
+
+### Other solutions to try if Solution 1 doesn't apply
+
+| # | Fix | When to use |
+|---|---|---|
+| 2 | Use `http://localhost:3001` on the same machine | `localhost` is already a secure context. This is the simplest desktop test and needs no flags. |
+| 3 | Serve the app over HTTPS | The real fix for phones and shared LAN links. Put a TLS reverse proxy / local certificate / HTTPS tunnel in front of port 3001, e.g. `https://<tunnel-domain>`; then install from that URL. |
+| 4 | Use a production build, not `npm run dev` | The service worker is disabled in development. Always `npm run build && npm run start` before testing installability or offline mode. |
+| 5 | Check DevTools → Application → Manifest | Confirm `name`, `start_url: /`, `display: standalone`, 192 px and 512 px icons, and no errors. Confirm `/icons/icon-192.png`, `/icons/icon-512.png` and `/manifest.webmanifest` all return `200`. |
+| 6 | Check DevTools → Application → Service Workers | `/sw.js` must be registered, activated and controlling the page. If it is missing, rebuild and hard-reload. |
+| 7 | Clear stale site data | Unregister `/sw.js`, then DevTools → Application → **Storage** → **Clear site data**, and hard-reload. `skipWaiting`/`clientsClaim` are enabled, so an old worker can otherwise keep serving cached pages. |
+| 8 | Test in an incognito window / fresh profile | Rules out engagement heuristics, an already-installed app, or the persisted banner dismissal (`localStorage` key `spotwise-install-dismissed`). Click the page and stay for ~30 seconds. |
+| 9 | Check Chrome's app list | If SpotWise is already installed (`chrome://apps`), Chrome hides the install icon by default. |
+| 10 | Delete cookies if the screen keeps loading | Stale session cookies can leave the app stuck on a loading screen. See below. |
+
+### If the screen keeps loading — delete cookies
+
+An expired or stale `token` cookie (or cached auth data) can make a portal hang on its loading screen or bounce between login and home. SpotWise uses an httpOnly JWT cookie named `token`, so clearing site data removes the stale session and forces a fresh sign-in:
+
+1. Open the app in Chrome, click the **lock/info icon** in the address bar → **Cookies and site data** → **Manage on-device site data**.
+2. Find the SpotWise origin (e.g. `localhost` or `http://<laptop-ip>:3001`) and **delete** its cookies/data. You can also open DevTools → **Application** → **Storage** → **Clear site data** to remove cookies and caches together, including the service-worker cache from Solution 1.
+3. Reload with **Ctrl+Shift+R** (hard reload) and sign in again.
+
+This is safe — it only removes local browser state; no server data is deleted. Sign in again with the demo accounts in the setup guide.
+
+After any fix, re-run the checks in Solution 1 step 6. The custom banner is mobile-only (`md:hidden`) and is suppressed once the app is running in standalone mode, so on desktop use Chrome's own install icon even when everything is configured correctly.
 
 ---
 
