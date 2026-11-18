@@ -3,6 +3,7 @@ import { Geologica, Inter } from "next/font/google";
 import { SingleToastManager } from "@/components/shared/single-toast-manager";
 import { AuthStoreHydrator } from "@/components/shared/auth-store-hydrator";
 import { ServiceWorkerRegister } from "@/components/shared/service-worker-register";
+import { InstallPrompt } from "@/components/shared/install-prompt";
 import { AddressBarHide } from "@/components/shared/address-bar-hide";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <QueryProvider>
           <AuthStoreHydrator />
           <ServiceWorkerRegister />
+          <InstallPrompt />
           <AddressBarHide />
           {children}
         </QueryProvider>
