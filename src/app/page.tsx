@@ -10,7 +10,7 @@ export default function WelcomePage() {
 
   return (
     <RouteTransition>
-      <div className="relative min-h-screen w-full md:max-w-[412px] mx-auto overflow-hidden bg-white">
+      <div className="relative min-h-screen w-full md:max-w-[412px] mx-auto overflow-x-hidden overflow-y-auto bg-white">
         {/* background ellipses */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-[-345px] top-[350px] h-[1078.912px] w-[1058.88px] flex items-center justify-center">
@@ -42,7 +42,7 @@ export default function WelcomePage() {
           </p>
           <p className="mt-[8px] h-[22px] w-full text-center text-[15px] font-medium text-black">Where focus finds you</p>
 
-          <div className="mt-[220px] w-full">
+          <div className="mt-[40px] flex w-full flex-1 flex-col justify-end px-0 pb-[40px]">
             <p className="mb-[20px] text-[15px] font-medium text-white tracking-[1.6px] text-center">Continue as</p>
 
             <Link

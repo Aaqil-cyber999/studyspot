@@ -39,7 +39,26 @@ export async function updateProfileImage(profileImg: string | null): Promise<{ p
 }
 
 export async function logout(): Promise<void> {
-  await api.post("/auth/logout", {});
+  try {
+    await api.post("/auth/logout", {});
+  } catch {
+    // Even if the network/logout call fails, we still wipe local session traces.
+  }
+
+  try {
+    // Clear every persisted browser session artifact we created.
+    window.localStorage?.removeItem("spotwise-auth");
+    window.localStorage?.removeItem("spotwise-theme");
+    window.sessionStorage?.clear();
+
+    // Drop the service worker cache so stale cached pages are not served.
+    if (typeof window !== "undefined" && "caches" in window) {
+      const names = await window.caches.keys();
+      await Promise.all(names.map((name) => window.caches.delete(name)));
+    }
+  } catch {
+    // Best-effort; don't let this break logout.
+  }
 }
 
 /** Returns the current session user, or null when not authenticated. */

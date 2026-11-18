@@ -1,163 +1,223 @@
-# SpotWise
+<h1 align="center">
+  <img src="./public/assets/welcome/logo.png" alt="SpotWise" width="180" />
+</h1>
+<p align="center"><strong>Focus starts with the right place.</strong></p>
 
-> **Focus starts with the right place.**
+<p align="center">
+  <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" width="42" />
+  <img src="https://cdn.simpleicons.org/react" alt="React" width="42" />
+  <img src="https://cdn.simpleicons.org/typescript" alt="TypeScript" width="42" />
+  <img src="https://cdn.simpleicons.org/express" alt="Express" width="42" />
+  <img src="https://cdn.simpleicons.org/drizzleorm" alt="Drizzle ORM" width="42" />
+  <img src="https://cdn.simpleicons.org/postgresql" alt="PostgreSQL" width="42" />
+  <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" width="42" />
+  <img src="https://cdn.simpleicons.org/shadcnui" alt="shadcn/ui" width="42" />
+</p>
 
-SpotWise is a study-space discovery platform for Sri Lankan university campuses. Students discover, compare, save, review and report study locations. University admins manage their university's locations and moderate student feedback. Super admins run the whole platform: universities, admins, registration requests, platform-wide locations and reviews.
+<p align="center">
+  SpotWise is a study-space discovery platform for Sri Lankan university campuses.
+  Three role-based portals, one Next.js frontend, one Express + PostgreSQL backend, no mock data.
+</p>
 
-The system has **three role-based portals** sharing one Next.js frontend and one Express + PostgreSQL backend. There is no mock data — every screen reads live from the database.
+---
 
-## Portals at a glance
+## 🧭 Contents
+
+- [🧭 Portals](#-portals)
+- [✨ What's new](#-whats-new)
+- [🗺️ Routes](#️-routes)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Tech stack](#️-tech-stack)
+- [🚀 Setup guide](#-setup-guide)
+- [✅ Validation commands](#-validation-commands)
+- [🎨 Design system](#-design-system)
+- [📱 Responsive behaviour](#-responsive-behaviour)
+- [🔐 Security model](#-security-model)
+- [⚠️ Known limitations](#️-known-limitations)
+
+---
+
+## 🧭 Portals
 
 | Portal | Role | Purpose |
 |---|---|---|
-| `/student/*` | Student | Discover spots, save them, review them, report their live status |
-| `/university-admin/*` | University admin | Manage own university's locations, moderate its reviews, configure its profile |
-| `/super-admin/*` | Super admin | Platform oversight: universities, admins, registration approvals, platform-wide data |
+| 🎓 `/student/*` | Student | Discover spots, save them, review them, report their live status |
+| 🏫 `/university-admin/*` | University admin | Manage own university's locations, moderate its reviews, edit profile |
+| 🛡️ `/super-admin/*` | Super admin | Universities/admins/registration approvals, platform-wide data |
 
-### Student experience
-- Welcome screen with role selection
-- Email-OTP sign in (no password). In development the API returns a `devCode` which the app surfaces via a toast; no email provider yet.
-- Onboarding: pick a university, fill in your name & details
-- Discover: search + filter (price, amenities, noise) over the school's own spots — all data DB-backed, including ratings/review counts and last-updated hints
-- Spot detail: gallery with a sliding carousel (auto-advance), live current-status (seats / Wi-Fi / crowd / noise) from the latest student report, amenities, reviews with pagination ("Show more reviews" button, infinite scroll, native `loading="lazy"` avatars), save/bookmark, report a status with a comment
-- Saved places, profile (name/photo, study preferences, amenities), sign in/out
+---
 
-### University Admin experience
-- Password sign in
-- Dashboard with live stats: locations, average rating, reviews, quiet spaces, **most searched study spaces** (real `total_views` counter incremented on each student spot-detail open, ties broken by review count), top recent reviews with avatars
-- Locations CRUD (photo gallery, hours, amenities, staff monitoring, deactivate/delete), scoped to the admin's own university
-- Reviews moderation, scoped to the admin's own university, with lazy-loading
-- Profile editing with photo and title
-- Report options screen (**read-only** — student-facing option labels are owned by super admins)
+## ✨ What's new
 
-### Super Admin experience
-- Platform dashboard: totals, pending approvals, recent reviews
-- Universities CRUD: create universities (name + enabled/disabled), activate/deactivate
-- Admins: manage university-admin accounts
-- Registration requests: review/approve/reject; approving provisions university + admin account and returns a one-time temporary password
-- Locations & reviews platform-wide moderation
-- Profile: photo, profile photo upload, super-admin specific overview
+### 🌙 Dark mode — single source of truth
+- One Zustand theme store persisted to `localStorage` (`spotwise-theme`), shared across student, university-admin and super-admin shells.
+- Backdrop, body margin background, cards and inputs all flip between light and dark palettes via `[data-admin-theme="dark"]` in `globals.css`.
 
-## Routes
+### 📲 PWA — installable, offline-ready
+- Installable on Android and iOS; maskable icons from the logo; adaptive `theme-color` for `#E2E8F0` (light) and `#0b1120` (dark).
+- Service worker precaches the app shell and shows `/offline` with app styling when the network is gone.
+
+### 🎞️ Android-style route transitions
+- `RouteTransition` wraps each screen (not the navbars — those use their own spring-based sliding-pill indicator).
+- Page enters from the right and exits to the left, mimicking native Android behaviour. `prefers-reduced-motion` is respected.
+
+### 📊 Real "Most searched study spaces"
+- `total_views` on `locations` counts **student** detail-page opens only (anonymous/admin traffic ignored) and ties-break on review count. University-admin and super-admin dashboards rank live from this counter.
+
+### 🖼️ Smooth carousel
+- Shared `ImageCarousel` powers every photo gallery with a real 700 ms sliding track transition (`cubic-bezier(0.32,0.72,0.24,1)`) and a 5-second auto-advance (paused on hover/focus).
+
+### ⭐ Integer ratings everywhere
+- Removed all half-star / fractional displays. Stars and counts show whole numbers everywhere.
+
+### 🔒 Super admin controls report labels
+- The Wifi/noise/crowd/seats option lists that populate the student report form are now read-only for university-admins; writes (POST/PUT/DELETE/move) are super-admin-only.
+
+### 🧹 Strict university isolation
+- Every university-admin view (locations, reviews, dashboard stats, hidden-review visibility) is scoped to the admin's own university at the server boundary. UA cannot re-link their account. SA does platform-wide.
+
+---
+
+## 🗺️ Routes
 
 ### Public and onboarding
 
 | Route | Purpose |
 |---|---|
-| `/` | Welcome and role selection |
-| `/student/login` | Student OTP login |
-| `/student/verify` | OTP verification |
-| `/student/select-university` | Search and select a university |
-| `/student/info` | Complete onboarding details (first-time login) |
-| `/university-admin/register` | Public university-admin registration request |
-| `/university-admin/login` | Admin sign-in |
-| `/super-admin/login` | Super admin sign-in |
+| `/` | 🏠 Welcome and role selection |
+| `/student/login` | ✉️ Student OTP login |
+| `/student/verify` | 🔢 OTP verification |
+| `/student/select-university` | 🎓 Search and select a university |
+| `/student/info` | 🧑‍🎓 Complete onboarding details |
+| `/university-admin/register` | 📨 Public university-admin registration request |
+| `/university-admin/login` | 🏫 Admin sign in |
+| `/super-admin/login` | 🛡️ Super admin sign in |
 
 ### Student routes
 
 | Route | Purpose |
 |---|---|
-| `/student/home` | Discover study spaces |
-| `/student/results/[id]` | Spot detail: gallery, status, reviews, actions |
-| `/student/saved` | Saved spots |
-| `/student/profile` | Profile, preferences, amenities, sign out |
-| `/student/rate` | Report a spot's current status |
-| `/student/review` | Review a pending status report |
-| `/student/result` | Status-report confirmation |
-| `/student/info` | Onboarding details |
+| `/student/home` | 🔎 Discover study spaces |
+| `/student/results/[id]` | 📍 Spot detail: gallery, status, reviews, actions |
+| `/student/saved` | ⭐ Saved spots |
+| `/student/profile` | 👤 Profile, preferences, amenities, sign out |
+| `/student/rate` | 📝 Report a spot's current status |
+| `/student/review` | 📋 Review a pending status report |
+| `/student/result` | ✅ Status-report confirmation |
 
 ### University Admin routes
 
 | Route | Purpose |
 |---|---|
-| `/university-admin/dashboard` | University overview + top searches |
-| `/university-admin/locations` | List own university's locations |
-| `/university-admin/locations/new` | Add a location |
-| `/university-admin/locations/[id]` | View location (hero, status, reviews) |
-| `/university-admin/locations/[id]/edit` | Edit a location |
-| `/university-admin/locations/preview` | Registration flow preview (used by `new`) |
-| `/university-admin/reviews` | Moderate reviews (own university only) |
-| `/university-admin/settings/options` | Student report form options (read-only) |
-| `/university-admin/profile` | Profile + photo + theme toggle |
+| `/university-admin/dashboard` | 📊 University overview + top searches |
+| `/university-admin/locations` | 📍 List own university's locations |
+| `/university-admin/locations/new` | ➕ Add a location |
+| `/university-admin/locations/[id]` | 👁️ View location (hero carousel, status, reviews) |
+| `/university-admin/locations/[id]/edit` | ✏️ Edit a location |
+| `/university-admin/locations/preview` | 👀 Registration flow preview (used by `new`) |
+| `/university-admin/reviews` | 💬 Moderate reviews (own university only) |
+| `/university-admin/settings/options` | 📋 Student report form options (read-only) |
+| `/university-admin/profile` | 👤 Admin profile |
 
 ### Super Admin routes
 
 | Route | Purpose |
 |---|---|
-| `/super-admin/dashboard` | Platform overview |
-| `/super-admin/universities` | Universities CRUD (create/activate/deactivate + create flow) |
-| `/super-admin/admins` | University-admin accounts |
-| `/super-admin/admins/[id]` | Admin detail |
-| `/super-admin/requests` | Registration requests (approve/reject) |
-| `/super-admin/requests/[id]` | Request detail |
-| `/super-admin/locations` | Platform-wide locations |
-| `/super-admin/locations/[id]` | Location detail (hero carousel, status, reviews moderation) |
-| `/super-admin/reviews` | Platform-wide moderation |
-| `/super-admin/profile` | Profile + theme toggle |
-| `/super-admin/confirmation` | Approval/rejection confirmation page |
+| `/super-admin/dashboard` | 📊 Platform overview |
+| `/super-admin/universities` | 🏫 Universities CRUD (create/activate/deactivate) |
+| `/super-admin/admins` | 👥 University-admin accounts |
+| `/super-admin/admins/[id]` | 👤 Admin detail |
+| `/super-admin/requests` | 📥 Registration requests (approve/reject) |
+| `/super-admin/requests/[id]` | 📄 Request detail |
+| `/super-admin/locations` | 📍 Platform-wide locations |
+| `/super-admin/locations/[id]` | 📍 Location detail (carousel, status, reviews) |
+| `/super-admin/reviews` | 💬 Platform-wide review moderation |
+| `/super-admin/profile` | 👤 Super admin profile |
+| `/super-admin/confirmation` | ✅ Confirmation screen |
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```
 .
 ├── src/                         # Next.js App Router
-│   ├── app/                     # Routes
+│   ├── app/                     # Routes, layouts, globals.css, manifest.ts, offline/
 │   ├── components/
-│   │   ├── navigation/          # Role navigation
-│   │   ├── shared/              # Cross-role components
+│   │   ├── navigation/          # StudentBottomNav, AdminStudentNav, SuperAdminNav
+│   │   ├── shared/              # ImageCarousel, RouteTransition, ShowMoreReviewsButton, …
 │   │   └── ui/                  # shadcn/ui primitives
-│   ├── features/                # Feature-scoped components/schemas/types
+│   ├── features/                # Feature-scoped components, schemas, types
 │   ├── hooks/                   # Shared hooks
-│   ├── lib/                     # Utilities (e.g. timeAgo)
-│   ├── services/                # Typed API clients (per role)
-│   ├── stores/                  # Zustand stores
+│   ├── lib/                     # Utilities (time-ago, cn, …)
+│   ├── services/                # Typed API clients per role
+│   ├── stores/                  # Zustand stores (theme, auth, onboarding)
 │   └── types/                   # Shared TypeScript types
-├── public/assets/               # Static assets (Figma exports)
+├── public/                      # Logo, icons, assets from Figma
 └── server/                      # Express + Drizzle + PostgreSQL API
+    ├── drizzle/                 # Migrations
+    └── src/
+        ├── db/                  # Index, schema, seed
+        ├── routes/              # Route handlers per resource
+        └── middleware/          # Auth, validation, error handling
 ```
 
 **Request lifecycle**
-1. UI calls a typed client in `src/services/*` with TanStack Query
-2. Express route (zod-validated) with optional-auth/required-auth middleware runs
-3. Drizzle ORM queries PostgreSQL; successful responses are shaped by role
-4. TanStack Query cache keeps the UI consistent; invalidations on writes refresh dependent views
+
+1. UI calls a typed client in `src/services/*` with TanStack Query.
+2. Express route runs: zod-validates input → middleware checks auth/role → Drizzle queries PostgreSQL.
+3. Response data is role-scoped or public as appropriate; client gets shaped data; invalidations cascade through TanStack Query caches.
 
 **Security boundary**
-- `src/proxy.ts` (Next 16 proxy) routes unauthenticated users to the correct portal's login.
-- Every `/api/*` route enforces its own auth + role middleware. The proxy is UX only — the backend is the security boundary.
-- University-admins are scoped to their own university on every read/write (locations, reviews, dashboard stats, report visibility). Cross-university writes are forbidden (403).
-- Super admins bypass university scoping (platform-wide).
-- Report-options writes (student survey labels) are super-admin only.
-- `PUT /users/me` refuses role changes to `universityId` for admins (scope comes from that column).
-- Unique-form handling: duplicate creates return 409 (`A record with this value already exists`).
-- OTP verification refuses existing non-student accounts; approval of requests whose email collides with an existing account returns 409.
 
-## Tech stack
+- `src/proxy.ts` (Next 16 proxy) redirects unauthenticated users to the correct portal's login — a UX convenience, not the real boundary.
+- The real boundary is every `/api/*` route: it uses role/scope middleware and zod validation.
+- University-admins cannot read other universities; unit-scope is `req`/`this universityId`.
+- Super-admin-only writes; student-only writes; anonymous reads limited to the public catalog (locations list, universities minimal, report options, amenities).
+- Sign-out wipes the JWT cookie and all client-side local/sessionStorage plus Cache Storage (service-worker caches).
+
+---
+
+## 🛠️ Tech stack
+
+<p>
+  <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" height="48" />
+  <img src="https://cdn.simpleicons.org/react" alt="React" height="48" />
+  <img src="https://cdn.simpleicons.org/typescript" alt="TypeScript" height="48" />
+  <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" height="48" />
+  <img src="https://cdn.simpleicons.org/express" alt="Express" height="48" />
+  <img src="https://cdn.simpleicons.org/postgresql" alt="PostgreSQL" height="48" />
+  <img src="https://cdn.simpleicons.org/drizzleorm" alt="Drizzle" height="48" />
+  <img src="https://cdn.simpleicons.org/zod" alt="Zod" height="48" />
+  <img src="https://cdn.simpleicons.org/framer" alt="Framer Motion" height="48" />
+</p>
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Framework | Next.js 16.4.6 (App Router), React 19.3, TypeScript |
 | Styling | Tailwind CSS 4, shadcn/ui + Base UI |
-| Client state | Zustand |
+| Client state | Zustand (theme, auth, onboarding) |
 | Server state | TanStack Query |
-| Validation | Zod |
+| Animations | Framer Motion (layout/shared-element for tabs) + React ViewTransition + hand-authored CSS |
 | Toasts | react-hot-toast |
+| Validation | Zod |
 | Backend | Node.js + Express 4 |
 | ORM | Drizzle ORM |
-| DB | PostgreSQL |
-| Auth | JWT httpOnly cookie (sameSite=lax), 7-day expiry |
-| Fonts | Geologica (UI), Inter (form body where required) |
+| Database | PostgreSQL |
+| Auth | JWT httpOnly cookie (sameSite=lax, secure over HTTPS) |
+| Fonts | Geologica (UI) + Inter (long-form where needed) |
 
-## Prerequisites
+---
 
-| Tool | Minimum |
+## 🚀 Setup guide
+
+### Prerequisites
+
+| Tool | Version |
 |---|---|
-| Node.js | 20.x or later (project uses Node 24) |
-| npm | 10.x or later |
-| PostgreSQL | 14 or later (local instance or Docker) |
-| OS | Windows / macOS / Linux |
-
-## Setup guide
+| Node.js | 20.x (or newer; project currently on Node 24) |
+| npm | 10.x or newer |
+| PostgreSQL | 14 or newer (or Docker `postgres:16`) |
 
 ### 1. Clone and install
 
@@ -175,9 +235,7 @@ npm install
 
 ### 2. PostgreSQL
 
-Start a PostgreSQL instance and make sure you can connect with a superuser (local dev default is `postgres`).
-
-If you use Docker:
+Start a local PostgreSQL instance or use Docker:
 
 ```bash
 docker run --name studyspot-pg -e POSTGRES_PASSWORD=1234 -p 5432:5432 -d postgres:16
@@ -189,147 +247,148 @@ docker run --name studyspot-pg -e POSTGRES_PASSWORD=1234 -p 5432:5432 -d postgre
 cp server/.env.example server/.env
 ```
 
-Edit `server/.env` with your values:
+Edit `server/.env`:
 
 ```dotenv
 DATABASE_URL=postgresql://postgres:1234@localhost:5432/studyspot
 PORT=4000
 JWT_SECRET=<generate-a-long-random-string>
 JWT_EXPIRES_IN=7d
-COOKIE_DOMAIN=localhost
 COOKIE_SECURE=false
 FRONTEND_URL=http://localhost:3001
 ```
 
-- For production, use a real `JWT_SECRET`, set `COOKIE_SECURE=true`, and restrict `FRONTEND_URL` to your deployed origin.
-- The seed script requires that the database exists and is empty (see step 4).
+For production: a real `JWT_SECRET`, `COOKIE_SECURE=true`, and a real `FRONTEND_URL`.
 
-### 4. Create, migrate, and seed the database
+### 4. Create, migrate, seed
 
 ```bash
 cd server
 npm run db:migrate   # applies migrations from server/drizzle/
-npm run db:seed      # seeds universities, admins, locations, ~2,990 reviews, OTP rows, etc.
+npm run db:seed      # drops + recreates: 6 universities, 28 locations, ~2,990 reviews, OTP rows, amenities, report options
 ```
 
-`npm run db:seed` is destructive — it drops and recreates data in the configured database. **Never run it against production.**
+`npm run db:seed` regenerates university and admin IDs every run; use real re-auth after any reset.
 
 ### 5. Frontend environment
 
-Create `.env.local` at the repository root:
+```bash
+# at repository root
+cp .env.local.example .env.local
+```
+
+If the file does not exist yet, just create `.env.local` with:
 
 ```dotenv
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ```
 
-### 6. Run the app
+### 6. Run dev servers
 
-Terminal 1 (API):
+Two terminals:
+
 ```bash
+# Terminal 1 — API
 cd server
 npm run dev
 ```
 
-Terminal 2 (frontend):
 ```bash
-npm run dev
+# Terminal 2 — frontend (Next dev, bound to 0.0.0.0 for LAN access)
+npm run dev -- -H 0.0.0.0
 ```
 
-Open http://localhost:3001. The backend must be up for authenticated routes.
+Open http://localhost:3001 (or http://<your-lan-ip>:3001 from another device on the same Wi-Fi).
 
-### 7. Mobile preview (same Wi-Fi)
+### 7. Seeded accounts
 
-The app is wired so one origin serves both the UI and the API (Next.js proxies `/api/*` to the Express server), so the phone only needs to reach your laptop's LAN IP:
-
-1. Confirm your laptop's LAN IP (look under *Wi-Fi* in `ipconfig` — e.g. `192.168.43.45`; ignore virtual adapters).
-2. Run the frontend bound to all interfaces instead of localhost-only:
-   ```bash
-   npm run dev -- -H 0.0.0.0
-   ```
-3. On the phone, open `http://<your-laptop-ip>:3001` in the browser.
-
-No env edits or second server binding are needed. Cookies work because the phone only sees your laptop's origin (same-site, host-only cookies), and CORS is relaxed to allow private LAN origins in dev.
-
-### Seeded accounts
-
-| Role | Email | Password / OTP |
+| Role | Email | Credential |
 |---|---|---|
 | Super admin | `superadmin@spotwise.lk` | `admin123` |
-| University admin – Moratuwa | `amal.perera@uom.lk` | `admin123` |
-| University admin – Colombo | `kavindi.silva@cmb.ac.lk` | `admin123` |
-| University admin – Peradeniya | `ruwan.fernando@pdn.ac.lk` | `admin123` |
-| University admin – Ruhuna | `saman.rathnayake@ruh.ac.lk` | `admin123` |
-| University admin – Jayewardenepura (Inactive) | `dilani.jayasuriya@sjp.ac.lk` | `admin123` |
-| Student | `mohamed.25@uom.lk` | OTP — in dev the API returns a `devCode` in the request response, surfaced as a toast |
+| University admin (Moratuwa) | `amal.perera@uom.lk` | `admin123` |
+| University admin (Colombo) | `kavindi.silva@cmb.ac.lk` | `admin123` |
+| University admin (Peradeniya) | `ruwan.fernando@pdn.ac.lk` | `admin123` |
+| University admin (Jayewardenepura, *Inactive*) | `dilani.jayasuriya@sjp.ac.lk` | `admin123` |
+| Student | `mohamed.25@uom.lk` | OTP — in dev the API returns `devCode` in the request response, surfaced as a toast |
 
-Registration requests live in the super-admin queue:
-- `dulani.fernando@rjt.ac.lk` — Pending (Rajarata)
-- `thilina.wek@kel.ac.lk` — Pending (Kelaniya)
-- `s.peris@sra.ac.lk` — Rejected
-- `j.kaduwela@rjt.ac.lk` — Approved (Sabaragamuwa)
-
-To get a fresh dev code for the student account, trigger the OTP request endpoint:
+In-app handy tip: request the student OTP endpoint to get a fresh dev code anytime.
 
 ```bash
-curl -X POST http://localhost:4000/api/auth/otp/request \
+curl -s -X POST http://localhost:4000/api/auth/otp/request \
   -H 'Content-Type: application/json' \
   -d '{"email":"mohamed.25@uom.lk"}'
 ```
 
-The response JSON contains `devCode`. The student login screen will show it as a toast automatically.
+### 8. PWA install test
 
-## Validation commands
+Build, then start the production server:
 
-| Command | Description |
+```bash
+npm run build
+npm run start
+```
+
+Open in Chrome → DevTools → Application → Manifest / Service Workers and verify installability and the "You're offline" fallback. The same app uses the same `/manifest.webmanifest` for all roles; only the shell chrome (nav) differs.
+
+### 9. Mobile preview (LAN)
+
+1. Note your laptop's LAN IP (`ipconfig`, **Wi-Fi** interface).
+2. Run frontend with `-H 0.0.0.0` (see step 6).
+3. On the phone open `http://<laptop-ip>:3001` on the same Wi-Fi.
+
+The frontend is configured to proxy `/api/*` to the API over the LAN, so no CORS/cookies gymnastics are needed.
+
+---
+
+## ✅ Validation commands
+
+| Command | What it checks |
 |---|---|
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | TypeScript check (no emit) |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` (frontend) |
 | `npm run build` | Production build |
 | `cd server && npx tsc --noEmit` | Backend typecheck |
 
-## Common tasks
+---
 
-### Add or change a report-options value
-Edit `server/drizzle/seed.ts` (required for fresh databases) or use the API:
-- `GET /api/report-options` (public)
-- Mutations are super-admin only (`POST`/`PUT`/`DELETE`, and `POST /:id/move` to reorder).
-
-### Re-seed a local database
-```bash
-cd server
-npm run db:migrate
-npm run db:seed
-```
-
-### Add a new migration
-After changing `server/src/db/schema.ts`:
-```bash
-cd server
-npx drizzle-kit generate   # writes a new file into server/drizzle/
-npm run db:migrate
-```
-
-## Design system
+## 🎨 Design system
 
 - Primary orange `#f97316`
 - Content background `#E2E8F0` (light) / `#0b1120` (dark)
-- Card border `#e2e8f0` / `#334155` (dark)
-- Text: `#0f172a` (primary), `#334155` / `#64748b` (secondary), `#94a3b8` (muted)
-- Fonts: Geologica (product UI), Inter (form body where required)
-- Ratings are shown as integers (\*\*no 3.8-style fractional stars — round to nearest int\*\*)
-- Dark theme: toggled per user, persisted in `localStorage` (`spotwise-theme`) and applied via `data-admin-theme="dark"` on `<body>` + shell elements; all overrides live in `src/app/globals.css`
+- Card surface `#FFFFFF` (light) / `#111827` (dark)
+- Border `#E2E8F0` / `#334155` (dark)
+- Text `#0F172A` · Secondary `#334155` / `#64748B` · Muted `#94A3B8`
+- Fonts: Geologica (UI), Inter (long-form where used)
+- shadcn/ui + Base UI components throughout
 
-Figma source: [SpotWise UI](https://www.figma.com/design/epLSve0mD6JRLEuoHnSFZ3/SpotWise-UI)
+---
 
-## Known limitations
+## 📱 Responsive behaviour
 
-- OTP delivery is in-memory and dev-only — no production email provider yet
-- Registration approvals return a temporary password to the approver (no email delivery yet)
-- Location "current status" is cached inline on the row and reflects the latest student report only
-- Reviews and profile photos are stored as inline rows/data URLs (no object storage)
-- `total_views` counts spot detail opens (no deduplication, not per-day — adequate for phase-1 popularity ordering)
-- The student onboarding preserves selection for subsequent sign-ins on the same device (localStorage), not yet for cross-device sign-ins
+- `/student/*` and `/university-admin/*` content areas are full-width on mobile, capped at **412px** (centred) on `md+` viewports.
+- `/super-admin/*` content is capped at **1280px** (centred) at all breakpoints.
+- Bottom navigation (student + UA) is fixed and uses an animated sliding pill indicator; super-admin desktop uses a sidebar, mobile uses a hamburger-driven drawer with the same sliding pill.
+- `/` (welcome) fits any viewport; background clipped content has `overflow-y: auto` where fixed heights would otherwise hide controls, and all login/location CTAs remain reachable on small screens.
 
-## Scope, licensing and privacy
+---
 
-SpotWise is a private project. Do not share or redistribute without permission. Photos and avatars are seed/example assets; real user uploads are not intended for public redistribution.
+## 🔐 Security model
+
+- JWT httpOnly cookie, `sameSite=lax`, 7-day expiry; `Secure` in production.
+- Middleware order: `requireAuth` → `requireRole` → handler (zod validation).
+- University-admin scope is derived server-side from the admin's `universityId` — no client-reported identity is trusted for visibility.
+- Sign-out deletes the cookie (server), wipes `spotwise-auth` (localStorage), `sessionStorage` and Cache Storage; user must re-authenticate on next visit.
+- CORS allow-list: `FRONTEND_URL` + localhost + private LAN ranges in dev.
+- Admin role changes on `universityId` forbidden for admins — the column is not writable from `PUT /users/me` by `university-admin`/`super-admin` roles (students only).
+- Duplicate university names return 409 (`A record with this value already exists`).
+
+---
+
+## ⚠️ Known limitations
+
+- OTP in development returns code in API response; there is no email provider yet.
+- Approval flows return a temporary password to the approver — no email delivery.
+- Location "current status" is the single most recent student report cached inline.
+- `total_views` counts opens per student identity client; repeat opens within 60 seconds are de-duplicated by React Query's default `staleTime`.
+- No cross-role chat/messaging; admin talks happen out-of-band.
+- Browser support for route transitions depends on the View Transitions API; older browsers silently skip the animation.
