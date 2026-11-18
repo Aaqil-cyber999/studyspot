@@ -49,7 +49,7 @@
 ## 🧭 Portals
 
 | Portal | Role | Purpose |
-|---|---|---|
+|------|---|---|
 | 🎓 `/student/*` | Student | Discover spots, save them, review them, report their live status |
 | 🏫 `/university-admin/*` | University admin | Manage own university's locations, moderate its reviews, edit profile |
 | 🛡️ `/super-admin/*` | Super admin | Universities/admins/registration approvals, platform-wide data |
