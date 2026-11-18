@@ -119,6 +119,12 @@ router.post(
       ...req.body,
       universityId,
       ...creator,
+      // A newly created location has no student reports yet — always start unreported,
+      // even if a client sends cached/default status values.
+      seats: null,
+      wifi: null,
+      crowd: null,
+      noise: null,
     });
     res.status(201).json(loc);
   })

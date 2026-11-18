@@ -98,7 +98,7 @@ function toSpotDetail(location: ApiLocation, reviews: Array<{ id: string; author
     staffMonitored: location.staffMonitored,
     hero: { image, alt: `Students studying at ${location.name}`, photoCount: location.imageUrls.length || 1, images: location.imageUrls.length ? location.imageUrls : [image] },
     hours: toOperatingHours(location.hours),
-    lastUpdated: relative(location.lastUpdated) ?? "Recently updated",
+    lastUpdated: relative(location.lastReportedAt),
     reportComment: location.reportComment ?? null,
     lastReportedByName: location.lastReportedByName ?? (location.lastReportedBy ? "A student" : null),
     lastReportedByFaculty: location.lastReportedByFaculty ?? null,
@@ -161,7 +161,7 @@ function toMetrics(location: ApiLocation): LiveMetric[] {
     {
       id: "seats",
       label: "Seats available",
-      value: location.seats === "Yes" ? "Available" : location.seats === "Limited" ? "Limited" : location.seats === "No" ? "Full" : "Limited",
+      value: location.seats === "Yes" ? "Available" : location.seats === "Limited" ? "Limited" : location.seats === "No" ? "Full" : location.seats,
       icon: "armchair",
       iconBackground: "rgba(16, 185, 129, 0.14)",
       iconColor: "#10b981",
@@ -174,7 +174,7 @@ function toMetrics(location: ApiLocation): LiveMetric[] {
     {
       id: "wifi",
       label: "Wi-Fi Strength",
-      value: location.wifi ?? "Weak",
+      value: location.wifi,
       icon: "wifi",
       iconBackground: "rgba(66, 133, 244, 0.14)",
       iconColor: "#4285f4",
@@ -187,7 +187,7 @@ function toMetrics(location: ApiLocation): LiveMetric[] {
     {
       id: "crowd",
       label: "Crowd level",
-      value: location.crowd ?? "Medium",
+      value: location.crowd,
       icon: "users",
       iconBackground: "rgba(249, 115, 22, 0.14)",
       iconColor: "#f97316",
@@ -200,7 +200,7 @@ function toMetrics(location: ApiLocation): LiveMetric[] {
     {
       id: "noise",
       label: "Noise level",
-      value: location.noise ?? "Moderate",
+      value: location.noise,
       icon: "volume",
       iconBackground: "rgba(139, 92, 246, 0.14)",
       iconColor: "#8b5cf6",

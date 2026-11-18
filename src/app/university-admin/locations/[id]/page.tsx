@@ -224,7 +224,7 @@ export default function UaLocationDetailsPage() {
           </div>
         </section>
 
-        <CurrentStatusSection metrics={studentMetrics} lastUpdated={(location.lastUpdated ?? "Reported recently").replace("Updated", "Reported")} showReportButton={false} reportComment={location.reportComment ?? null} lastReportedByName={location.lastReportedByName ?? null} lastReportedByFaculty={location.lastReportedByFaculty ?? null} />
+        <CurrentStatusSection metrics={studentMetrics} lastUpdated={location.lastUpdated?.replace("Updated", "Reported")} showReportButton={false} reportComment={location.reportComment ?? null} lastReportedByName={location.lastReportedByName ?? null} lastReportedByFaculty={location.lastReportedByFaculty ?? null} />
 
         <section className="rounded-[20px] border border-[#e2e8f0] bg-white p-[20px] shadow-[0px_4px_16px_rgba(0,0,0,0.04)]">
           <div className="mb-4 flex items-center justify-between">

@@ -54,12 +54,12 @@ function relativeTime(iso: string | null): string {
   return `Updated ${days}d ago`;
 }
 
-function metricsFor(seats: string, wifi: string, crowd: string, noise: string): LiveMetric[] {
+function metricsFor(seats: string | null, wifi: string | null, crowd: string | null, noise: string | null): LiveMetric[] {
   return [
     {
       id: "seats",
       label: "Seats available",
-      value: seats === "Yes" ? "Available" : seats === "Limited" ? "Limited" : seats === "No" ? "Full" : "Limited",
+      value: seats === "Yes" ? "Available" : seats === "Limited" ? "Limited" : seats === "No" ? "Full" : seats,
       icon: "armchair",
       iconBackground: "rgba(16, 185, 129, 0.14)",
       iconColor: "#10b981",
@@ -110,12 +110,6 @@ function metricsFor(seats: string, wifi: string, crowd: string, noise: string): 
     },
   ];
 }
-
-const SEAT_MAP: Record<string, "Available" | "Limited" | "Full"> = {
-  Yes: "Available",
-  Limited: "Limited",
-  No: "Full",
-};
 
 const AMENITY_ICON: Record<string, { icon: string; width: number; height: number }> = {
   "Wi-Fi": { icon: "/assets/detail/165b6.svg", width: 11.667, height: 15 },
@@ -260,12 +254,7 @@ export default function SaLocationDetailsPage() {
   }
 
   const active = location.status === "Active";
-  const metrics = metricsFor(
-    SEAT_MAP[location.seats ?? "Limited"] ?? "Limited",
-    location.wifi ?? "Weak",
-    location.crowd ?? "Medium",
-    location.noise ?? "Moderate",
-  );
+  const metrics = metricsFor(location.seats, location.wifi, location.crowd, location.noise);
 
   // Hours are free-text in the DB — render the card with a sensible single row fallback.
   const fallbackHours: OperatingHours = {
@@ -359,7 +348,7 @@ export default function SaLocationDetailsPage() {
           {/* Live metrics */}
           <CurrentStatusSection
             metrics={metrics}
-            lastUpdated={relativeTime(location.lastUpdated)}
+            lastUpdated={location.lastReportedAt ? relativeTime(location.lastReportedAt) : undefined}
             showReportButton={false}
             reportComment={location.reportComment ?? null}
             lastReportedByName={location.lastReportedByName ?? null}

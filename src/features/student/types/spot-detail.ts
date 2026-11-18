@@ -32,7 +32,8 @@ export interface LiveMetricSegment {
 export interface LiveMetric {
   id: string;
   label: string;
-  value: string;
+  /** `null` means no student has reported this metric yet. */
+  value: string | null;
   icon: LiveMetricIcon;
   iconBackground: string;
   iconColor: string;
@@ -83,7 +84,8 @@ export interface SpotDetail {
     images: string[];
   };
   hours: OperatingHours;
-  lastUpdated: string;
+  /** Relative time of the latest report; absent when nobody has reported yet. */
+  lastUpdated?: string;
   /** Optional comment from the latest student status report. */
   reportComment?: string | null;
   /** Name of the student who filed the latest status report, when known. */

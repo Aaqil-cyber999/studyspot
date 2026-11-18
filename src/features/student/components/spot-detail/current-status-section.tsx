@@ -11,6 +11,8 @@ const metricIcon: Record<LiveMetricIcon, typeof Armchair> = {
 };
 
 function getFilledSegmentCount(metric: LiveMetric) {
+  if (metric.value === null) return 0;
+
   if (metric.id === "seats") {
     if (metric.value === "Available" || metric.value === "Yes") return 3;
     if (metric.value === "Limited") return 2;
@@ -30,7 +32,8 @@ function getFilledSegmentCount(metric: LiveMetric) {
 
 interface CurrentStatusSectionProps {
   metrics: LiveMetric[];
-  lastUpdated: string;
+  /** Relative time of the latest report; omit when nothing has been reported. */
+  lastUpdated?: string;
   showReportButton?: boolean;
   /** When given, the report button links to /student/rate with the spot id + name. */
   locationId?: string;
@@ -54,27 +57,54 @@ export function CurrentStatusSection({ metrics, lastUpdated, showReportButton = 
           Current Status
         </h2>
 
-        <div className="flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#fed7aa] px-2.5 py-1.5">
-          <Clock aria-hidden="true" className="size-3.5 text-[#f97316]" strokeWidth={2} />
-          <p className="font-body text-[11px] font-medium leading-[14px] text-[#9a3412]">{lastUpdated}</p>
-        </div>
+        {lastUpdated ? (
+          <div className="flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#fed7aa] px-2.5 py-1.5">
+            <Clock aria-hidden="true" className="size-3.5 text-[#f97316]" strokeWidth={2} />
+            <p className="font-body text-[11px] font-medium leading-[14px] text-[#9a3412]">{lastUpdated}</p>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid w-full grid-cols-2 gap-3">
         {metrics.map((metric) => {
           const Icon = metricIcon[metric.icon];
+          const unreported = metric.value === null;
           const filledSegmentCount = getFilledSegmentCount(metric);
 
           return (
-            <article key={metric.id} aria-label={`${metric.label}: ${metric.value}`} className="flex h-[104px] min-w-0 flex-col items-start justify-between gap-2 rounded-xl bg-white px-3 py-3 ring-1 ring-[#e2e8f0] ring-inset drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]">
+            <article
+              key={metric.id}
+              aria-label={unreported ? `${metric.label}: Not reported yet` : `${metric.label}: ${metric.value}`}
+              className={cn(
+                "flex h-[104px] min-w-0 flex-col items-start justify-between gap-2 rounded-xl px-3 py-3 ring-1 ring-inset drop-shadow-[0px_2px_3px_rgba(0,0,0,0.06)]",
+                unreported ? "bg-[#f1f5f9] ring-[#e2e8f0]" : "bg-white ring-[#e2e8f0]",
+              )}
+            >
               <div className="flex w-full flex-col items-start gap-2">
                 <div className="flex w-full items-center gap-2">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-[9px]" style={{ backgroundColor: metric.iconBackground }}>
-                    <Icon aria-hidden="true" className="size-4" strokeWidth={2} style={{ color: metric.iconColor }} />
+                  <span
+                    className="flex size-7 shrink-0 items-center justify-center rounded-[9px]"
+                    style={{ backgroundColor: unreported ? "#e2e8f0" : metric.iconBackground }}
+                  >
+                    <Icon
+                      aria-hidden="true"
+                      className="size-4"
+                      strokeWidth={2}
+                      style={{ color: unreported ? "#94a3b8" : metric.iconColor }}
+                    />
                   </span>
                   <p className="min-w-0 font-body text-[11px] leading-[14px] text-[#64748b]">{metric.label}</p>
                 </div>
-                <p className="font-body text-[18px] font-semibold leading-6 text-[#0b1c30]">{metric.value}</p>
+                <p
+                  className={cn(
+                    "font-body leading-6",
+                    unreported
+                      ? "text-[12px] font-medium text-[#94a3b8]"
+                      : "text-[18px] font-semibold text-[#0b1c30]",
+                  )}
+                >
+                  {unreported ? "Not reported yet" : metric.value}
+                </p>
               </div>
 
               <div aria-hidden="true" className="flex h-1.5 w-full items-center gap-0.5 rounded-full">

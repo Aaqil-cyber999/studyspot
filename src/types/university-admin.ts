@@ -28,10 +28,11 @@ export interface AdminLocation {
   rating: number;
   reviews: number;
   status: "Active" | "Inactive";
-  seats: AdminSeatStatus;
-  wifi: AdminWifiStatus;
-  crowd: AdminCrowdStatus;
-  noise: AdminNoiseStatus;
+  /** `null` until a student submits the first live status report. */
+  seats: AdminSeatStatus | null;
+  wifi: AdminWifiStatus | null;
+  crowd: AdminCrowdStatus | null;
+  noise: AdminNoiseStatus | null;
   description: string;
   amenities: string[];
   imageUrls?: string[];

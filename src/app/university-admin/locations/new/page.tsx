@@ -66,8 +66,6 @@ export default function AddLocationPage() {
 
   const imagesFull = images.length >= MAX_IMAGES;
 
-  const wifiAvailable = amenities.includes("Wi-Fi");
-
   function toggleAmenity(amenity: string) {
     setAmenities((prev) => (prev.includes(amenity) ? prev.filter((item) => item !== amenity) : [...prev, amenity]));
   }
@@ -192,10 +190,6 @@ export default function AddLocationPage() {
         address: building.trim(),
         hours: hoursString,
         status: "Active",
-        seats: "Limited",
-        wifi: wifiAvailable ? "Medium" : "Weak",
-        crowd: "Medium",
-        noise: "Moderate",
         description: description.trim() || `A student study space in the ${building.trim()} building.`,
         amenities,
         imageUrls,
