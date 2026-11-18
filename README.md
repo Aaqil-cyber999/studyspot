@@ -296,9 +296,6 @@ Edit `server/.env`. Backend variables:
 | `COOKIE_SECURE` | No | `false` | Set `true` in production (HTTPS-only cookie) |
 | `COOKIE_DOMAIN` | No | unset | Cookie domain, e.g. `.example.com` for subdomains |
 | `FRONTEND_URL` | No | `http://localhost:3001` | CORS allow-list / redirect origin |
-| `SEED_SUPER_ADMIN_PASSWORD` | No | `admin123` | Dev seed password for the super admin |
-| `SEED_ADMIN_PASSWORD` | No | `admin123` | Dev seed password for university admins |
-| `SEED_STUDENT_PASSWORD` | No | `password123` | Dev seed password fallback (students normally sign in with OTP) |
 
 `NODE_ENV` is set by the npm scripts, not normally placed in `.env`. In non-production it also makes the OTP endpoint return `devCode` so you can sign in without email.
 
