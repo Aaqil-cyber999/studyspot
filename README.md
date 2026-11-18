@@ -91,6 +91,12 @@
   `assets/home/838a8.png`, `assets/select-university/50ace.png`, `assets/home/64a28.png`, `assets/review/96063.png`, `assets/home/26beb.png`.
 - The database stores only the URL strings; the PNGs are served statically by Next.js, not by the API. Re-seeding resets any location photo changes back to these defaults.
 
+The five sample images used by the seed:
+
+| 1 | 2 | 3 | 4 | 5 |
+| :---: | :---: | :---: | :---: | :---: |
+| ![838a8.png](./public/assets/home/838a8.png) | ![50ace.png](./public/assets/select-university/50ace.png) | ![64a28.png](./public/assets/home/64a28.png) | ![96063.png](./public/assets/review/96063.png) | ![26beb.png](./public/assets/home/26beb.png) |
+
 ### ⭐ Integer ratings everywhere
 - Removed all half-star / fractional displays. Stars and counts show whole numbers everywhere.
 
