@@ -209,35 +209,15 @@ const CATALOG_STATUS: Array<{ seats: string; wifi: string; crowd: string }> = [
 
 const IMAGE_POOL = [
   "/assets/home/838a8.png",
-  "/assets/home/64a28.png",
-  "/assets/home/296f7.png",
-  "/assets/home/0992e.png",
-  "/assets/saved/64a28.png",
-  "/assets/results/838a8.png",
-  "/assets/home/64a28.png",
-  "/assets/home/3c32d.png",
   "/assets/select-university/50ace.png",
-  "/assets/select-university/265e0.png",
-  "/assets/select-university/c10fd.png",
+  "/assets/home/64a28.png",
   "/assets/review/96063.png",
-  "/assets/home/838a8.png",
-  "/assets/home/3c32d.png",
+  "/assets/home/26beb.png",
 ];
 
-const IMAGE_OVERRIDES: Record<string, string[]> = {
-  "faculty-engineering": [
-    "/assets/home/64a28.png",
-    "/assets/home/838a8.png",
-    "/assets/home/3c32d.png",
-    "/assets/select-university/50ace.png",
-  ],
-  "bionics-laboratory": [
-    "/assets/home/0992e.png",
-    "/assets/home/3c32d.png",
-    "/assets/home/64a28.png",
-    "/assets/results/838a8.png",
-  ],
-};
+function imagesFor(index: number): string[] {
+  return Array.from({ length: 5 }, (_, offset) => IMAGE_POOL[(index + offset) % IMAGE_POOL.length]);
+}
 
 const noiseFor = (crowd: string) => (crowd === "Low" ? "Quiet" : crowd === "Medium" ? "Moderate" : "Loud");
 
@@ -534,11 +514,8 @@ async function main() {
     return row.id;
   };
 
-  let imageCursor = 0;
   const catalogRows = CATALOG.map((spot, index) => {
     const status = CATALOG_STATUS[index];
-    const firstImageIndex = imageCursor % IMAGE_POOL.length;
-    imageCursor += 1;
     return {
       spec: {
         name: spot.name,
@@ -557,9 +534,7 @@ async function main() {
         lastReportedAt: new Date(Date.now() - (1 + Math.floor(mulberry32(0xbeef + index)() * 29)) * 86_400_000),
         description: spot.description,
         amenities: spot.amenities,
-        imageUrls:
-          IMAGE_OVERRIDES[spot.key] ??
-          Array.from({ length: 4 }, (_, offset) => IMAGE_POOL[(firstImageIndex + offset) % IMAGE_POOL.length]),
+        imageUrls: imagesFor(index),
         ...{ createdByUniversityAdminId: amal.id },
         universityId: moratuwa.id,
       },
@@ -577,6 +552,7 @@ async function main() {
       spec: {
         ...rest,
         ...adminByUni[university.id],
+        imageUrls: imagesFor(index),
         universityId: university.id,
         lastReportedBy: authorIds[index % authorIds.length],
         lastReportedAt: new Date(Date.now() - (1 + Math.floor(mulberry32(0xf00d0000 + index)() * 29)) * 86_400_000),
