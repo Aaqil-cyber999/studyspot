@@ -164,49 +164,51 @@ function OtpVerification() {
   };
 
   return (
-    <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-hidden bg-[#E2E8F0]">
-      {/* Illustration */}
-      <section className="relative z-0 w-full shrink-0 aspect-[412/300] bg-[#E2E8F0] min-h-[220px]" aria-label="Verify your email illustration">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute inset-[13.41%_0.24%_58.91%_0%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("06fa6.svg")} />
-          </div>
-          <div className="absolute inset-[13.41%_0.24%_70.84%_0%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("22335.svg")} />
-          </div>
-          <div className="absolute inset-[33.21%_3.43%_59.49%_2.53%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("540f1.svg")} />
-          </div>
-          <div className="absolute inset-[14.08%_14.23%_66.77%_17.55%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("ca980.svg")} />
-          </div>
-          <div className="absolute inset-[23.16%_41.41%_58.91%_4.17%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("c420c.svg")} />
-          </div>
-          <div className="absolute inset-[28.17%_1.88%_59.42%_72.39%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("ce689.svg")} />
-          </div>
-          <div className="absolute inset-[25.02%_59.04%_70.81%_25.83%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("64f59.svg")} />
+    <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
+      {/* Row 1 — illustration */}
+      <section className="relative flex min-h-[200px] w-full flex-1 shrink items-center justify-center bg-[#E2E8F0]" aria-label="Verify your email illustration">
+        <div className="relative mx-auto -mt-[28px] aspect-[412/254] w-full max-w-[412px] max-h-full">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute inset-[0%_0.24%_0%_0%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("06fa6.svg")} />
+            </div>
+            <div className="absolute inset-[0%_0.24%_43.3%_0%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("22335.svg")} />
+            </div>
+            <div className="absolute inset-[71.7%_3.43%_2.4%_2.53%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("540f1.svg")} />
+            </div>
+            <div className="absolute inset-[2.36%_14.23%_28.3%_17.55%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("ca980.svg")} />
+            </div>
+            <div className="absolute inset-[35.0%_41.41%_0%_4.17%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("c420c.svg")} />
+            </div>
+            <div className="absolute inset-[53.1%_1.88%_2.0%_72.39%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("ce689.svg")} />
+            </div>
+            <div className="absolute inset-[41.7%_59.04%_43.3%_25.83%]">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={otpAsset("64f59.svg")} />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Orange panel */}
-      <section className="relative z-20 flex-1 bg-[#F97316] rounded-t-[28px] px-[13px] pb-6 pt-4">
-        <p className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
+      {/* Row 2 — title + form */}
+      <section className="relative z-10 flex w-full shrink-0 flex-col justify-center rounded-t-[28px] bg-[#F97316] p-[13px]">
+        <p className="mt-[8px] mb-[18px] text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
           Verify your email
         </p>
 
         {/* Form card */}
-        <div className="mt-4 flex w-full flex-col gap-0 rounded-[16px] bg-white p-[28px_24px] shadow-[0px_4px_12px_rgba(66,20,8,0.06)]">
+        <div className="mt-[4px] flex w-full flex-col gap-0 rounded-[24px] border border-[#fed7aa] bg-white p-[28px_24px] shadow-[0px_4px_12px_rgba(66,20,8,0.06)]">
           <p className="mb-[10px] text-center text-[18px] font-normal leading-normal text-black" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Enter the OTP
           </p>
           <p className="mb-[13px] text-center text-[14px] font-normal leading-[1.45] text-[#64748b]" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Enter the six-digit code sent to {email || "your email"}
           </p>
-          <div className={`flex gap-[7.4px] justify-center transition-transform ${isShaking ? "animate-shake" : ""}`}>
+          <div className={`flex w-full min-w-0 gap-[6px] justify-center sm:gap-[7.4px] transition-transform ${isShaking ? "animate-shake" : ""}`}>
             {otp.map((digit, i) => {
               let ringClass = "border-[#b8c4d1]";
               let textClass = "text-[#0f172a]";
@@ -224,7 +226,7 @@ function OtpVerification() {
               return (
                 <div
                   key={i}
-                  className={`flex h-[58px] w-[48px] shrink-0 items-center justify-center rounded-[12px] border border-solid bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04)] transition-all duration-200 ${ringClass}`}
+                  className={`flex h-[56px] min-w-0 flex-1 basis-0 max-w-[48px] items-center justify-center rounded-[12px] border border-solid bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04)] transition-all duration-200 ${ringClass}`}
                 >
                   <input
                     ref={(el) => {

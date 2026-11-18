@@ -10,10 +10,7 @@ const asset = (name: string) => `/assets/${name}.svg`;
 
 function CampusIllustration() {
   return (
-    <div
-      className="absolute inset-0"
-      aria-hidden="true"
-    >
+    <div className="absolute inset-0" aria-hidden="true">
       <img className="art absolute block max-w-none top-[18%] left-[23.45%] w-[53.09%]" src={asset("12bb6")} alt="" />
       <img className="art absolute block max-w-none top-[30.1%] left-[69.97%] w-[18.37%]" src={asset("5debe")} alt="" />
       <img className="art absolute block max-w-none top-[30.1%] left-[11.65%] w-[18.37%]" src={asset("d46b1")} alt="" />
@@ -56,10 +53,10 @@ export default function StudentLoginPage() {
       setSubmitted(true);
       setMessage(`OTP sent to ${email}`);
       if (res.devCode) {
-      showDemoOtpToast(email, res.devCode);
-    } else {
-      toast.success(`OTP sent to ${email}`);
-    }
+        showDemoOtpToast(email, res.devCode);
+      } else {
+        toast.success(`OTP sent to ${email}`);
+      }
       router.push(`/student/verify?email=${encodeURIComponent(email)}`);
     } catch (error) {
       const msg = error instanceof ApiError ? error.message : "Unable to send the code. Please try again.";
@@ -79,19 +76,21 @@ export default function StudentLoginPage() {
 
   return (
     <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
-      {/* Illustration section — sizes with width */}
-      <section className="relative flex w-full max-w-[412px] shrink-0 aspect-[412/397] bg-[#E2E8F0]" aria-label="University students">
-        <CampusIllustration />
+      {/* Row 1 — illustration */}
+      <section className="relative flex min-h-[200px] w-full flex-1 shrink items-center justify-center bg-[#E2E8F0]" aria-label="University students">
+        <div className="relative mx-auto -mt-[48px] aspect-[412/397] w-full max-w-[412px] max-h-full">
+          <CampusIllustration />
+        </div>
       </section>
 
-      <section className="relative flex-1 bg-[#F97316] px-[13px] pt-2 pb-6">
-        <div className="absolute z-[-1] top-[-26px] left-[-10px] w-[105%] h-[42px] rounded-t-[50%] rounded-b-none bg-[#F97316]" />
+      {/* Row 2 — title + form */}
+      <section className="relative z-10 flex w-full shrink-0 flex-col justify-center rounded-t-[28px] bg-[#F97316] p-[13px]">
         <div className="w-full z-1">
-          <h1 className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
+          <h1 className="mt-[8px] mb-[18px] text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
             Sign in as student
           </h1>
 
-          <form className="mt-[25px] flex w-full flex-col gap-[23px] rounded-[24px] border border-[#fed7aa] bg-white p-[28px_24px] shadow-[0_4px_12px_rgba(66,20,8,0.06)]" onSubmit={submitEmail} noValidate>
+          <form className="mt-[12px] flex w-full flex-col gap-[23px] rounded-[24px] border border-[#fed7aa] bg-white p-[28px_24px] shadow-[0_4px_12px_rgba(66,20,8,0.06)]" onSubmit={submitEmail} noValidate>
             <div className="flex flex-col gap-0">
               <label htmlFor="student-email" className="mb-[10px] ml-[7px] block text-[13px] font-medium leading-normal text-[#0f172a]" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
                 Enter your email address

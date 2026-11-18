@@ -14,10 +14,8 @@ import { api, ApiError } from "@/services/api";
 
 function CampusIllustration() {
   return (
-    <div className="absolute inset-0 w-full flex items-center justify-center" aria-hidden="true">
-      <div className="relative h-full w-[min(80%,280px)] aspect-[412/397]">
-        <img className="absolute inset-0 block size-full" src="/assets/info/illustration.svg" alt="" />
-      </div>
+    <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+      <img className="block size-full max-w-none object-contain" src="/assets/info/illustration.svg" alt="" />
     </div>
   );
 }
@@ -66,20 +64,22 @@ export default function InfoPage() {
     }
   }
   return (
-    <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-y-auto bg-[#F97316]">
+    <main className="flex min-h-dvh w-full md:max-w-[412px] mx-auto flex-col overflow-x-hidden overflow-y-auto bg-[#E2E8F0]">
       <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}`}</style>
-      <section className="relative h-[240px] shrink-0 bg-[#E2E8F0] sm:h-[280px]" aria-label="University students">
-        <CampusIllustration />
+      {/* Row 1 — illustration */}
+      <section className="relative flex min-h-[200px] w-full flex-1 shrink items-center justify-center bg-[#E2E8F0]" aria-label="University students">
+        <div className="relative mx-auto mt-[8px] aspect-[412/397] w-full max-w-[280px] max-h-full">
+          <CampusIllustration />
+        </div>
       </section>
 
-      <section className="relative flex-1 px-[13px] pt-2 pb-6 bg-[#F97316]">
-        <div className="absolute z-[-1] top-[-26px] left-[-10px] w-[105%] h-[42px] rounded-t-[50%] rounded-b-none bg-[#F97316]" />
-        <div className="-mt-[10px] w-full z-1">
-          <h1 className="text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
-            Your details
-          </h1>
+      {/* Row 2 — title + form */}
+      <section className="relative z-10 flex w-full shrink-0 flex-col justify-center rounded-t-[28px] bg-[#F97316] p-[13px]">
+        <h1 className="mt-[8px] mb-[18px] text-center text-[27px] font-normal leading-normal text-white" style={{ fontVariationSettings: '"CRSV" 0, "SHRP" 0' }}>
+          Your details
+        </h1>
 
-          <div className="mt-[25px] flex w-full flex-col gap-[23px] rounded-[24px] border border-[#fed7aa] bg-white p-[28px_24px] shadow-[0_4px_12px_rgba(66,20,8,0.06)]">
+        <div className="mt-[4px] flex w-full flex-col gap-[23px] rounded-[24px] border border-[#fed7aa] bg-white p-[28px_24px] shadow-[0_4px_12px_rgba(66,20,8,0.06)]">
             <div className="flex flex-col gap-0">
               <div className={`flex h-[58px] w-full items-center gap-[12px] overflow-clip rounded-[14px] border bg-white px-[14px] py-[10px] ${error && name.trim().length < 2 ? "border-red-500" : "border-[#fed7aa]"} ${shake && name.trim().length < 2 ? "animate-[shake_0.4s_ease-in-out]" : ""}`}>
                 <div className="flex size-[36px] shrink-0 items-center justify-center overflow-clip rounded-[10px] bg-[#feedd2]">
@@ -118,7 +118,6 @@ export default function InfoPage() {
               Start exploring
               <ArrowRight className="size-[18px]" />
             </button>
-          </div>
         </div>
       </section>
     </main>
