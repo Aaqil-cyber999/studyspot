@@ -6,21 +6,30 @@
 <p align="center"><strong>Focus starts with the right place.</strong></p>
 
 <p align="center">
-  <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" width="42" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/nextdotjs?color=ffffff" />
+    <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" width="42" height="42" />
+  </picture>
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/react" alt="React" width="42" />
+  <img src="https://cdn.simpleicons.org/react" alt="React" width="42" height="42" />
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/typescript" alt="TypeScript" width="42" />
+  <img src="https://cdn.simpleicons.org/typescript" alt="TypeScript" width="42" height="42" />
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/express" alt="Express" width="42" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/express?color=ffffff" />
+    <img src="https://cdn.simpleicons.org/express" alt="Express" width="42" height="42" />
+  </picture>
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/drizzle" alt="Drizzle ORM" width="42" />
+  <img src="https://cdn.simpleicons.org/drizzle" alt="Drizzle ORM" width="42" height="42" />
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/postgresql" alt="PostgreSQL" width="42" />
+  <img src="https://cdn.simpleicons.org/postgresql" alt="PostgreSQL" width="42" height="42" />
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" width="42" />
+  <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" width="42" height="42" />
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/shadcnui" alt="shadcn/ui" width="42" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/shadcnui?color=ffffff" />
+    <img src="https://cdn.simpleicons.org/shadcnui" alt="shadcn/ui" width="42" height="42" />
+  </picture>
 </p>
 
 <p align="center">
@@ -190,7 +199,10 @@
 ## 🛠️ Tech stack
 
 <p>
-  <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" height="48" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/nextdotjs?color=ffffff" />
+    <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" height="48" />
+  </picture>
   &nbsp;&nbsp;
   <img src="https://cdn.simpleicons.org/react" alt="React" height="48" />
   &nbsp;&nbsp;
@@ -198,7 +210,10 @@
   &nbsp;&nbsp;
   <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" height="48" />
   &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/express" alt="Express" height="48" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/express?color=ffffff" />
+    <img src="https://cdn.simpleicons.org/express" alt="Express" height="48" />
+  </picture>
   &nbsp;&nbsp;
   <img src="https://cdn.simpleicons.org/postgresql" alt="PostgreSQL" height="48" />
   &nbsp;&nbsp;
