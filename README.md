@@ -285,18 +285,24 @@ docker run --name studyspot-pg -e POSTGRES_PASSWORD=1234 -p 5432:5432 -d postgre
 cp server/.env.example server/.env
 ```
 
-Edit `server/.env`:
+Edit `server/.env`. Backend variables:
 
-```dotenv
-DATABASE_URL=postgresql://postgres:1234@localhost:5432/studyspot
-PORT=4000
-JWT_SECRET=<generate-a-long-random-string>
-JWT_EXPIRES_IN=7d
-COOKIE_SECURE=false
-FRONTEND_URL=http://localhost:3001
-```
+| Variable | Required | Default / example | Purpose |
+|---|---|---|---|
+| `DATABASE_URL` | Yes | `postgresql://postgres:1234@localhost:5432/studyspot` | PostgreSQL connection string |
+| `PORT` | No | `4000` | Express port |
+| `JWT_SECRET` | Yes | long random string | Shared HMAC secret used to sign and verify **HS256** tokens |
+| `JWT_EXPIRES_IN` | No | `7d` | JWT lifetime |
+| `COOKIE_SECURE` | No | `false` | Set `true` in production (HTTPS-only cookie) |
+| `COOKIE_DOMAIN` | No | unset | Cookie domain, e.g. `.example.com` for subdomains |
+| `FRONTEND_URL` | No | `http://localhost:3001` | CORS allow-list / redirect origin |
+| `SEED_SUPER_ADMIN_PASSWORD` | No | `admin123` | Dev seed password for the super admin |
+| `SEED_ADMIN_PASSWORD` | No | `admin123` | Dev seed password for university admins |
+| `SEED_STUDENT_PASSWORD` | No | `password123` | Dev seed password fallback (students normally sign in with OTP) |
 
-For production: a real `JWT_SECRET`, `COOKIE_SECURE=true`, and a real `FRONTEND_URL`.
+`NODE_ENV` is set by the npm scripts, not normally placed in `.env`. In non-production it also makes the OTP endpoint return `devCode` so you can sign in without email.
+
+Never commit `server/.env` — `server/.env.example` is the tracked template. For production use a real `JWT_SECRET`, `COOKIE_SECURE=true` and a real `FRONTEND_URL`.
 
 ### 4. Create, migrate, seed
 
@@ -320,6 +326,11 @@ If the file does not exist yet, just create `.env.local` with:
 ```dotenv
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ```
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | `/api` (same-origin proxy) | Base URL for the typed API client |
+| `NODE_ENV` | set by Next.js | `production` enables the service worker; not set in `.env.local` |
 
 ### 6. Run dev servers
 
@@ -412,6 +423,7 @@ The frontend is configured to proxy `/api/*` to the API over the LAN, so no CORS
 
 ## 🔐 Security model
 
+- JWTs are **HS256** (HMAC-SHA256, symmetric): `jsonwebtoken` signs with `JWT_SECRET` from `server/.env` and the same secret verifies them. There is no RSA key pair. `JWT_EXPIRES_IN` controls the lifetime (default `7d`).
 - JWT httpOnly cookie, `sameSite=lax`, 7-day expiry; `Secure` in production.
 - Middleware order: `requireAuth` → `requireRole` → handler (zod validation).
 - University-admin scope is derived server-side from the admin's `universityId` — no client-reported identity is trusted for visibility.
